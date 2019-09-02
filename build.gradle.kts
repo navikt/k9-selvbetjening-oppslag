@@ -2,7 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val dusseldorfKtorVersion = "1.2.3.664b246"
+val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
+
 val mainClass = "no.nav.k9.selvbetjening.oppslag.K9SelvbetjeningOppslagKt"
+
+fun tjenestespesifikasjon(name: String) = "no.nav.tjenestespesifikasjoner:$name:$tjenestespesifikasjonerVersion"
 
 
 plugins {
@@ -16,6 +20,12 @@ buildscript {
 
 dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
+    
+    // Tjenestespesifikasjoner
+    compile(tjenestespesifikasjon("arbeidsforholdv3-tjenestespesifikasjon"))
+    compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
+
+
 }
 
 repositories {
