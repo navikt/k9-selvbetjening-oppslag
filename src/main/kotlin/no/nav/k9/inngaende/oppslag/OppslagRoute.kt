@@ -16,10 +16,9 @@ internal fun Route.OppslagRoute(
 
     get("/") {
         val attributter = call.request.queryParameters.getAll("attributter") ?: emptyList()
-        if (attributter.isEmpty()) {}// ERROR
-
-
-        else {
+        if (attributter.isEmpty()) {
+            // TODO: 400
+        } else {
             val attr = attributter.somAttributter()
 
             val idToken = call.idToken()
@@ -31,11 +30,10 @@ internal fun Route.OppslagRoute(
                 oppslagService.oppslag(
                     fødselsnummer = idToken.fødselsnummer,
                     attributter = attr
-
                 )
             }
             call.respond(oppslagResultat.somJson(attr))
         }
     }
 }
-private fun List<String>.somAttributter() = map { Attributt.valueOf(it) }.toSet()
+private fun List<String>.somAttributter() = map { Attributt.fraApi(it) }.toSet() // TODO: 400

@@ -3,19 +3,25 @@ package no.nav.k9.utgaende.gateway
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Fødselsnummer
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 
 internal class PersonV3Gateway (private val personV3: PersonV3) {
 
     internal companion object {
-        internal val støttedeAttributter = setOf(
+        private val personAttributter = setOf(
             Attributt.fornavn,
             Attributt.mellomnavn,
-            Attributt.etternavn
+            Attributt.etternavn,
+            Attributt.barnFornavn,
+            Attributt.barnMellomnavn,
+            Attributt.barnEtternavn
+        )
+
+        private val kreverFamlierelasjoner = setOf(
+            Attributt.barnFornavn,
+            Attributt.barnMellomnavn,
+            Attributt.barnEtternavn
         )
     }
 
@@ -23,10 +29,10 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
         fødselsnummer: Fødselsnummer,
         attributter: Set<Attributt>) : Person? {
 
-        val brukteAttrbutter = attributter.toMutableSet()
-        brukteAttrbutter.removeIf { !støttedeAttributter.contains(it) }
+        val aktuelleAttributter = attributter.toMutableSet()
+        aktuelleAttributter.removeIf { !personAttributter.contains(it) }
 
-        if (brukteAttrbutter.isEmpty()) return null
+        if (aktuelleAttributter.isEmpty()) return null
 
         val request = HentPersonRequest()
 
@@ -34,7 +40,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
             ident = NorskIdent().apply { ident = fødselsnummer.value }
         }
 
-        val informasjonsbehov = brukteAttrbutter.tilInformasjonsbehov()
+        val informasjonsbehov = aktuelleAttributter.tilInformasjonsbehov()
 
         if (informasjonsbehov.isNotEmpty()) {
             request.withInformasjonsbehov(informasjonsbehov)
@@ -44,6 +50,8 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
     }
 
     private fun Set<Attributt>.tilInformasjonsbehov() : Set<Informasjonsbehov> {
-        return setOf()
+        val informasjonsbehov = mutableSetOf<Informasjonsbehov>()
+        if (any { it in kreverFamlierelasjoner }) informasjonsbehov.add(Informasjonsbehov.FAMILIERELASJONER)
+        return informasjonsbehov.toSet()
     }
 }
