@@ -1,10 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
 val dusseldorfKtorVersion = "1.2.3.664b246"
+val cxfVersion = "3.3.3"
 val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
 
-val mainClass = "no.nav.k9.selvbetjening.oppslag.K9SelvbetjeningOppslagKt"
+val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 fun tjenestespesifikasjon(name: String) = "no.nav.tjenestespesifikasjoner:$name:$tjenestespesifikasjonerVersion"
 
@@ -20,8 +22,21 @@ buildscript {
 
 dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
-    
+    compile ( "no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
+    compile ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
+
+
+    // cxf
+    compile("org.apache.cxf:cxf-rt-ws-security:$cxfVersion")
+    compile("org.apache.cxf:cxf-rt-ws-policy:$cxfVersion")
+    compile("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
+    compile("org.apache.cxf:cxf-rt-features-logging:$cxfVersion")
+    compile("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
+
     // Tjenestespesifikasjoner
+    compile("com.sun.xml.ws:jaxws-rt:2.3.2")
+    compile("javax.activation:activation:1.1.1")
+
     compile(tjenestespesifikasjon("arbeidsforholdv3-tjenestespesifikasjon"))
     compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
@@ -57,6 +72,11 @@ tasks.withType<ShadowJar> {
                 "Main-Class" to mainClass
             )
         )
+    }
+
+    transform(ServiceFileTransformer::class.java) {
+        setPath("META-INF/cxf")
+        include("bus-extensions.txt")
     }
 }
 

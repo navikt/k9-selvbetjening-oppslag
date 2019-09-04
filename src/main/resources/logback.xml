@@ -4,10 +4,9 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="nav" level="INFO"/>
-    <logger name="no.nav" level="INFO"/>
+    <logger name="nav" level="DEBUG"/>
+    <logger name="no.nav" level="DEBUG"/>
+    <logger name="org.apache.cxf" level="WARN" />
     <logger name="io.ktor.auth.jwt" level="TRACE" />
 
     <root level="INFO">
