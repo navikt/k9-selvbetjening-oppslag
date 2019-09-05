@@ -8,7 +8,7 @@ import no.nav.k9.inngaende.oppslag.Fødselsnummer
 internal data class IdToken(
     internal val value: String,
     internal val fødselsnummer : Fødselsnummer = Fødselsnummer(
-        JWT.decode(value).subject!!
+        JWT.decode(value).subject ?: throw IllegalStateException("Token mangler 'sub' claim.")
     )
 )
 
