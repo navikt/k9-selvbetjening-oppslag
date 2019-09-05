@@ -23,7 +23,8 @@ internal fun Route.OppslagRoute(
 
             val idToken = call.idToken()
 
-            val oppslagResultat = withContext(coroutineContext + requestContextService.getCoroutineContext(
+            val oppslagResultat = withContext(requestContextService.getCoroutineContext(
+                context = coroutineContext,
                 correlationId = call.correlationId(),
                 idToken = idToken
             )) {
