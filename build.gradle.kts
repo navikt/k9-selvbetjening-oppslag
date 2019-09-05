@@ -25,7 +25,7 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
-    
+
     // cxf
     compile("org.apache.cxf:cxf-rt-ws-security:$cxfVersion")
     compile("org.apache.cxf:cxf-rt-ws-policy:$cxfVersion")
