@@ -20,6 +20,7 @@ jobs:
       - nais/docker:
           registry: docker.pkg.github.com
           image: navikt/k9-selvbetjening-oppslag/k9-selvbetjening-oppslag
+          tag: $(git rev-parse --short HEAD)
 
 workflows:
   version: 2
