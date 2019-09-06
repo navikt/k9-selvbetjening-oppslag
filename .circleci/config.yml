@@ -6,7 +6,7 @@ jobs:
   build:
     working_directory: ~/k9-selvbetjening-oppslag
     docker:
-      - image: 'circleci/openjdk:12-jdk'
+      - image: 'circleci/openjdk:11-jdk'
     steps:
       - checkout
       - restore_cache:
