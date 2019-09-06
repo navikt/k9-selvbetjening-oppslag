@@ -1,0 +1,33 @@
+version: 2.1
+orbs:
+  nais: 'navikt/nais-deployment@3.2.0'
+
+jobs:
+  build:
+    working_directory: ~/k9-selvbetjening-oppslag
+    docker:
+      - image: 'circleci/openjdk:12-jdk'
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle.kts" }}
+      - run: ./gradlew check shadowJar
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-{{ checksum "build.gradle.kts" }}
+      - nais/docker:
+          registry: docker.pkg.github.com
+          image: navikt/k9-selvbetjening-oppslag
+
+workflows:
+  version: 2
+  deploy-docker-and-nais:
+    jobs:
+      - build:
+          context: Düsseldorf
+          filters:
+            branches:
+              only:
+                - master
