@@ -3,17 +3,21 @@ package no.nav.k9.utgaende.cxf
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import org.apache.cxf.ext.logging.LoggingFeature
+import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.addressing.WSAddressingFeature
+import org.apache.cxf.ws.security.trust.STSClient
 import java.net.URI
 import javax.xml.namespace.QName
 
 internal class WebServices(
-    requestContextService: RequestContextService
+    requestContextService: RequestContextService,
+    private val stsClient: STSClient
 ) {
+
     private val onBehalfOfOutInterceptor = OnBehalfOfOutInterceptor(requestContextService)
 
-    internal fun PersonV3(serviceUrl: URI) = createServicePort(
+    internal fun PersonV3(serviceUrl: URI) = createOnBehalfOfServicePort(
         serviceUrl.toString(),
         ServiceClazz = PersonV3::class.java,
         Wsdl = "wsdl/no/nav/tjeneste/virksomhet/person/v3/Binding.wsdl",
@@ -22,7 +26,7 @@ internal class WebServices(
         EndpointName = "Person_v3Port"
     )
 
-    private fun <PORT_TYPE> createServicePort(
+    private fun <PORT_TYPE : Any> createOnBehalfOfServicePort(
         ServiceUrl: String,
         ServiceClazz: Class<PORT_TYPE>,
         Wsdl: String,
@@ -37,9 +41,15 @@ internal class WebServices(
             endpointName = QName(Namespace, EndpointName)
             serviceClass = ServiceClazz
             features = listOf(WSAddressingFeature(), LoggingFeature()) // TODO: MetricFeature() ?
-            outInterceptors.add(onBehalfOfOutInterceptor)
         }
 
-        return factory.create(ServiceClazz)
+        val servicePort = factory.create(ServiceClazz)
+        val client = ClientProxy.getClient(servicePort)
+        client.outInterceptors.add(onBehalfOfOutInterceptor)
+        stsClient.configureForOnBehalfOf(
+            servicePort = servicePort,
+            client = client
+        )
+        return servicePort
     }
 }

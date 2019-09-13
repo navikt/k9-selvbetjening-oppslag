@@ -23,9 +23,9 @@ import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.utgaende.cxf.WebServiceSTSClient
 import no.nav.k9.utgaende.cxf.WebServices
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
-import java.net.URI
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 
@@ -36,9 +36,15 @@ fun Application.SelvbetjeningOppslag() {
     DefaultExports.initialize()
 
     val requestContextService = RequestContextService()
-    val webServices = WebServices(requestContextService)
+    val webServices = WebServices(
+        requestContextService = requestContextService,
+        stsClient = WebServiceSTSClient.instance(
+            stsUrl = environment.config.wsStsUrl(),
+            username = environment.config.wsUsername(),
+            password = environment.config.wsPassword()
+        )
+    )
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
-
 
     install(Authentication) {
         multipleJwtIssuers(issuers)
@@ -66,7 +72,7 @@ fun Application.SelvbetjeningOppslag() {
                     oppslagService = OppslagService(
                         personV3Gateway = PersonV3Gateway(
                             personV3 = webServices.PersonV3(
-                                serviceUrl = URI("https://wasapp-q1.adeo.no/tpsws/ws/Person/v3")
+                                serviceUrl = environment.config.personV3Url()
                             )
                         )
                     )
