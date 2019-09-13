@@ -15,4 +15,4 @@ internal fun ApplicationConfig.wsStsUrl() = URI(getRequiredString("nav.auth.ws.s
 internal fun ApplicationConfig.wsUsername() = getRequiredString("nav.auth.ws.username", secret = false)
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.wsPassword() = getRequiredString("nav.auth.ws.username", secret = true)
+internal fun ApplicationConfig.wsPassword() = getRequiredString("nav.auth.ws.password", secret = true)
