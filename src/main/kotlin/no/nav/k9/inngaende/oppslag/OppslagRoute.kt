@@ -15,7 +15,7 @@ internal fun Route.OppslagRoute(
 ) {
 
     get("/") {
-        val attributter = call.request.queryParameters.getAll("attributter")?.filter { it.isNotBlank() } ?: emptyList()
+        val attributter = call.request.queryParameters.getAll("a")?.filter { it.isNotBlank() } ?: emptyList()
         if (attributter.isEmpty()) {
             // TODO: 400
         } else {
