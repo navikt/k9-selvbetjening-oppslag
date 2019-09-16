@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.cxf
+package no.nav.k9.utgaende.ws
 
 import org.apache.cxf.Bus
 import org.apache.cxf.BusFactory

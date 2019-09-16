@@ -23,8 +23,8 @@ import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
-import no.nav.k9.utgaende.cxf.WebServiceSTSClient
-import no.nav.k9.utgaende.cxf.WebServices
+import no.nav.k9.utgaende.ws.WebServiceSTSClient
+import no.nav.k9.utgaende.ws.WebServices
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)

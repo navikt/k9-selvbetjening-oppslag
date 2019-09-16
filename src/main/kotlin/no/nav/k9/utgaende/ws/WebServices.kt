@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.cxf
+package no.nav.k9.utgaende.ws
 
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
