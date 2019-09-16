@@ -1,6 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
+import no.nav.k9.utgaende.rest.AktørId
 
 internal data class Fødselsnummer(internal val value: String)
 
@@ -33,5 +34,32 @@ internal enum class Attributt(internal val api: String) {
         }
     }
 }
+internal fun Set<Attributt>.etterspurtBarn() =
+    any { it.api.startsWith("barn[].") }
+internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
+    any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
-internal data class OppslagResultat(internal val personV3: Person?)
+private val megAttributter = setOf(
+    Attributt.aktørId,
+    Attributt.fornavn,
+    Attributt.mellomnavn,
+    Attributt.etternavn,
+    Attributt.fødselsdato
+)
+internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
+
+
+internal data class Meg(
+    internal val person: Person?,
+    internal val aktørId: AktørId?
+)
+
+internal data class Barn(
+    internal val person: Person?,
+    internal val aktørId: AktørId?
+)
+
+internal data class OppslagResultat(
+    internal val meg: Meg?,
+    internal val barn: Set<Barn>?
+)

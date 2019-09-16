@@ -2,29 +2,39 @@ package no.nav.k9.inngaende.oppslag
 
 import org.json.JSONArray
 import org.json.JSONObject
+import javax.xml.datatype.DatatypeConstants
+import javax.xml.datatype.XMLGregorianCalendar
 
-
-private val barnAttributter = setOf(Attributt.barnFornavn, Attributt.barnMellomnavn, Attributt.barnEtternavn)
 
 internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     val json = JSONObject()
-    if (attributter.contains(Attributt.fornavn)) json.put("fornavn", personV3!!.personnavn.fornavn)
-    if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", personV3!!.personnavn.mellomnavn)
-    if (attributter.contains(Attributt.etternavn)) json.put("etternavn", personV3!!.personnavn.etternavn)
 
-    if (attributter.harEtterspurtBarn()) {
-        val barn = JSONArray()
-        personV3?.harFraRolleI?.filter { it.tilRolle.value == "BARN" }?.forEach {
-            barn.put(JSONObject().apply {
-                 put("fornavn", it.tilPerson.personnavn.fornavn)
-                .put("mellomnavn", it.tilPerson.personnavn.mellomnavn)
-                .put("etternavn", it.tilPerson.personnavn.etternavn)
+    // Meg
+    if (attributter.etterspurtMeg()) {
+        if (attributter.contains(Attributt.aktørId)) json.put("aktør_id", meg!!.aktørId!!.value)
+        if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.person!!.personnavn.fornavn)
+        if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.person!!.personnavn.mellomnavn)
+        if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.person!!.personnavn.etternavn)
+        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.person!!.foedselsdato.foedselsdato.iso8601date())
+    }
+
+    // Barn
+    if (attributter.etterspurtBarn()) {
+        val barnJsonArray = JSONArray()
+        barn?.forEach {
+            barnJsonArray.put(JSONObject().apply {
+                if (attributter.contains(Attributt.barnAktørId)) put("aktør_id", it.aktørId!!.value)
+                if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.person!!.personnavn.fornavn)
+                if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.person!!.personnavn.mellomnavn)
+                if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.person!!.personnavn.etternavn)
+                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.person!!.foedselsdato.foedselsdato.iso8601date())
             })
+
         }
         json.put("barn", barn)
     }
-
     return json
 }
 
-private fun Set<Attributt>.harEtterspurtBarn() = any { it in barnAttributter }
+
+internal fun XMLGregorianCalendar.iso8601date() = "$year-${month.toString().padStart(2,'0')}-${(if (day == DatatypeConstants.FIELD_UNDEFINED) 1 else day).toString().padStart(2,'0')}"
