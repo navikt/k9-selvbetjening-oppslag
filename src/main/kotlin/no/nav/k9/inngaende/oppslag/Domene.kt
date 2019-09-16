@@ -5,12 +5,24 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 internal data class Fødselsnummer(internal val value: String)
 
 internal enum class Attributt(internal val api: String) {
+    aktørId("aktør_id"),
     fornavn("fornavn"),
     mellomnavn("mellomnavn"),
     etternavn("etternavn"),
-    barnFornavn("barn.fornavn"),
-    barnMellomnavn("barn.mellomnavn"),
-    barnEtternavn("barn.etternavn");
+    fødselsdato("fødselsdato"),
+
+    barnAktørId("barn[].aktør_id"),
+    barnFornavn("barn[].fornavn"),
+    barnMellomnavn("barn[].mellomnavn"),
+    barnEtternavn("barn[].etternavn"),
+    barnFødselsdato("barn[].fødselsdato"),
+    barnStatus("barn[].status"),
+    barnDiskresjonskode("barn[].diskresjonskode"),
+
+    arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
+    arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer")
+
+    ;
 
     internal companion object {
         internal fun fraApi(api: String) : Attributt {
