@@ -5,12 +5,14 @@ import no.nav.k9.utgaende.rest.AktørId
 
 internal data class Fødselsnummer(internal val value: String)
 
-internal enum class Attributt(internal val api: String) {
+internal enum class Attributt(internal val api: String?) {
     aktørId("aktør_id"),
     fornavn("fornavn"),
     mellomnavn("mellomnavn"),
     etternavn("etternavn"),
     fødselsdato("fødselsdato"),
+    status(null),
+    diskresjonskode(null),
 
     barnAktørId("barn[].aktør_id"),
     barnFornavn("barn[].fornavn"),
@@ -35,9 +37,9 @@ internal enum class Attributt(internal val api: String) {
     }
 }
 internal fun Set<Attributt>.etterspurtBarn() =
-    any { it.api.startsWith("barn[].") }
+    any { it.api != null && it.api.startsWith("barn[].") }
 internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
-    any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
+    any { it.api != null && it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
 private val megAttributter = setOf(
     Attributt.aktørId,

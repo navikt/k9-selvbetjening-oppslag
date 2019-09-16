@@ -13,6 +13,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
             Attributt.fornavn,
             Attributt.mellomnavn,
             Attributt.etternavn,
+            Attributt.fødselsdato,
             Attributt.barnFornavn,
             Attributt.barnMellomnavn,
             Attributt.barnEtternavn
@@ -21,7 +22,8 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
         private val kreverFamlierelasjoner = setOf(
             Attributt.barnFornavn,
             Attributt.barnMellomnavn,
-            Attributt.barnEtternavn
+            Attributt.barnEtternavn,
+            Attributt.barnFødselsdato
         )
     }
 
