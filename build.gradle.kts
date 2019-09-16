@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
-val dusseldorfKtorVersion = "1.2.3.664b246"
+val dusseldorfKtorVersion = "1.2.4.97e227b"
 val cxfVersion = "3.3.3"
 val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
 
@@ -17,7 +17,7 @@ plugins {
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/664b2468f6d1a30d77dca88a57eb240e26c32087/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/97e227bcbb622e7843447470dab8f1d643f66327/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -81,5 +81,5 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "5.6.1"
+    gradleVersion = "5.6.2"
 }
