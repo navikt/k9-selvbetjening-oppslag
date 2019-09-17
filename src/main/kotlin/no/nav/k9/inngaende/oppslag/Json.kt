@@ -5,7 +5,6 @@ import org.json.JSONObject
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.XMLGregorianCalendar
 
-
 internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     val json = JSONObject()
 
@@ -32,6 +31,20 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
 
         }
         json.put("barn", barnJsonArray)
+    }
+
+    // Arbeidsgivere
+    if (attributter.etterspurtArbeidsgibereOrganaisasjoner()) {
+        val arbeidsgivereJson = JSONObject()
+        val organisasjonerJson = JSONArray()
+        arbeidsgivereOrganisasjoner?.forEach {
+            organisasjonerJson.put(JSONObject().apply {
+                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsnummer.value)
+                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerNavn)) put("navn", it.navn)
+            })
+        }
+        arbeidsgivereJson.put("organisasjoner", organisasjonerJson)
+        json.put("arbeidsgivere", arbeidsgivereJson)
     }
     return json
 }
