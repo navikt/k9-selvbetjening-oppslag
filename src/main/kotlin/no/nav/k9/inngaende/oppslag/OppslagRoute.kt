@@ -11,11 +11,6 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import java.time.LocalDate
 
-private val kreverFraOgMedAttributter = setOf(
-    Attributt.arbeidsgivereOrganisasjonerNavn,
-    Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer
-)
-
 internal fun Route.OppslagRoute(
     requestContextService: RequestContextService,
     oppslagService: OppslagService
