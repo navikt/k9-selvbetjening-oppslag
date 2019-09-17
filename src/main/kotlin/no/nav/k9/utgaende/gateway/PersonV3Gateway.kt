@@ -32,10 +32,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
         fødselsnummer: Fødselsnummer,
         attributter: Set<Attributt>) : Person? {
 
-        val aktuelleAttributter = attributter.toMutableSet()
-        aktuelleAttributter.removeIf { !personAttributter.contains(it) }
-
-        if (aktuelleAttributter.isEmpty()) return null
+        if (!attributter.any { it in personAttributter }) return null
 
         val request = HentPersonRequest()
 
@@ -43,7 +40,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
             ident = NorskIdent().apply { ident = fødselsnummer.value }
         }
 
-        val informasjonsbehov = aktuelleAttributter.tilInformasjonsbehov()
+        val informasjonsbehov = attributter.tilInformasjonsbehov()
 
         if (informasjonsbehov.isNotEmpty()) {
             request.withInformasjonsbehov(informasjonsbehov)
