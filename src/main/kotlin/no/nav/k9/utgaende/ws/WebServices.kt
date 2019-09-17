@@ -1,8 +1,10 @@
 package no.nav.k9.utgaende.ws
 
 import no.nav.k9.inngaende.RequestContextService
+
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.binding.ArbeidsforholdV3
+import no.nav.tjeneste.virksomhet.organisasjon.v5.binding.OrganisasjonV5
 
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.frontend.ClientProxy
@@ -35,6 +37,15 @@ internal class WebServices(
         Namespace = "http://nav.no/tjeneste/virksomhet/arbeidsforhold/v3/Binding",
         ServiceName = "Arbeidsforhold_v3",
         EndpointName = "Arbeidsforhold_v3Port"
+    )
+
+    internal fun OrganisasjonV5(serviceUrl: URI) = createOnBehalfOfServicePort(
+        ServiceUrl = serviceUrl.toString(),
+        ServiceClazz = OrganisasjonV5::class.java,
+        Wsdl = "wsdl/no/nav/tjeneste/virksomhet/organisasjon/v5/Binding.wsdl",
+        Namespace = "http://nav.no/tjeneste/virksomhet/organisasjon/v5/Binding",
+        ServiceName = "Organisasjon_v5",
+        EndpointName = "Organisasjon_v5Port"
     )
 
     private fun <PORT_TYPE : Any> createOnBehalfOfServicePort(

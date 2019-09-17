@@ -15,6 +15,9 @@ internal fun ApplicationConfig.aktørV1Url() = URI(getRequiredString("nav.regist
 internal fun ApplicationConfig.arbeidsforholdV3Url() = URI(getRequiredString("nav.register_urls.arbeidsforhold_v3", secret = false))
 
 @KtorExperimentalAPI
+internal fun ApplicationConfig.organisasjonV5Url() = URI(getRequiredString("nav.register_urls.organisasjon_v5", secret = false))
+
+@KtorExperimentalAPI
 internal fun ApplicationConfig.wsStsUrl() = URI(getRequiredString("nav.auth.ws.sts_url", secret = false))
 
 @KtorExperimentalAPI
