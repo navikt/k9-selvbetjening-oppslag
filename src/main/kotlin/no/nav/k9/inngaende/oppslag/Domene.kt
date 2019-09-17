@@ -2,6 +2,7 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.k9.utgaende.rest.AktørId
+import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.informasjon.arbeidsforhold.Organisasjon
 
 internal data class Fødselsnummer(internal val value: String)
 
@@ -19,8 +20,6 @@ internal enum class Attributt(internal val api: String?) {
     barnMellomnavn("barn[].mellomnavn"),
     barnEtternavn("barn[].etternavn"),
     barnFødselsdato("barn[].fødselsdato"),
-    barnStatus("barn[].status"),
-    barnDiskresjonskode("barn[].diskresjonskode"),
 
     arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer")
@@ -56,12 +55,11 @@ internal data class Meg(
     internal val aktørId: AktørId?
 )
 
-internal data class Barn(
-    internal val person: Person?,
-    internal val aktørId: AktørId?
-)
+
+
 
 internal data class OppslagResultat(
     internal val meg: Meg?,
-    internal val barn: Set<Barn>?
+    internal val barn: Set<Barn>?,
+    internal val arbeidsgivereOrganisasjoner: Set<Organisasjon>?
 )

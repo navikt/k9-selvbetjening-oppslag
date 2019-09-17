@@ -24,6 +24,7 @@ import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
+import no.nav.k9.utgaende.gateway.ArbeidsforholdV3Gateway
 import no.nav.k9.utgaende.ws.WebServiceSTSClient
 import no.nav.k9.utgaende.ws.WebServices
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
@@ -79,6 +80,11 @@ fun Application.SelvbetjeningOppslag() {
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(
                             aktørRegisterV1 = AktørRegisterV1(environment.config.aktørV1Url())
+                        ),
+                        arbeidsforholdV3Gateway = ArbeidsforholdV3Gateway(
+                            arbeidsforholdV3 = webServices.ArbeidsforholdV3(
+                                serviceUrl = environment.config.arbeidsforholdV3Url()
+                            )
                         )
                     )
                 )

@@ -2,6 +2,8 @@ package no.nav.k9.utgaende.ws
 
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.binding.ArbeidsforholdV3
+
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
@@ -18,12 +20,21 @@ internal class WebServices(
     private val onBehalfOfOutInterceptor = OnBehalfOfOutInterceptor(requestContextService)
 
     internal fun PersonV3(serviceUrl: URI) = createOnBehalfOfServicePort(
-        serviceUrl.toString(),
+        ServiceUrl = serviceUrl.toString(),
         ServiceClazz = PersonV3::class.java,
         Wsdl = "wsdl/no/nav/tjeneste/virksomhet/person/v3/Binding.wsdl",
         Namespace = "http://nav.no/tjeneste/virksomhet/person/v3/Binding",
         ServiceName = "Person_v3",
         EndpointName = "Person_v3Port"
+    )
+
+    internal fun ArbeidsforholdV3(serviceUrl: URI) = createOnBehalfOfServicePort(
+        ServiceUrl = serviceUrl.toString(),
+        ServiceClazz = ArbeidsforholdV3::class.java,
+        Wsdl = "wsdl/no/nav/tjeneste/virksomhet/arbeidsforhold/v3/Binding.wsdl",
+        Namespace = "http://nav.no/tjeneste/virksomhet/arbeidsforhold/v3/Binding",
+        ServiceName = "Arbeidsforhold_v3",
+        EndpointName = "Arbeidsforhold_v3Port"
     )
 
     private fun <PORT_TYPE : Any> createOnBehalfOfServicePort(

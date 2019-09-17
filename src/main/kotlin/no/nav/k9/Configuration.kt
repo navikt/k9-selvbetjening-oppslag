@@ -9,7 +9,10 @@ import java.net.URI
 internal fun ApplicationConfig.personV3Url() = URI(getRequiredString("nav.register_urls.person_v3", secret = false))
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.aktørV1Url() = URI(getRequiredString("nav.register_urls.aktør_v1", secret = false))
+internal fun ApplicationConfig.aktørV1Url() = URI(getRequiredString("nav.register_urls.aktoer_v1", secret = false))
+
+@KtorExperimentalAPI
+internal fun ApplicationConfig.arbeidsforholdV3Url() = URI(getRequiredString("nav.register_urls.arbeidsforhold_v3", secret = false))
 
 @KtorExperimentalAPI
 internal fun ApplicationConfig.wsStsUrl() = URI(getRequiredString("nav.auth.ws.sts_url", secret = false))

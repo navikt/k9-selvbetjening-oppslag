@@ -42,5 +42,9 @@ spec:
       value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
     - name: PERSON_V3_URL
       value: https://wasapp-q1.adeo.no/tpsws/ws/Person/v3
+    - name: ARBEIDSFORHOLD_V3_URL
+      value: https://modapp-q1.adeo.no/aareg-core/ArbeidsforholdService/v3
+    - name: AKTOER_V1_URL
+      value: https://app-q1.adeo.no/aktoerregister
     - name: WS_STS_URL
       value: https://sts-q1.preprod.local/SecurityTokenServiceProvider/
