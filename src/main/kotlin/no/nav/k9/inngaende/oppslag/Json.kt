@@ -31,7 +31,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
             })
 
         }
-        json.put("barn", barn)
+        json.put("barn", barnJsonArray)
     }
     return json
 }
