@@ -1,8 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.utgaende.gateway.Organisasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.k9.utgaende.rest.AktørId
+import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.informasjon.arbeidsforhold.Organisasjon
 
 internal data class Fødselsnummer(internal val value: String)
 
