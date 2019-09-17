@@ -51,7 +51,11 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
     val ikkeStøttedeAttributter = mutableSetOf<Violation>()
     val støttedeAttributter = mutableSetOf<Attributt>()
 
-    (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)?.filter { it.isNotBlank() }?.toSet() ?: emptySet()).forEach {
+    (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
+        ?.filter { it.isNotBlank() }
+        ?.map { it.toLowerCase() }
+        ?.toSet() ?: emptySet())
+        .forEach {
         try { støttedeAttributter.add(Attributt.fraApi(it)) }
         catch (cause: Throwable) {
             ikkeStøttedeAttributter.add(Violation(
