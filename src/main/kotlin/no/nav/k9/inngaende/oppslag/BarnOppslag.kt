@@ -27,7 +27,6 @@ internal class BarnOppslag(
         )
     }
 
-
     internal suspend fun barn(
         attributter: Set<Attributt>,
         person: Person?

@@ -23,13 +23,15 @@ import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
-import no.nav.k9.utgaende.gateway.ArbeidsforholdV3Gateway
-import no.nav.k9.utgaende.gateway.OrganisasjonV5Gateway
+import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
+import no.nav.k9.utgaende.gateway.PersonV3Gateway
 import no.nav.k9.utgaende.ws.WebServiceSTSClient
 import no.nav.k9.utgaende.ws.WebServices
-import no.nav.k9.utgaende.gateway.PersonV3Gateway
 import no.nav.k9.utgaende.rest.AktoerregisterV1
+import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
+import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
@@ -93,14 +95,15 @@ fun Application.SelvbetjeningOppslag() {
                                 accessTokenClient = naisStsAccessTokenClient
                             )
                         ),
-                        arbeidsforholdV3Gateway = ArbeidsforholdV3Gateway(
-                            arbeidsforholdV3 = webServices.ArbeidsforholdV3(
-                                serviceUrl = environment.config.arbeidsforholdV3Url()
+                        enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
+                            enhetsregisterV1 = EnhetsregisterV1(
+                                baseUrl = environment.config.enhetsregisterV1Url()
                             )
                         ),
-                        organisasjonV5Gateway = OrganisasjonV5Gateway(
-                            organisasjonV5 = webServices.OrganisasjonV5(
-                                serviceUrl = environment.config.organisasjonV5Url()
+                        arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
+                            arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
+                                baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
+                                accessTokenClient = naisStsAccessTokenClient
                             )
                         )
                     )

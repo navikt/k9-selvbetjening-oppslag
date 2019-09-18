@@ -1,49 +1,46 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.utgaende.gateway.OrganisasjonV5Gateway
-import no.nav.k9.utgaende.gateway.Organisasjonsnummer
-import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.informasjon.arbeidsforhold.Arbeidsforhold
-import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.informasjon.arbeidsforhold.Organisasjon
+import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
+import no.nav.k9.utgaende.rest.Arbeidsforhold
+import no.nav.k9.utgaende.rest.EnhetOrganisasjonsnummer
 
 internal class ArbeidsgivereOppslag(
-    private val organisasjonV5Gateway: OrganisasjonV5Gateway
+    private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway
 ) {
 
-    internal fun organisasjoner(
+    internal suspend fun organisasjoner(
         attributter: Set<Attributt>,
-        arbeidsforhold: Set<Arbeidsforhold>?
-    ) : Set<Organisasjon>? {
+        arbeidsforhold: Arbeidsforhold?
+    ) : Set<ArbeidsgiverOrganisasjon>? {
+
         if (!attributter.etterspurtArbeidsgibereOrganaisasjoner()) return null
 
-        return arbeidsforhold!!
-            .map {
-                it.arbeidsgiver
-            }
-            .map { it as Organisasjon }
-            .distinctBy {
-                it.orgnummer
-            }
-            .map {
-                if (it.navn == null) {
-                    it.navn = hentNavn(
-                        orgnummer = it.orgnummer,
-                        attributter = attributter
-                    )
-                }
-                it
+        return arbeidsforhold!!.organisasjoner.map {
+            ArbeidsgiverOrganisasjon(
+                organisasjonsnummer = it.organisasjonsnummer,
+                navn = hentNavn(
+                    organisasjonsnummer = it.organisasjonsnummer,
+                    attributter = attributter
+                )
+            )
         }.toSet()
+
     }
 
-    private fun hentNavn(
-        orgnummer: String,
+    private suspend fun hentNavn(
+        organisasjonsnummer: String,
         attributter: Set<Attributt>
     ) = try {
-        organisasjonV5Gateway.organisasjon(
-            organisasjonsnummer = Organisasjonsnummer(orgnummer),
-            attributter = attributter
+        enhetsregisterV1Gateway.organisasjon(
+            attributter = attributter,
+            organisasjonsnummer = EnhetOrganisasjonsnummer(organisasjonsnummer)
         )?.navn
     } catch (cause: Throwable) {
         null
     }
 }
 
+internal data class ArbeidsgiverOrganisasjon(
+    internal val organisasjonsnummer: String,
+    internal val navn: String?
+)

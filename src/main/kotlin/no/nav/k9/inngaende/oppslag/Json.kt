@@ -39,7 +39,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         val organisasjonerJson = JSONArray()
         arbeidsgivereOrganisasjoner?.forEach {
             organisasjonerJson.put(JSONObject().apply {
-                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.orgnummer)
+                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsnummer)
                 if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerNavn)) put("navn", it.navn)
             })
         }

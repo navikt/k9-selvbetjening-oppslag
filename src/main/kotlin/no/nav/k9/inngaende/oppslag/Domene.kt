@@ -2,7 +2,6 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.k9.utgaende.rest.AktørId
-import no.nav.tjeneste.virksomhet.arbeidsforhold.v3.informasjon.arbeidsforhold.Organisasjon
 
 internal data class Fødselsnummer(internal val value: String)
 
@@ -59,5 +58,5 @@ internal data class Meg(
 internal data class OppslagResultat(
     internal val meg: Meg?,
     internal val barn: Set<Barn>?,
-    internal val arbeidsgivereOrganisasjoner: Set<Organisasjon>?
+    internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>?
 )

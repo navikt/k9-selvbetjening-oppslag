@@ -38,9 +38,7 @@ dependencies {
     // Tjenestespesifikasjoner
     compile("com.sun.xml.ws:jaxws-rt:2.3.2")
     compile("javax.activation:activation:1.1.1")
-
-    compile(tjenestespesifikasjon("arbeidsforholdv3-tjenestespesifikasjon"))
-    compile(tjenestespesifikasjon("nav-fim-organisasjon-v5-tjenestespesifikasjon"))
+    
     compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
 

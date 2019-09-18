@@ -12,10 +12,10 @@ internal fun ApplicationConfig.personV3Url() = URI(getRequiredString("nav.regist
 internal fun ApplicationConfig.aktørV1Url() = URI(getRequiredString("nav.register_urls.aktoer_v1", secret = false))
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.arbeidsforholdV3Url() = URI(getRequiredString("nav.register_urls.arbeidsforhold_v3", secret = false))
+internal fun ApplicationConfig.arbeidsgiverOgArbeidstakerV1Url() = URI(getRequiredString("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", secret = false))
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.organisasjonV5Url() = URI(getRequiredString("nav.register_urls.organisasjon_v5", secret = false))
+internal fun ApplicationConfig.enhetsregisterV1Url() = URI(getRequiredString("nav.register_urls.enhetsregister_v1", secret = false))
 
 @KtorExperimentalAPI
 internal fun ApplicationConfig.restTokenUrl() = URI(getRequiredString("nav.auth.rest_token_url", secret = false))

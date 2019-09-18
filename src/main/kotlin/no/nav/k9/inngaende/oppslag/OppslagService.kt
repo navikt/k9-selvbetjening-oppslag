@@ -1,8 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
-import no.nav.k9.utgaende.gateway.ArbeidsforholdV3Gateway
-import no.nav.k9.utgaende.gateway.OrganisasjonV5Gateway
+import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import java.time.LocalDate
@@ -10,8 +10,8 @@ import java.time.LocalDate
 internal class OppslagService(
     private val personV3Gateway: PersonV3Gateway,
     private val aktoerRegisterV1Gateway: AktoerRegisterV1Gateway,
-    private val arbeidsforholdV3Gateway: ArbeidsforholdV3Gateway,
-    organisasjonV5Gateway: OrganisasjonV5Gateway
+    private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
+    private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway
 ) {
     private val barnOppslag = BarnOppslag(
         personV3Gateway = personV3Gateway,
@@ -19,7 +19,7 @@ internal class OppslagService(
     )
 
     private val arbeidsgiverOppslag = ArbeidsgivereOppslag(
-        organisasjonV5Gateway = organisasjonV5Gateway
+        enhetsregisterV1Gateway = enhetsregisterV1Gateway
     )
 
     internal suspend fun oppslag(
@@ -28,8 +28,17 @@ internal class OppslagService(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate) : OppslagResultat {
 
-        val personV3 = personV3Gateway.person(fødselsnummer, attributter)
-        val arbeidsforhold = arbeidsforholdV3Gateway.arbeidsforhold(fødselsnummer, fraOgMed, tilOgMed, attributter)
+        val personV3 = personV3Gateway.person(
+            fødselsnummer = fødselsnummer,
+            attributter = attributter
+        )
+
+        val arbeidsforhold = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsforhold(
+            fødselsnummer = fødselsnummer,
+            fraOgMed = fraOgMed,
+            tilOgMed = tilOgMed,
+            attributter = attributter
+        )
 
         return OppslagResultat(
             meg = meg(
