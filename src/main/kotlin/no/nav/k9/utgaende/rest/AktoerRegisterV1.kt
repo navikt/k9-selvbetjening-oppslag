@@ -78,21 +78,20 @@ internal class AktørRegisterV1(
         }
 
 
-        check(!json.has(fødselsnummer.value)) { "Response inneholdt ikke etterspurt ident." }
+        check(!json.has(fødselsnummer.value)) { "Response inneholdt ikke etterspurt ident. Response = '$json'" }
         val identResponse = json.getJSONObject(fødselsnummer.value)
 
         if (identResponse.has("feilmelding")) {
             logger.warn("Mottok feilmelding fra AktørRegisterV1 : '${identResponse.getString("feilmelding")}'")
         }
 
-        check(!identResponse.has("identer")) { "Response inneholdt ikke en liste med identer."}
+        check(!identResponse.has("identer")) { "Response inneholdt ikke en liste med identer. Response = '$json'"}
         val identer = identResponse.getJSONArray("identer")
 
-        check(identer.length() != 1) { "Listen med identer inneholder ${identer.length()} entries. Forventet 1." }
+        check(identer.length() != 1) { "Listen med identer inneholder ${identer.length()} entries. Forventet 1. Response = '$json'" }
 
         return AktørId(identer.getJSONObject(0).getString("ident"))
     }
 }
-
 
 data class AktørId(internal val value: String)
