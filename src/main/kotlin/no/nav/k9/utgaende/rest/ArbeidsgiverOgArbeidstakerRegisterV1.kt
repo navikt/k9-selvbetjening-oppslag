@@ -60,8 +60,8 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             .header(
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
-                "Nav-Consumer-Token" to navConsumerIdHeader,
-                "Nav-Consumer-Id" to "k9-selvbetjening-oppslag",
+                NavHeaders.ConsumerToken to navConsumerIdHeader,
+                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
                 NavHeaders.CallId to coroutineContext.correlationId().value,
                 NavHeaders.PersonIdent to fødselsnummer.value
             )

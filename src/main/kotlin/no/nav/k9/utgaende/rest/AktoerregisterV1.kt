@@ -48,9 +48,9 @@ internal class AktoerregisterV1(
             .header(
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
-                "Nav-Consumer-Id" to "k9-selvbetjening-oppslag",
-                "Nav-Personidenter" to fødselsnummer.value,
-                "Nav-Call-Id" to coroutineContext.correlationId().value
+                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
+                NavHeaders.PersonIdent to fødselsnummer.value,
+                NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
         val json = Retry.retry(

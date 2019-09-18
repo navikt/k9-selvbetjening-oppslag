@@ -33,8 +33,8 @@ internal class EnhetsregisterV1(
             .httpGet()
             .header(
                 HttpHeaders.Accept to "application/json",
-                "Nav-Consumer-Id" to "k9-selvbetjening-oppslag",
-                "Nav-Call-Id" to coroutineContext.correlationId().value
+                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
+                NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
         val json = Retry.retry(
