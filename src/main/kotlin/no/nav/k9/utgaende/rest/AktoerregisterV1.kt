@@ -31,7 +31,7 @@ internal class AktoerregisterV1(
 
     private val aktoerIdUrl = Url.buildURL(
         baseUrl = baseUrl,
-        pathParts = listOf("api","v1","identer"),
+        pathParts = listOf("identer"),
         queryParameters = mapOf(
             Pair("gjeldende", listOf("true")),
             Pair("identgruppe", listOf("AktoerId"))
