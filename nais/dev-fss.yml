@@ -46,7 +46,7 @@ spec:
       value: https://modapp-q1.adeo.no/aareg-core/ArbeidsforholdService/v3
     - name: AKTOER_V1_URL
       value: https://app-q1.adeo.no/aktoerregister
-    - name: https://modapp-q1.adeo.no/ereg/ws/OrganisasjonService/v5
-      value: https://app-q1.adeo.no/aktoerregister
+    - name: ORGANISASJON_V5_URL
+      value: https://modapp-q1.adeo.no/ereg/ws/OrganisasjonService/v5
     - name: WS_STS_URL
       value: https://sts-q1.preprod.local/SecurityTokenServiceProvider/
