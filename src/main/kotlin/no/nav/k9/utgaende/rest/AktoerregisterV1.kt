@@ -18,13 +18,13 @@ import java.net.URI
 import java.time.Duration
 import kotlin.coroutines.coroutineContext
 
-internal class AktørRegisterV1(
+internal class AktoerregisterV1(
     baseUrl: URI,
     private val accessTokenClient: AccessTokenClient,
     private val henteAktoerIdScopes : Set<String> = setOf("openid")
 ) {
     private companion object {
-        private val logger: Logger = LoggerFactory.getLogger(AktørRegisterV1::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(AktoerregisterV1::class.java)
     }
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
@@ -37,8 +37,6 @@ internal class AktørRegisterV1(
             Pair("identgruppe", listOf("AktoerId"))
         )
     ).toString()
-
-
 
     internal suspend fun aktørId(fødselsnummer: Fødselsnummer) : AktørId {
         val authorizationHeader = cachedAccessTokenClient
@@ -81,8 +79,8 @@ internal class AktørRegisterV1(
         check(json.has(fødselsnummer.value)) { "Response inneholdt ikke etterspurt ident. Response = '$json'" }
         val identResponse = json.getJSONObject(fødselsnummer.value)
 
-        if (identResponse.has("feilmelding")) {
-            logger.warn("Mottok feilmelding fra AktørRegisterV1 : '${identResponse.getString("feilmelding")}'")
+        if (json.has("feilmelding")) {
+            logger.warn("Mottok feilmelding. Response = '$json'")
         }
 
         check(identResponse.has("identer")) { "Response inneholdt ikke en liste med identer. Response = '$json'"}
