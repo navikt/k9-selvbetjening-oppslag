@@ -13,6 +13,7 @@ import io.ktor.features.StatusPages
 import io.ktor.http.ContentType
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.routing.Routing
+import io.ktor.routing.accept
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.dusseldorf.ktor.auth.*
@@ -30,6 +31,7 @@ import no.nav.k9.utgaende.ws.WebServiceSTSClient
 import no.nav.k9.utgaende.ws.WebServices
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
 import no.nav.k9.utgaende.rest.AktørRegisterV1
+import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 
@@ -68,6 +70,13 @@ fun Application.SelvbetjeningOppslag() {
 
     install(CallIdRequired)
 
+
+    val naisStsAccessTokenClient = NaisStsAccessTokenClient(
+        tokenEndpoint = environment.config.restTokenUrl(),
+        clientId = environment.config.wsUsername(), // TODO: Bytte navn
+        clientSecret = environment.config.wsPassword()
+    )
+
     install(Routing) {
         authenticate (*issuers.allIssuers()) {
             requiresCallId {
@@ -80,7 +89,10 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(
-                            aktørRegisterV1 = AktørRegisterV1(environment.config.aktørV1Url())
+                            aktørRegisterV1 = AktørRegisterV1(
+                                baseUrl = environment.config.aktørV1Url(),
+                                accessTokenClient = naisStsAccessTokenClient
+                            )
                         ),
                         arbeidsforholdV3Gateway = ArbeidsforholdV3Gateway(
                             arbeidsforholdV3 = webServices.ArbeidsforholdV3(

@@ -26,7 +26,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
                 if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.person!!.personnavn.fornavn)
                 if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.person!!.personnavn.mellomnavn)
                 if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.person!!.personnavn.etternavn)
-                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.person!!.foedselsdato.foedselsdato.iso8601date())
+                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.person!!.foedselsdato?.foedselsdato?.iso8601date())
             })
 
         }

@@ -5,6 +5,8 @@ export AKTOER_V1_URL=http://localhost:8082
 export ARBEIDSFORHOLD_V3_URL=http://localhost:8083
 export ORGANISASJON_V5_URL=http://localhost:8084
 
-export WS_STS_URL=http://localhost:8100
+export REST_TOKEN_URL=http://localhost:8100
+
+export WS_STS_URL=http://localhost:8101
 export WS_USERNAME=foo
 export WS_PASSWORD=bar
