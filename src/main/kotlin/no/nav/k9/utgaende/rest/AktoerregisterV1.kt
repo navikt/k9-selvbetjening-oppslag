@@ -49,7 +49,7 @@ internal class AktoerregisterV1(
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.PersonIdent to fødselsnummer.value,
+                NavHeaders.PersonIdenter to fødselsnummer.value,
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
