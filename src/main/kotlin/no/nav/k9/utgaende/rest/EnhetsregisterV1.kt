@@ -20,6 +20,7 @@ internal class EnhetsregisterV1(
 ) {
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(EnhetsregisterV1::class.java)
+        private const val Operation_HenteOrganisasjonNøkkelinfo = "hente-organisasjon-noekkelinfo"
     }
 
     private fun nøkkelInfoUrl(organisasjonsnummer: EnhetOrganisasjonsnummer) = Url.buildURL(
@@ -29,7 +30,8 @@ internal class EnhetsregisterV1(
 
 
     internal suspend fun nøkkelinfo(organisasjonsnummer: EnhetOrganisasjonsnummer) : EnhetOrganisasjon {
-        val httpRequest = nøkkelInfoUrl(organisasjonsnummer)
+        val url = nøkkelInfoUrl(organisasjonsnummer)
+        val httpRequest = url
             .httpGet()
             .header(
                 HttpHeaders.Accept to "application/json",
@@ -37,15 +39,17 @@ internal class EnhetsregisterV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
+        logger.restKall(url)
+
         val json = Retry.retry(
-            operation = "hente-organisasjon-noekkelinfo",
+            operation = Operation_HenteOrganisasjonNøkkelinfo,
             initialDelay = Duration.ofMillis(200),
             factor = 2.0,
             logger = logger
         ) {
             val (request,_, result) = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
-                operation = "hente-organisasjon-noekkelinfo",
+                operation = Operation_HenteOrganisasjonNøkkelinfo,
                 resultResolver = { 200 == it.second.statusCode }
             ) { httpRequest.awaitStringResponseResult() }
 
@@ -87,7 +91,7 @@ internal class EnhetsregisterV1(
     }
 
     private fun JSONObject.navnlinje(nummer: Int) : String? {
-        val key = "navnlinje$nummer"
+        val key = "navnelinje$nummer"
         return if (has(key)) getString(key) else null
     }
 }

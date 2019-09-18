@@ -45,8 +45,6 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         )
     ).toString()
 
-
-
     internal suspend fun arbeidsforhold(
         fødselsnummer: Fødselsnummer,
         fraOgMed: LocalDate,
@@ -54,8 +52,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     ) : Arbeidsforhold {
         val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(henteArbeidsforholdPerArbeidstakerScopes).asAuthoriationHeader()
         val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
+        val url = urlMedFraOgMedTilOgMed(arbeidsforholdPerArbeidstakerUrl, fraOgMed, tilOgMed)
 
-        val httpRequest = urlMedFraOgMedTilOgMed(arbeidsforholdPerArbeidstakerUrl, fraOgMed, tilOgMed)
+        val httpRequest = url
             .httpGet()
             .header(
                 HttpHeaders.Authorization to authorizationHeader,
@@ -65,6 +64,8 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
                 NavHeaders.CallId to coroutineContext.correlationId().value,
                 NavHeaders.PersonIdent to fødselsnummer.value
             )
+
+        logger.restKall(url)
 
         val json = Retry.retry(
             operation = "hente-arbeidsforhold-per-arbeidstaker",
@@ -107,7 +108,6 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         )
     }
 }
-
 
 internal data class OrganisasjonArbeidsforhold(
     internal val organisasjonsnummer: String

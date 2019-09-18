@@ -42,7 +42,7 @@ internal class OnBehalfOfOutInterceptor(
                     val service = endpointInfo?.service?.name?.localPart
                     val operation = message.exchange?.bindingOperationInfo?.name?.localPart
 
-                    logger.info("Utgående kall til service=$service operation=$operation med correlationId=$correlationId")
+                    logger.info("Utgående kall til service=$service operation=$operation")
 
                     val header = SoapHeader(callIdQname, correlationId, JAXBDataBinding(String::class.java))
                     message.headers.add(header)
