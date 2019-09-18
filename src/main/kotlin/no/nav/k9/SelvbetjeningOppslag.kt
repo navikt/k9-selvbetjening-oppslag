@@ -13,7 +13,6 @@ import io.ktor.features.StatusPages
 import io.ktor.http.ContentType
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.routing.Routing
-import io.ktor.routing.accept
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.dusseldorf.ktor.auth.*
@@ -30,7 +29,7 @@ import no.nav.k9.utgaende.gateway.OrganisasjonV5Gateway
 import no.nav.k9.utgaende.ws.WebServiceSTSClient
 import no.nav.k9.utgaende.ws.WebServices
 import no.nav.k9.utgaende.gateway.PersonV3Gateway
-import no.nav.k9.utgaende.rest.AktørRegisterV1
+import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
@@ -89,7 +88,7 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(
-                            aktørRegisterV1 = AktørRegisterV1(
+                            aktørRegisterV1 = AktoerregisterV1(
                                 baseUrl = environment.config.aktørV1Url(),
                                 accessTokenClient = naisStsAccessTokenClient
                             )

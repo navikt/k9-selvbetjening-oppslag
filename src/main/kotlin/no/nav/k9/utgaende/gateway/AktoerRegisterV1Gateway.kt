@@ -2,11 +2,11 @@ package no.nav.k9.utgaende.gateway
 
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.AktørId
-import no.nav.k9.utgaende.rest.AktørRegisterV1
 
 internal class AktoerRegisterV1Gateway(
-    private val aktørRegisterV1: AktørRegisterV1
+    private val aktørRegisterV1: AktoerregisterV1
 ) {
     internal companion object {
         private val støttedeAttributter = setOf(
