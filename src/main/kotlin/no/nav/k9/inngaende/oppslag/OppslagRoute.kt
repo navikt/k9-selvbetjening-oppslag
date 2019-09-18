@@ -10,13 +10,18 @@ import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
+import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import org.json.JSONObject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 private const val ATTRIBUTT_QUERY_NAVN = "a"
 private const val FRA_OG_MED_QUERY_NAVN = "fom"
 private const val TIL_OG_MED_QUERY_NAVN = "tom"
 private val tomJson = JSONObject()
+
+private val logger: Logger = LoggerFactory.getLogger("OppslagRoute")
 
 internal fun Route.OppslagRoute(
     requestContextService: RequestContextService,
@@ -51,11 +56,14 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
     val ikkeStøttedeAttributter = mutableSetOf<Violation>()
     val støttedeAttributter = mutableSetOf<Attributt>()
 
-    (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
+    val etterspurteAttributter = (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
         ?.filter { it.isNotBlank() }
         ?.map { it.toLowerCase() }
-        ?.toSet() ?: emptySet())
-        .forEach {
+        ?.toSet()) ?: emptySet()
+
+    logger.info("Etterspurte Attributter = [${etterspurteAttributter.joinToString(", ")}]")
+
+    etterspurteAttributter.forEach {
         try { støttedeAttributter.add(Attributt.fraApi(it)) }
         catch (cause: Throwable) {
             ikkeStøttedeAttributter.add(Violation(
