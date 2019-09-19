@@ -46,7 +46,7 @@ internal class TpsProxyV1 (
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.PersonIdenter to ident.value,
+                NavHeaders.PersonIdent to ident.value,
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
@@ -93,7 +93,7 @@ internal class TpsProxyV1 (
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.PersonIdenter to ident.value,
+                NavHeaders.PersonIdent to ident.value,
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
