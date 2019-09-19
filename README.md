@@ -42,7 +42,7 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 ### Correlation ID & Request ID
 Correlation ID blir propagert videre, og har ikke nødvendigvis sitt opphav hos konsumenten. Må settes Som `X-Correlation-ID`-header.
 
-Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. Kan settes om `X-Reqeust-ID`-header
+Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. Kan settes om `X-Request-ID`-header
 
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
