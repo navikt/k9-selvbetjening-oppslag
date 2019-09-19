@@ -48,13 +48,6 @@ private val megAttributter = setOf(
 )
 internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
 
-
-internal data class Meg(
-    internal val person: Person?,
-    internal val aktørId: AktørId?
-)
-
-
 internal data class OppslagResultat(
     internal val meg: Meg?,
     internal val barn: Set<Barn>?,

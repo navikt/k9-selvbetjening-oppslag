@@ -26,13 +26,13 @@ import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
-import no.nav.k9.utgaende.gateway.PersonV3Gateway
-import no.nav.k9.utgaende.ws.WebServiceSTSClient
-import no.nav.k9.utgaende.ws.WebServices
 import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
+import no.nav.k9.utgaende.rest.TpsProxyV1
+import no.nav.k9.utgaende.ws.WebServiceSTSClient
+import no.nav.k9.utgaende.ws.WebServices
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 
@@ -84,9 +84,9 @@ fun Application.SelvbetjeningOppslag() {
                 OppslagRoute(
                     requestContextService = requestContextService,
                     oppslagService = OppslagService(
-                        personV3Gateway = PersonV3Gateway(
-                            personV3 = webServices.PersonV3(
-                                serviceUrl = environment.config.personV3Url()
+                        tpsProxyV1Gateway = TpsProxyV1Gateway(
+                            tpsProxyV1 = TpsProxyV1(
+                                baseUrl = environment.config.tpsProxyV1Url()
                             )
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(

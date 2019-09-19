@@ -4,6 +4,7 @@ export PERSON_V3_URL=http://localhost:8081
 export AKTOER_V1_URL=http://localhost:8082
 export ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL=http://localhost:8083
 export ENHET_V1_URL=http://localhost:8084
+export TPS_PROXY_V1_URL=http://localhost:8085
 
 export REST_TOKEN_URL=http://localhost:8100
 
