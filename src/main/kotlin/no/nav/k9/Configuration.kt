@@ -24,7 +24,7 @@ internal fun ApplicationConfig.restTokenUrl() = URI(getRequiredString("nav.auth.
 internal fun ApplicationConfig.wsStsUrl() = URI(getRequiredString("nav.auth.ws.sts_url", secret = false))
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.wsUsername() = getRequiredString("nav.auth.ws.username", secret = false)
+internal fun ApplicationConfig.clientId() = getRequiredString("nav.auth.client_id", secret = false)
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.wsPassword() = getRequiredString("nav.auth.ws.password", secret = true)
+internal fun ApplicationConfig.clientSecret() = getRequiredString("nav.auth.client_secret", secret = true)

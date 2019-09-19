@@ -8,5 +8,5 @@ export ENHET_V1_URL=http://localhost:8084
 export REST_TOKEN_URL=http://localhost:8100
 
 export WS_STS_URL=http://localhost:8101
-export WS_USERNAME=foo
-export WS_PASSWORD=bar
+export CLIENT_ID=foo
+export CLIENT_SECRET=bar

@@ -1,5 +1,5 @@
 # Nais
 
 ## Må settes i Vault
-- `WS_USERNAME`
-- `WS_PASSWORD`
+- `CLIENT_ID`
+- `CLIENT_SECRET`

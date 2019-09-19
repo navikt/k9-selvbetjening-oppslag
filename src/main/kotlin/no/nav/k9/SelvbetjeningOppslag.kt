@@ -47,8 +47,8 @@ fun Application.SelvbetjeningOppslag() {
         requestContextService = requestContextService,
         stsClient = WebServiceSTSClient.instance(
             stsUrl = environment.config.wsStsUrl(),
-            username = environment.config.wsUsername(),
-            password = environment.config.wsPassword()
+            username = environment.config.clientId(),
+            password = environment.config.clientSecret()
         )
     )
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
@@ -74,8 +74,8 @@ fun Application.SelvbetjeningOppslag() {
 
     val naisStsAccessTokenClient = NaisStsAccessTokenClient(
         tokenEndpoint = environment.config.restTokenUrl(),
-        clientId = environment.config.wsUsername(), // TODO: Bytte navn
-        clientSecret = environment.config.wsPassword()
+        clientId = environment.config.clientId(),
+        clientSecret = environment.config.clientSecret()
     )
 
     install(Routing) {
