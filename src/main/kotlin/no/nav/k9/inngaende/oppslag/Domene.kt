@@ -1,18 +1,17 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
-import no.nav.k9.utgaende.rest.AktørId
+import io.ktor.http.Url
+import no.nav.helse.dusseldorf.ktor.client.buildURL
+import java.net.URI
 
 internal data class Ident(internal val value: String)
 
-internal enum class Attributt(internal val api: String?) {
+internal enum class Attributt(internal val api: String) {
     aktørId("aktør_id"),
     fornavn("fornavn"),
     mellomnavn("mellomnavn"),
     etternavn("etternavn"),
     fødselsdato("fødselsdato"),
-    status(null),
-    diskresjonskode(null),
 
     barnAktørId("barn[].aktør_id"),
     barnFornavn("barn[].fornavn"),
@@ -35,9 +34,9 @@ internal enum class Attributt(internal val api: String?) {
     }
 }
 internal fun Set<Attributt>.etterspurtBarn() =
-    any { it.api != null && it.api.startsWith("barn[].") }
+    any { it.api.startsWith("barn[].") }
 internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
-    any { it.api != null && it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
+    any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
 private val megAttributter = setOf(
     Attributt.aktørId,

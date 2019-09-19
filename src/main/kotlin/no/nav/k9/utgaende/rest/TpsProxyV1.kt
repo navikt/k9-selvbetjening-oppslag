@@ -149,8 +149,8 @@ internal class TpsProxyV1 (
 
 private fun String.splittetNavn() : Triple<String, String?, String> {
     val splittet = this.split(" ")
-    val fornavn = splittet.first()
-    val etternavn = splittet.last()
+    val fornavn = splittet.last()
+    val etternavn = splittet.first()
     val mellomnavn = this
         .removePrefix(fornavn)
         .removeSuffix(etternavn)
