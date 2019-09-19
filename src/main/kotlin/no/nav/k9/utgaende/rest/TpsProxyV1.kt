@@ -123,6 +123,8 @@ internal class TpsProxyV1 (
             )
         }
 
+        logger.logResponse(json)
+
         if (json.isEmpty) return emptySet()
 
         return json
