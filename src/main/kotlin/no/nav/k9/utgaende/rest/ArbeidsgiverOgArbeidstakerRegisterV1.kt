@@ -89,6 +89,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             )
         }
 
+        logger.logResponse(json)
+
+
         if (json.isEmpty) return Arbeidsforhold(
             organisasjoner = emptySet()
         )

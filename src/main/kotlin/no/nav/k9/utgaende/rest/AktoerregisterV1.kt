@@ -77,6 +77,7 @@ internal class AktoerregisterV1(
             )
         }
 
+        logger.logResponse(json)
 
         check(json.has(ident.value)) { "Response inneholdt ikke etterspurt ident. Response = '$json'" }
         val identResponse = json.getJSONObject(ident.value)

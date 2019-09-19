@@ -5,6 +5,7 @@
     </appender>
 
     <logger name="no.nav" level="INFO"/>
+    <logger name="no.nav.k9.utgaende.rest.TpsProxyV1" level="DEBUG"/>
     <logger name="org.apache.cxf" level="WARN" />
     <logger name="io.ktor.auth.jwt" level="TRACE" />
 

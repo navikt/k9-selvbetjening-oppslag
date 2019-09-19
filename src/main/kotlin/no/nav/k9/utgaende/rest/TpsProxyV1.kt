@@ -74,10 +74,12 @@ internal class TpsProxyV1 (
             )
         }
 
+        logger.logResponse(json)
+
         val navn = json.getJSONObject("navn")
 
         return TpsPerson(
-            fornavn = navn.getString(navn.getString("fornavn")),
+            fornavn = navn.getString("fornavn"),
             mellomnavn = if (navn.has("mellomnavn")) navn.getString("mellomnavn") else null,
             etternavn = navn.getString("slektsnavn"),
             fødselsdato = LocalDate.parse(json.getString("foedselsdato"))
