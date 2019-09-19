@@ -131,31 +131,19 @@ internal class TpsProxyV1 (
             .asSequence()
             .map { it as JSONObject }
             .map {
-                val sammensattNavn = it.getString("forkortetNavn")
-                val splittetNavn = sammensattNavn.splittetNavn()
+                val forkortetNavn = ForkortetNavn(it.getString("forkortetNavn"))
                 val dødsdato = it.getJsonObjectOrNull("doedsdato")?.getStringOrNull("dato")
 
                 TpsBarn(
-                    fornavn = splittetNavn.first,
-                    mellomnavn = splittetNavn.second,
-                    etternavn = splittetNavn.third,
+                    fornavn = forkortetNavn.fornavn,
+                    mellomnavn = forkortetNavn.mellomnavn,
+                    etternavn = forkortetNavn.etternavn,
                     fødselsdato = LocalDate.parse(it.getString("foedselsdato")),
                     dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null
                 )
             }
             .toSet()
     }
-}
-
-private fun String.splittetNavn() : Triple<String, String?, String> {
-    val splittet = this.split(" ")
-    val fornavn = splittet.last()
-    val etternavn = splittet.first()
-    val mellomnavn = this
-        .removePrefix(fornavn)
-        .removeSuffix(etternavn)
-        .trim()
-    return Triple(fornavn, if (mellomnavn.isBlank()) null else mellomnavn, etternavn)
 }
 
 internal data class TpsPerson(
@@ -171,3 +159,26 @@ internal data class TpsBarn(
     internal val fødselsdato: LocalDate,
     internal val dødsdato: LocalDate?
 )
+
+private data class ForkortetNavn(private val value: String) {
+    internal val fornavn : String
+    internal val mellomnavn : String?
+    internal val etternavn : String
+
+    init {
+        val erKomplettNavn = value.length < 25
+        val splittetNavn = value.split(" ")
+        etternavn = splittetNavn.first()
+        fornavn = splittetNavn.second()
+        mellomnavn = if (!erKomplettNavn) null else  {
+            val mellomnavn = value
+                .removePrefix(etternavn)
+                .trim()
+                .removePrefix(fornavn)
+                .trim()
+            if (mellomnavn.isBlank()) null else mellomnavn
+        }
+    }
+}
+
+private fun List<String>.second() = get(1)
