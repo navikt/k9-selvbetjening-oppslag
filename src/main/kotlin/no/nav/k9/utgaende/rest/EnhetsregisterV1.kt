@@ -90,10 +90,7 @@ internal class EnhetsregisterV1(
         )
     }
 
-    private fun JSONObject.navnlinje(nummer: Int) : String? {
-        val key = "navnelinje$nummer"
-        return if (has(key)) getString(key) else null
-    }
+    private fun JSONObject.navnlinje(nummer: Int) = getStringOrNull("navnelinje$nummer")
 }
 
 internal data class EnhetOrganisasjon(internal val organisasjonsnummer: EnhetOrganisasjonsnummer, internal val navn: String?)
