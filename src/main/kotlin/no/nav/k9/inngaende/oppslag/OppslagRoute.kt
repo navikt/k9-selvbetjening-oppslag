@@ -10,7 +10,6 @@ import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,7 +40,7 @@ internal fun Route.OppslagRoute(
                 idToken = idToken
             )) {
                 oppslagService.oppslag(
-                    fødselsnummer = idToken.fødselsnummer,
+                    ident = idToken.ident,
                     attributter = attributter,
                     fraOgMed = fraOgMedTilOgMed.first,
                     tilOgMed = fraOgMedTilOgMed.second

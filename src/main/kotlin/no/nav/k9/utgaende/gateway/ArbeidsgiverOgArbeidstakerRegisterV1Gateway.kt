@@ -1,7 +1,7 @@
 package no.nav.k9.utgaende.gateway
 
 import no.nav.k9.inngaende.oppslag.Attributt
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.Arbeidsforhold
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import java.time.LocalDate
@@ -17,14 +17,14 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
     }
 
     suspend internal fun arbeidsforhold(
-        fødselsnummer: Fødselsnummer,
+        ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         attributter: Set<Attributt>
     ) : Arbeidsforhold? {
         if (!attributter.any { it in støttedeAttributter }) return null
         return arbeidstakerOgArbeidstakerRegisterV1.arbeidsforhold(
-            fødselsnummer = fødselsnummer,
+            ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed
         )

@@ -39,7 +39,7 @@ internal class BarnOppslag(
             ?.mapNotNull {
                 it.tilPerson
 //                personV3Gateway.person(
-//                    fødselsnummer = it.tilPerson.ident(),
+//                    ident = it.tilPerson.ident(),
 //                    attributter = barnAttributter
 //                )
             }
@@ -49,7 +49,7 @@ internal class BarnOppslag(
                 Barn(
                     person = it,
                     aktørId = aktoerRegisterV1Gateway.aktørId(
-                        fødselsnummer = person.ident(),
+                        ident = person.ident(),
                         attributter = attributter
                     )
                 )
@@ -59,7 +59,7 @@ internal class BarnOppslag(
     }
     private fun Person.lever() = doedsdato == null
     private fun Person.ikkeKode6ellerKode7() = !kode6kode7.contains(diskresjonskode?.value)
-    private fun Person.ident() = Fødselsnummer((aktoer as PersonIdent).ident.ident)
+    private fun Person.ident() = Ident((aktoer as PersonIdent).ident.ident)
 }
 
 internal data class Barn(

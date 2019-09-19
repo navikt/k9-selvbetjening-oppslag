@@ -23,18 +23,18 @@ internal class OppslagService(
     )
 
     internal suspend fun oppslag(
-        fødselsnummer: Fødselsnummer,
+        ident: Ident,
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate) : OppslagResultat {
 
         val personV3 = personV3Gateway.person(
-            fødselsnummer = fødselsnummer,
+            Ident = ident,
             attributter = attributter
         )
 
         val arbeidsforhold = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsforhold(
-            fødselsnummer = fødselsnummer,
+            ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed,
             attributter = attributter
@@ -43,7 +43,7 @@ internal class OppslagService(
         return OppslagResultat(
             meg = meg(
                 attributter = attributter,
-                fødselsnummer = fødselsnummer,
+                ident = ident,
                 person = personV3
             ),
             barn = barnOppslag.barn(
@@ -59,14 +59,14 @@ internal class OppslagService(
 
     private suspend fun meg(
         person: Person?,
-        fødselsnummer: Fødselsnummer,
+        ident: Ident,
         attributter: Set<Attributt>
     ) : Meg? {
         return if (!attributter.etterspurtMeg()) null else {
             Meg(
                 person = person,
                 aktørId = aktoerRegisterV1Gateway.aktørId(
-                    fødselsnummer = fødselsnummer,
+                    ident = ident,
                     attributter = attributter
                 )
             )

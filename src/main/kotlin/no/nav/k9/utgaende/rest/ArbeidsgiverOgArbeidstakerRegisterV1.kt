@@ -11,7 +11,7 @@ import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -46,7 +46,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     ).toString()
 
     internal suspend fun arbeidsforhold(
-        fødselsnummer: Fødselsnummer,
+        ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate
     ) : Arbeidsforhold {
@@ -62,7 +62,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
                 NavHeaders.ConsumerToken to navConsumerIdHeader,
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
                 NavHeaders.CallId to coroutineContext.correlationId().value,
-                NavHeaders.PersonIdent to fødselsnummer.value
+                NavHeaders.PersonIdent to ident.value
             )
 
         logger.restKall(url)

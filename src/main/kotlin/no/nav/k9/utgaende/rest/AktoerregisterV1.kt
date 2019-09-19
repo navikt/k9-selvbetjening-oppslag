@@ -10,7 +10,7 @@ import no.nav.helse.dusseldorf.ktor.metrics.Operation
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -38,7 +38,7 @@ internal class AktoerregisterV1(
         )
     ).toString()
 
-    internal suspend fun aktørId(fødselsnummer: Fødselsnummer) : AktørId {
+    internal suspend fun aktørId(ident: Ident) : AktørId {
         val authorizationHeader = cachedAccessTokenClient
             .getAccessToken(henteAktoerIdScopes)
             .asAuthoriationHeader()
@@ -49,7 +49,7 @@ internal class AktoerregisterV1(
                 HttpHeaders.Authorization to authorizationHeader,
                 HttpHeaders.Accept to "application/json",
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.PersonIdenter to fødselsnummer.value,
+                NavHeaders.PersonIdenter to ident.value,
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
@@ -78,8 +78,8 @@ internal class AktoerregisterV1(
         }
 
 
-        check(json.has(fødselsnummer.value)) { "Response inneholdt ikke etterspurt ident. Response = '$json'" }
-        val identResponse = json.getJSONObject(fødselsnummer.value)
+        check(json.has(ident.value)) { "Response inneholdt ikke etterspurt ident. Response = '$json'" }
+        val identResponse = json.getJSONObject(ident.value)
 
         if (json.has("feilmelding")) {
             logger.warn("Mottok feilmelding. Response = '$json'")

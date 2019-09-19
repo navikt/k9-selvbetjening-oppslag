@@ -3,11 +3,11 @@ package no.nav.k9.inngaende
 import com.auth0.jwt.JWT
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 
 internal data class IdToken(
     internal val value: String,
-    internal val fødselsnummer : Fødselsnummer = Fødselsnummer(
+    internal val ident : Ident = Ident(
         JWT.decode(value).subject ?: throw IllegalStateException("Token mangler 'sub' claim.")
     )
 )

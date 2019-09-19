@@ -3,7 +3,7 @@ package no.nav.k9.inngaende.oppslag
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.k9.utgaende.rest.AktørId
 
-internal data class Fødselsnummer(internal val value: String)
+internal data class Ident(internal val value: String)
 
 internal enum class Attributt(internal val api: String?) {
     aktørId("aktør_id"),

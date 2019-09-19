@@ -1,7 +1,7 @@
 package no.nav.k9.utgaende.gateway
 
 import no.nav.k9.inngaende.oppslag.Attributt
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.AktørId
 
@@ -16,11 +16,11 @@ internal class AktoerRegisterV1Gateway(
     }
 
     internal suspend fun aktørId(
-        fødselsnummer: Fødselsnummer,
+        ident: Ident,
         attributter: Set<Attributt>
     ) : AktørId? {
         return if (attributter.any { it in støttedeAttributter }) {
-            aktørRegisterV1.aktørId(fødselsnummer)
+            aktørRegisterV1.aktørId(ident)
         } else null
     }
 }

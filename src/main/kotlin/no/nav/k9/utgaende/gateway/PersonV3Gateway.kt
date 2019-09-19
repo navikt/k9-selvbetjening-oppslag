@@ -1,7 +1,7 @@
 package no.nav.k9.utgaende.gateway
 
 import no.nav.k9.inngaende.oppslag.Attributt
-import no.nav.k9.inngaende.oppslag.Fødselsnummer
+import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
@@ -29,7 +29,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
     }
 
     internal fun person(
-        fødselsnummer: Fødselsnummer,
+        Ident: Ident,
         attributter: Set<Attributt>) : Person? {
 
         if (!attributter.any { it in personAttributter }) return null
@@ -37,7 +37,7 @@ internal class PersonV3Gateway (private val personV3: PersonV3) {
         val request = HentPersonRequest()
 
         request.aktoer = PersonIdent().apply {
-            ident = NorskIdent().apply { ident = fødselsnummer.value }
+            ident = NorskIdent().apply { ident = Ident.value }
         }
 
         val informasjonsbehov = attributter.tilInformasjonsbehov()
