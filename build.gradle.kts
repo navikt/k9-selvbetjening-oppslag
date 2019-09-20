@@ -4,7 +4,11 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransf
 
 val dusseldorfKtorVersion = "1.2.4.97e227b"
 val cxfVersion = "3.3.3"
+val ktorVersion = ext.get("ktorVersion").toString()
+val kotlinVersion = ext.get("kotlinVersion").toString()
+
 val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
+val junitJupiterVersion = "5.5.2"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
@@ -41,7 +45,10 @@ dependencies {
     
     compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
-
+    // Test
+    testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
 }
 
 repositories {
@@ -62,6 +69,13 @@ java {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.withType<ShadowJar> {

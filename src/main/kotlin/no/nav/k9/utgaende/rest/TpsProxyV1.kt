@@ -160,25 +160,23 @@ internal data class TpsBarn(
     internal val dødsdato: LocalDate?
 )
 
-private data class ForkortetNavn(private val value: String) {
+internal data class ForkortetNavn(private val value: String) {
     internal val fornavn : String
     internal val mellomnavn : String?
     internal val etternavn : String
 
     init {
-        val erKomplettNavn = value.length < 25
-        val splittetNavn = value.split(" ")
-        etternavn = splittetNavn.first()
-        fornavn = splittetNavn.second()
-        mellomnavn = if (!erKomplettNavn) null else  {
-            val mellomnavn = value
-                .removePrefix(etternavn)
-                .trim()
-                .removePrefix(fornavn)
-                .trim()
-            if (mellomnavn.isBlank()) null else mellomnavn
-        }
+        val splittetNavn = value
+            .split(" ")
+            .filterNot { it.isBlank() }
+        val splittetMellomnavn = if (splittetNavn.size > 2) splittetNavn.slice(IntRange(2, splittetNavn.size - 1)) else emptyList()
+        fornavn = splittetNavn.fornavn()
+        mellomnavn = splittetMellomnavn.mellomnavn()
+        etternavn = splittetNavn.etternavn()
+
     }
 }
 
-private fun List<String>.second() = get(1)
+private fun List<String>.etternavn() = first()
+private fun List<String>.fornavn() = if (size > 1) get(1) else ""
+private fun List<String>.mellomnavn() = if (isEmpty()) null else joinToString(" ")
