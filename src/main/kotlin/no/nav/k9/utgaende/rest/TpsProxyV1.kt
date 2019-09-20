@@ -177,6 +177,6 @@ internal data class ForkortetNavn(private val value: String) {
     }
 }
 
-private fun List<String>.etternavn() = first()
+private fun List<String>.etternavn() = if (isEmpty()) "" else first()
 private fun List<String>.fornavn() = if (size > 1) get(1) else ""
 private fun List<String>.mellomnavn() = if (isEmpty()) null else joinToString(" ")

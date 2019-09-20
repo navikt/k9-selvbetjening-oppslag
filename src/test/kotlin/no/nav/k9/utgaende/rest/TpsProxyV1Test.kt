@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class TpsProxyV1Test  {
+class TpsProxyV1Test {
 
     @Test
     fun `Forkortet navn uten mellomnavn og under 25 tegn håndteres riktig`() {
@@ -43,6 +43,14 @@ class TpsProxyV1Test  {
         val forkortetNavn = ForkortetNavn("Et-veldig-langtetternavn ")
         assertEquals("", forkortetNavn.fornavn)
         assertEquals("Et-veldig-langtetternavn", forkortetNavn.etternavn)
+        assertNull(forkortetNavn.mellomnavn)
+    }
+
+    @Test
+    fun `Forkortet navn som er en tom String håndteres riktig`() {
+        val forkortetNavn = ForkortetNavn("")
+        assertEquals("", forkortetNavn.fornavn)
+        assertEquals("", forkortetNavn.etternavn)
         assertNull(forkortetNavn.mellomnavn)
     }
 }
