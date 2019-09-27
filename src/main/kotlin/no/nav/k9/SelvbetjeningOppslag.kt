@@ -90,8 +90,8 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(
-                            aktørRegisterV1 = AktoerregisterV1(
-                                baseUrl = environment.config.aktørV1Url(),
+                            aktoerRegisterV1 = AktoerregisterV1(
+                                baseUrl = environment.config.aktoerV1Url(),
                                 accessTokenClient = naisStsAccessTokenClient
                             )
                         ),

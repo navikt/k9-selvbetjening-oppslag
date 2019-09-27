@@ -2,7 +2,7 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
-import no.nav.k9.utgaende.rest.AktørId
+import no.nav.k9.utgaende.rest.AktoerId
 import no.nav.k9.utgaende.rest.TpsPerson
 
 internal class MegOppslag(
@@ -17,7 +17,7 @@ internal class MegOppslag(
             ident = ident,
             attributter = attributter
         ),
-        aktørId = aktoerRegisterV1Gateway.aktørId(
+        aktoerId = aktoerRegisterV1Gateway.aktoerId(
             ident = ident,
             attributter = attributter
         )
@@ -26,5 +26,5 @@ internal class MegOppslag(
 
 internal data class Meg(
     internal val tpsPerson: TpsPerson?,
-    internal val aktørId: AktørId?
+    internal val aktoerId: AktoerId?
 )

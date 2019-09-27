@@ -14,15 +14,15 @@ internal class TpsProxyV1Gateway(
             Attributt.fornavn,
             Attributt.mellomnavn,
             Attributt.etternavn,
-            Attributt.fødselsdato
+            Attributt.foedselsdato
         )
 
         private val barnAttributter = setOf(
-            Attributt.barnAktørId, // Må hente opp barn for å vite hvem vi skal slå opp aktørId på
+            Attributt.barnAktoerId, // Må hente opp barn for å vite hvem vi skal slå opp aktoerId på
             Attributt.barnFornavn,
             Attributt.barnMellomnavn,
             Attributt.barnEtternavn,
-            Attributt.barnFødselsdato
+            Attributt.barnFoedselsdato
         )
     }
 

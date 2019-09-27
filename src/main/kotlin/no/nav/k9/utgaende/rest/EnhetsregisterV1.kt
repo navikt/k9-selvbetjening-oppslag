@@ -20,17 +20,17 @@ internal class EnhetsregisterV1(
 ) {
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(EnhetsregisterV1::class.java)
-        private const val Operation_HenteOrganisasjonNøkkelinfo = "hente-organisasjon-noekkelinfo"
+        private const val Operation_HenteOrganisasjonNoekkelinfo = "hente-organisasjon-noekkelinfo"
     }
 
-    private fun nøkkelInfoUrl(organisasjonsnummer: EnhetOrganisasjonsnummer) = Url.buildURL(
+    private fun noekkelInfoUrl(organisasjonsnummer: EnhetOrganisasjonsnummer) = Url.buildURL(
         baseUrl = baseUrl,
         pathParts = listOf("organisasjon", organisasjonsnummer.value, "noekkelinfo")
     ).toString()
 
 
-    internal suspend fun nøkkelinfo(organisasjonsnummer: EnhetOrganisasjonsnummer) : EnhetOrganisasjon {
-        val url = nøkkelInfoUrl(organisasjonsnummer)
+    internal suspend fun noekkelinfo(organisasjonsnummer: EnhetOrganisasjonsnummer) : EnhetOrganisasjon {
+        val url = noekkelInfoUrl(organisasjonsnummer)
         val httpRequest = url
             .httpGet()
             .header(
@@ -42,14 +42,14 @@ internal class EnhetsregisterV1(
         logger.restKall(url)
 
         val json = Retry.retry(
-            operation = Operation_HenteOrganisasjonNøkkelinfo,
+            operation = Operation_HenteOrganisasjonNoekkelinfo,
             initialDelay = Duration.ofMillis(200),
             factor = 2.0,
             logger = logger
         ) {
             val (request,_, result) = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
-                operation = Operation_HenteOrganisasjonNøkkelinfo,
+                operation = Operation_HenteOrganisasjonNoekkelinfo,
                 resultResolver = { 200 == it.second.statusCode }
             ) { httpRequest.awaitStringResponseResult() }
 

@@ -9,7 +9,7 @@ internal class EnhetsregisterV1Gateway(
     private val enhetsregisterV1: EnhetsregisterV1
 ) {
     internal companion object {
-        private val støttedeAttributter = setOf(
+        private val stoettedeAttributter = setOf(
             Attributt.arbeidsgivereOrganisasjonerNavn
         )
     }
@@ -18,7 +18,7 @@ internal class EnhetsregisterV1Gateway(
         organisasjonsnummer: EnhetOrganisasjonsnummer,
         attributter: Set<Attributt>
     ) : EnhetOrganisasjon? {
-        if (!attributter.any { it in støttedeAttributter }) return null
-        return enhetsregisterV1.nøkkelinfo(organisasjonsnummer)
+        if (!attributter.any { it in stoettedeAttributter }) return null
+        return enhetsregisterV1.noekkelinfo(organisasjonsnummer)
     }
 }

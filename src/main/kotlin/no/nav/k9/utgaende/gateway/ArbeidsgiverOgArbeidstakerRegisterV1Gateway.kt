@@ -10,7 +10,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
     private val arbeidstakerOgArbeidstakerRegisterV1: ArbeidsgiverOgArbeidstakerRegisterV1
 )  {
     internal companion object {
-        private val støttedeAttributter = setOf(
+        private val stoettedeAttributter = setOf(
             Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer,
             Attributt.arbeidsgivereOrganisasjonerNavn
         )
@@ -22,7 +22,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
         tilOgMed: LocalDate,
         attributter: Set<Attributt>
     ) : Arbeidsforhold? {
-        if (!attributter.any { it in støttedeAttributter }) return null
+        if (!attributter.any { it in stoettedeAttributter }) return null
         return arbeidstakerOgArbeidstakerRegisterV1.arbeidsforhold(
             ident = ident,
             fraOgMed = fraOgMed,

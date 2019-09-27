@@ -12,16 +12,16 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 
 | Attributter                                                           | Nullable  |
 |:----------------------------------------------------------------------|:---------:|
-| aktør_id                                                              |           |
+| aktoer_id                                                              |           |
 | fornavn                                                               |           |
 | mellomnavn                                                            | x         |
 | etternavn                                                             |           |
-| fødselsdato                                                           |           |
-| barn[].aktør_id                                                       |           |
+| foedselsdato                                                           |           |
+| barn[].aktoer_id                                                       |           |
 | barn[].fornavn                                                        |           |
 | barn[].mellomnavn                                                     | x         |
 | barn[].etternavn                                                      |           |
-| barn[].fødselsdato                                                    |           |
+| barn[].foedselsdato                                                    |           |
 | arbeidsgivere[].organisasjoner[].organisasjonsnummer                  |           |
 | arbeidsgivere[].organisasjoner[].navn                                 | x         |
 

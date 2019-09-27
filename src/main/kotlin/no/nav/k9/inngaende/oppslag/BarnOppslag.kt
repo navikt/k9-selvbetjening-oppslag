@@ -2,7 +2,7 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
-import no.nav.k9.utgaende.rest.AktørId
+import no.nav.k9.utgaende.rest.AktoerId
 import no.nav.k9.utgaende.rest.TpsBarn
 
 internal class BarnOppslag(
@@ -22,11 +22,11 @@ internal class BarnOppslag(
         ) ?: return null
 
         return tpsBarn
-            .filter { it.dødsdato == null }
+            .filter { it.doedsdato == null }
             .map {
                 Barn(
                     tpsBarn = it,
-                    aktørId = aktoerRegisterV1Gateway.aktørId(
+                    aktoerId = aktoerRegisterV1Gateway.aktoerId(
                         ident = ident,
                         attributter = attributter
                     )
@@ -37,5 +37,5 @@ internal class BarnOppslag(
 
 internal data class Barn(
     internal val tpsBarn: TpsBarn?,
-    internal val aktørId: AktørId?
+    internal val aktoerId: AktoerId?
 )

@@ -38,7 +38,7 @@ internal class AktoerregisterV1(
         )
     ).toString()
 
-    internal suspend fun aktørId(ident: Ident) : AktørId {
+    internal suspend fun aktoerId(ident: Ident) : AktoerId {
         val authorizationHeader = cachedAccessTokenClient
             .getAccessToken(henteAktoerIdScopes)
             .asAuthoriationHeader()
@@ -91,8 +91,8 @@ internal class AktoerregisterV1(
 
         check(identer.length() == 1) { "Listen med identer inneholder ${identer.length()} entries. Forventet 1. Response = '$json'" }
 
-        return AktørId(identer.getJSONObject(0).getString("ident"))
+        return AktoerId(identer.getJSONObject(0).getString("ident"))
     }
 }
 
-data class AktørId(internal val value: String)
+data class AktoerId(internal val value: String)

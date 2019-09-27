@@ -82,7 +82,7 @@ internal class TpsProxyV1 (
             fornavn = navn.getString("fornavn"),
             mellomnavn = if (navn.has("mellomnavn")) navn.getString("mellomnavn") else null,
             etternavn = navn.getString("slektsnavn"),
-            fødselsdato = LocalDate.parse(json.getString("foedselsdato"))
+            foedselsdato = LocalDate.parse(json.getString("foedselsdato"))
         )
     }
 
@@ -132,14 +132,14 @@ internal class TpsProxyV1 (
             .map { it as JSONObject }
             .map {
                 val forkortetNavn = ForkortetNavn(it.getString("forkortetNavn"))
-                val dødsdato = it.getJsonObjectOrNull("doedsdato")?.getStringOrNull("dato")
+                val doedsdato = it.getJsonObjectOrNull("doedsdato")?.getStringOrNull("dato")
 
                 TpsBarn(
                     fornavn = forkortetNavn.fornavn,
                     mellomnavn = forkortetNavn.mellomnavn,
                     etternavn = forkortetNavn.etternavn,
-                    fødselsdato = LocalDate.parse(it.getString("foedselsdato")),
-                    dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null
+                    foedselsdato = LocalDate.parse(it.getString("foedselsdato")),
+                    doedsdato = if (doedsdato != null) LocalDate.parse(doedsdato) else null
                 )
             }
             .toSet()
@@ -150,14 +150,14 @@ internal data class TpsPerson(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
-    internal val fødselsdato: LocalDate
+    internal val foedselsdato: LocalDate
 )
 internal data class TpsBarn(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
-    internal val fødselsdato: LocalDate,
-    internal val dødsdato: LocalDate?
+    internal val foedselsdato: LocalDate,
+    internal val doedsdato: LocalDate?
 )
 
 internal data class ForkortetNavn(private val value: String) {

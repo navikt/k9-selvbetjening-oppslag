@@ -52,8 +52,8 @@ internal fun Route.OppslagRoute(
 }
 
 private fun ApplicationCall.hentAttributter(): Set<Attributt> {
-    val ikkeStøttedeAttributter = mutableSetOf<Violation>()
-    val støttedeAttributter = mutableSetOf<Attributt>()
+    val ikkeStoettedeAttributter = mutableSetOf<Violation>()
+    val stoettedeAttributter = mutableSetOf<Attributt>()
 
     val etterspurteAttributter = (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
         ?.filter { it.isNotBlank() }
@@ -63,9 +63,9 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
     logger.info("Etterspurte Attributter = [${etterspurteAttributter.joinToString(", ")}]")
 
     etterspurteAttributter.forEach {
-        try { støttedeAttributter.add(Attributt.fraApi(it)) }
+        try { stoettedeAttributter.add(Attributt.fraApi(it)) }
         catch (cause: Throwable) {
-            ikkeStøttedeAttributter.add(Violation(
+            ikkeStoettedeAttributter.add(Violation(
                 parameterType = ParameterType.QUERY,
                 parameterName = ATTRIBUTT_QUERY_NAVN,
                 invalidValue = it,
@@ -74,8 +74,8 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
         }
     }
 
-    return if (ikkeStøttedeAttributter.isEmpty()) { støttedeAttributter }
-    else throw Throwblem(ValidationProblemDetails(ikkeStøttedeAttributter))
+    return if (ikkeStoettedeAttributter.isEmpty()) { stoettedeAttributter }
+    else throw Throwblem(ValidationProblemDetails(ikkeStoettedeAttributter))
 }
 private fun ApplicationCall.hentFraOgMedTilOgMed() : Pair<LocalDate, LocalDate> {
     val fomQuery = request.queryParameters[FRA_OG_MED_QUERY_NAVN]

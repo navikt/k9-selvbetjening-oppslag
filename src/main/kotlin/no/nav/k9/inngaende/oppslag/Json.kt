@@ -8,11 +8,11 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
 
     // Meg
     if (attributter.etterspurtMeg()) {
-        if (attributter.contains(Attributt.aktørId)) json.put("aktør_id", meg!!.aktørId!!.value)
+        if (attributter.contains(Attributt.aktoerId)) json.put("aktoer_id", meg!!.aktoerId!!.value)
         if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.tpsPerson!!.fornavn)
         if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.tpsPerson!!.mellomnavn)
         if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.tpsPerson!!.etternavn)
-        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.tpsPerson!!.fødselsdato.toString())
+        if (attributter.contains(Attributt.foedselsdato)) json.put("foedselsdato", meg!!.tpsPerson!!.foedselsdato.toString())
     }
 
     // Barn
@@ -20,11 +20,11 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         val barnJsonArray = JSONArray()
         barn?.forEach {
             barnJsonArray.put(JSONObject().apply {
-                if (attributter.contains(Attributt.barnAktørId)) put("aktør_id", it.aktørId!!.value)
+                if (attributter.contains(Attributt.barnAktoerId)) put("aktoer_id", it.aktoerId!!.value)
                 if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.tpsBarn!!.fornavn)
                 if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.tpsBarn!!.mellomnavn)
                 if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.tpsBarn!!.etternavn)
-                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.tpsBarn!!.fødselsdato)
+                if (attributter.contains(Attributt.barnFoedselsdato)) put("foedselsdato", it.tpsBarn!!.foedselsdato)
             })
 
         }

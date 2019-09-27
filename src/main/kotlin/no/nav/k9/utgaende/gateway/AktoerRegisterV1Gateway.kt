@@ -3,24 +3,24 @@ package no.nav.k9.utgaende.gateway
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.AktoerregisterV1
-import no.nav.k9.utgaende.rest.AktørId
+import no.nav.k9.utgaende.rest.AktoerId
 
 internal class AktoerRegisterV1Gateway(
-    private val aktørRegisterV1: AktoerregisterV1
+    private val aktoerRegisterV1: AktoerregisterV1
 ) {
     internal companion object {
-        private val støttedeAttributter = setOf(
-            Attributt.aktørId,
-            Attributt.barnAktørId
+        private val stoettedeAttributter = setOf(
+            Attributt.aktoerId,
+            Attributt.barnAktoerId
         )
     }
 
-    internal suspend fun aktørId(
+    internal suspend fun aktoerId(
         ident: Ident,
         attributter: Set<Attributt>
-    ) : AktørId? {
-        return if (attributter.any { it in støttedeAttributter }) {
-            aktørRegisterV1.aktørId(ident)
+    ) : AktoerId? {
+        return if (attributter.any { it in stoettedeAttributter }) {
+            aktoerRegisterV1.aktoerId(ident)
         } else null
     }
 }
