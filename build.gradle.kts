@@ -46,6 +46,10 @@ dependencies {
     compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
     // Test
+    testCompile ( "no.nav.helse:dusseldorf-ktor-test-support:$dusseldorfKtorVersion")
+    testCompile ("io.ktor:ktor-server-test-host:1.2.3") {
+        exclude(group = "org.eclipse.jetty")
+    }
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
