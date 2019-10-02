@@ -43,14 +43,6 @@ fun Application.SelvbetjeningOppslag() {
     DefaultExports.initialize()
 
     val requestContextService = RequestContextService()
-    val webServices = WebServices(
-        requestContextService = requestContextService,
-        stsClient = WebServiceSTSClient.instance(
-            stsUrl = environment.config.wsStsUrl(),
-            username = environment.config.clientId(),
-            password = environment.config.clientSecret()
-        )
-    )
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
 
     install(Authentication) {
