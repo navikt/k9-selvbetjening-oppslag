@@ -13,16 +13,16 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
-
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
+import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.skyscreamer.jsonassert.JSONAssert
 
 @KtorExperimentalAPI
 class ApplicationTest {
@@ -38,6 +38,7 @@ class ApplicationTest {
             .k9SelvbetjeningOppslagConfig()
             .build()
             .stubAktoerRegisterGetAktoerId()
+            .stubTpsProxyGetPerson()
 
         fun getConfig(): ApplicationConfig {
 
@@ -100,6 +101,49 @@ class ApplicationTest {
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
 
+        }
+    }
+
+    @Test
+    fun `test megOppslag aktør_id og fornavn`() {
+        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-fornavn")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { "aktør_id": "12345",
+                 "fornavn": "ARNE"}
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test megOppslag aktør_id og navn og fødselsdato`() {
+        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-navn-foedselsdato")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "aktør_id": "12345",
+                    "fornavn": "ARNE",
+                    "mellomnavn": "BJARNE",
+                    "etternavn": "CARLSEN",
+                    "fødselsdato": "1990-01-02"
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
         }
     }
 

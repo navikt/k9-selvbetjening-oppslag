@@ -14,6 +14,7 @@ private const val tpsProxyServerPath = "/tps-proxy-mock"
 internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
         .extensions(AktoerRegisterResponseTransformer())
+        .extensions(TpsProxyResponseTransformer())
 }
 
 internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
@@ -25,6 +26,20 @@ internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
                     .withTransformers("aktoer-register")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/.*"))
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("tps-proxy")
             )
     )
     return this
