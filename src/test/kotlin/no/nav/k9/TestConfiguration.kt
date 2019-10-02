@@ -2,6 +2,7 @@ package no.nav.k9
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.tomakehurst.wiremock.WireMockServer
+import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.getLoginServiceV1WellKnownUrl
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.getNaisStsWellKnownUrl
 import no.nav.k9.wiremocks.getAktoerRegisterUrl
 import no.nav.k9.wiremocks.getArbeidsgiverOgArbeidstakerRegisterUrl
@@ -32,7 +33,10 @@ object TestConfiguration {
 
             Pair("nav.auth.rest_token_url", "${naisStsWellKnownJson?.getString("token_endpoint")}"),
             Pair("nav.auth.client_id", "k9-selvbetjening-oppslag"),
-            Pair("nav.auth.client_secret", "mySecret")
+            Pair("nav.auth.client_secret", "mySecret"),
+
+            Pair("nav.auth.issuers.0.alias", "login-service-v1"),
+            Pair("nav.auth.issuers.0.discovery_endpoint", wireMockServer!!.getLoginServiceV1WellKnownUrl())
         )
         return map.toMap()
     }

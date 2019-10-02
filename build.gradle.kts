@@ -53,6 +53,7 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testCompile ("org.skyscreamer:jsonassert:1.5.0")
 }
 
 repositories {
