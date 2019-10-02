@@ -31,8 +31,6 @@ object TestConfiguration {
             Pair("nav.register_urls.enhetsregister_v1", "$enhetsRegisterBaseUrl"),
 
             Pair("nav.auth.rest_token_url", "${naisStsWellKnownJson?.getString("token_endpoint")}"),
-
-            Pair("nav.auth.ws.sts_url", "${naisStsWellKnownJson?.getString("token_endpoint")}"),
             Pair("nav.auth.client_id", "k9-selvbetjening-oppslag"),
             Pair("nav.auth.client_secret", "mySecret")
         )

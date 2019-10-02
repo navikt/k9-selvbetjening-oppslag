@@ -24,9 +24,6 @@ internal fun ApplicationConfig.enhetsregisterV1Url() = URI(getRequiredString("na
 internal fun ApplicationConfig.restTokenUrl() = URI(getRequiredString("nav.auth.rest_token_url", secret = false))
 
 @KtorExperimentalAPI
-internal fun ApplicationConfig.wsStsUrl() = URI(getRequiredString("nav.auth.ws.sts_url", secret = false))
-
-@KtorExperimentalAPI
 internal fun ApplicationConfig.clientId() = getRequiredString("nav.auth.client_id", secret = false)
 
 @KtorExperimentalAPI
