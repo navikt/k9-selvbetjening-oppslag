@@ -31,14 +31,6 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
-
-    // cxf
-    compile("org.apache.cxf:cxf-rt-ws-security:$cxfVersion")
-    compile("org.apache.cxf:cxf-rt-ws-policy:$cxfVersion")
-    compile("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
-    compile("org.apache.cxf:cxf-rt-features-logging:$cxfVersion")
-    compile("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
-
     // Tjenestespesifikasjoner
     compile("com.sun.xml.ws:jaxws-rt:2.3.2")
     compile("javax.activation:activation:1.1.1")
