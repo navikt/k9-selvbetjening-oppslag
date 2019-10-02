@@ -3,7 +3,7 @@ package no.nav.k9
 import io.ktor.server.testing.withApplication
 import no.nav.helse.dusseldorf.ktor.testsupport.asArguments
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
-import no.nav.k9.wiremocks.k9SelvbetjeningOppslagApiConfig
+import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,10 +18,9 @@ class ApplicationWithMocks {
 
             val wireMockServer = WireMockBuilder()
                 .withPort(8081)
-                .withAzureSupport()
                 .withNaisStsSupport()
                 .withLoginServiceSupport()
-                .k9SelvbetjeningOppslagApiConfig()
+                .k9SelvbetjeningOppslagConfig()
                 .build()
                 .stubAktoerRegisterGetAktoerId()
 

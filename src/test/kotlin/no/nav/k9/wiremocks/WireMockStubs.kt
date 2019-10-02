@@ -6,12 +6,12 @@ import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import io.ktor.http.HttpHeaders
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
 
-private const val aktoerRegisterServerPath = "/k9-reverse-proxy/aktoer-register-mock"
-private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/k9-reverse-proxy/arbeidsgiver-og-arbeidstaker-register-mock"
-private const val enhetsRegisterServerPath = "/k9-reverse-proxy/enhets-register-mock"
-private const val tpsProxyServerPath = "/k9-reverse-proxy/tps-proxy-mock"
+private const val aktoerRegisterServerPath = "/aktoer-register-mock"
+private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
+private const val enhetsRegisterServerPath = "/enhets-register-mock"
+private const val tpsProxyServerPath = "/tps-proxy-mock"
 
-internal fun WireMockBuilder.k9SelvbetjeningOppslagApiConfig() = wireMockConfiguration {
+internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
         .extensions(AktoerRegisterResponseTransformer())
 }
