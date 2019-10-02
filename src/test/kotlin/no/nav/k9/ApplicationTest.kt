@@ -14,7 +14,7 @@ import io.ktor.util.KtorExperimentalAPI
 import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
 
-import no.nav.k9.wiremocks.k9SelvbetjeningOppslagApiConfig
+import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -35,7 +35,7 @@ class ApplicationTest {
             .withAzureSupport()
             .withNaisStsSupport()
             .withLoginServiceSupport()
-            .k9SelvbetjeningOppslagApiConfig()
+            .k9SelvbetjeningOppslagConfig()
             .build()
             .stubAktoerRegisterGetAktoerId()
 
