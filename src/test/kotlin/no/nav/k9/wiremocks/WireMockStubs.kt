@@ -19,7 +19,6 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
 internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$aktoerRegisterServerPath/.*"))
-            .withHeader("x-nav-apiKey", AnythingPattern())
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
             .willReturn(
                 WireMock.aResponse()
