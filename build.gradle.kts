@@ -9,7 +9,7 @@ val kotlinVersion = ext.get("kotlinVersion").toString()
 val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
 val junitJupiterVersion = "5.5.2"
 
-val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"peronv
+val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
     kotlin("jvm") version "1.3.50"
