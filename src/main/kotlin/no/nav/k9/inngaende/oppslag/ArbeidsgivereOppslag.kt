@@ -34,7 +34,7 @@ internal class ArbeidsgivereOppslag(
         enhetsregisterV1Gateway.organisasjon(
             attributter = attributter,
             organisasjonsnummer = EnhetOrganisasjonsnummer(organisasjonsnummer)
-        )?.navn
+        )?.navn // hva returneres dersom verdi returnert fra .organisasjon(...) er null? (henter navn bare dersom det attributtet er sendt medi kall (fra api))
     } catch (cause: Throwable) {
         null
     }
