@@ -5,10 +5,14 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
+import no.nav.k9.utgaende.rest.NavHeaders
 
 private val identMap = mapOf(
-    "AktoerId" to "12345",
-    "NorskIdent" to "678910"
+    "01019012345" to "12345",
+    "25037139184" to "23456",
+    "10047025546" to "34567",
+    "11121279632" to "54321", // barn av 10047025546
+    "24121479490" to "65432" // barn av 10047025546
 )
 
 class AktoerRegisterResponseTransformer : ResponseTransformer() {
@@ -18,9 +22,8 @@ class AktoerRegisterResponseTransformer : ResponseTransformer() {
         files: FileSource?,
         parameters: Parameters?
     ): Response {
-        val personIdent = request!!.getHeader("Nav-Personidenter")
+        val personIdent = request!!.getHeader(NavHeaders.PersonIdenter)
         val identGruppe = request.queryParameter("identgruppe").firstValue()
-
 
         return Response.Builder.like(response)
             .body(getResponse(
@@ -48,7 +51,7 @@ private fun getResponse(
   "$personIdent": {
     "identer": [
       {
-        "ident": "${identMap[identGruppe]}",
+        "ident": "${identMap[personIdent]}",
         "identgruppe": "$identGruppe",
         "gjeldende": true
       }

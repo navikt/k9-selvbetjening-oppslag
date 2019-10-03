@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
+import no.nav.k9.utgaende.rest.NavHeaders
 
 class TpsProxyResponseTransformer : ResponseTransformer() {
     override fun transform(
@@ -13,7 +14,7 @@ class TpsProxyResponseTransformer : ResponseTransformer() {
         files: FileSource?,
         parameters: Parameters?
     ): Response {
-        val personIdent = request!!.getHeader("Nav-Personident")
+        val personIdent = request!!.getHeader(NavHeaders.PersonIdent)
 
         return Response.Builder.like(response)
             .body(getResponse(personIdent))
@@ -21,7 +22,7 @@ class TpsProxyResponseTransformer : ResponseTransformer() {
     }
 
     override fun getName(): String {
-        return "tps-proxy"
+        return "tps-proxy-person"
     }
 
     override fun applyGlobally(): Boolean {
