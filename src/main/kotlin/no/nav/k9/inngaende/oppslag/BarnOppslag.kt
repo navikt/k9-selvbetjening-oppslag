@@ -27,7 +27,7 @@ internal class BarnOppslag(
                 Barn(
                     tpsBarn = it,
                     aktørId = aktoerRegisterV1Gateway.aktørId(
-                        ident = ident,
+                        ident = Ident(it.ident),
                         attributter = attributter
                     )
                 )

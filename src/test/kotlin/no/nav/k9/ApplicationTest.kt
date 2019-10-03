@@ -15,6 +15,7 @@ import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
+import no.nav.k9.wiremocks.stubTpsProxyGetBarn
 import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -38,6 +39,7 @@ class ApplicationTest {
             .build()
             .stubAktoerRegisterGetAktoerId()
             .stubTpsProxyGetPerson()
+            .stubTpsProxyGetBarn()
 
         fun getConfig(): ApplicationConfig {
 
@@ -114,7 +116,7 @@ class ApplicationTest {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
-                { "aktør_id": "12345",
+                { "aktør_id": "23456",
                  "fornavn": "ARNE"}
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
@@ -134,7 +136,7 @@ class ApplicationTest {
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { 
-                    "aktør_id": "12345",
+                    "aktør_id": "23456",
                     "fornavn": "ARNE",
                     "mellomnavn": "BJARNE",
                     "etternavn": "CARLSEN",
@@ -145,5 +147,61 @@ class ApplicationTest {
             }
         }
     }
+
+    @Test
+    fun `test barnOppslag aktoerId`() {
+        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn":[
+                        {"aktør_id":"54321"}, 
+                        {"aktør_id":"65432"}
+                    ]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true) //feiler. AktørId for barn blir satt til forelders aktørId
+            }
+        }
+    }
+
+    @Test
+    fun `test barnOppslag navn og fødselsdato`() {
+        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { "barn":[
+                    {
+                        "fornavn": "KLØKTIG",
+                        "mellomnavn": "BLUNKENDE",
+                        "etternavn": "KONSOLL",
+                        "fødselsdato": "2012-12-11"
+                    },
+                    {
+                        "fornavn": "SLAPP",
+                        "mellomnavn": "OVERSTRÅLENDE",
+                        "etternavn": "HEST",
+                        "fødselsdato": "2014-12-24"
+                    }
+                ]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
 
 }
