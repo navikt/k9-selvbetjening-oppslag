@@ -159,10 +159,12 @@ class ApplicationTest {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
-                { "barn":[
-                    {aktoer_id":"54321"}, 
-                    {aktoer_id":"65432"}
-                ]
+                { 
+                    "barn":[
+                        {"aktør_id":"54321"}, 
+                        {"aktør_id":"65432"}
+                    ]
+                }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true) //feiler. AktørId for barn blir satt til forelders aktørId
             }
@@ -182,13 +184,13 @@ class ApplicationTest {
                 val expectedResponse = """
                 { "barn":[
                     {
-                        "fornavn":"KLØKTIG",
+                        "fornavn": "KLØKTIG",
                         "mellomnavn": "BLUNKENDE",
                         "etternavn": "KONSOLL",
                         "fødselsdato": "2012-12-11"
                     },
                     {
-                        "fornavn":"SLAPP",
+                        "fornavn": "SLAPP",
                         "mellomnavn": "OVERSTRÅLENDE",
                         "etternavn": "HEST",
                         "fødselsdato": "2014-12-24"

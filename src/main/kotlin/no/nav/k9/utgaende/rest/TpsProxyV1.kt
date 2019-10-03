@@ -139,7 +139,8 @@ internal class TpsProxyV1 (
                     mellomnavn = forkortetNavn.mellomnavn,
                     etternavn = forkortetNavn.etternavn,
                     fødselsdato = LocalDate.parse(it.getString("foedselsdato")),
-                    dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null
+                    dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null,
+                    fnr = it.getString("ident")
                 )
             }
             .toSet()
@@ -157,7 +158,8 @@ internal data class TpsBarn(
     internal val mellomnavn: String?,
     internal val etternavn: String,
     internal val fødselsdato: LocalDate,
-    internal val dødsdato: LocalDate?
+    internal val dødsdato: LocalDate?,
+    internal val fnr: String
 )
 
 internal data class ForkortetNavn(private val value: String) {
