@@ -31,9 +31,6 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
     // Tjenestespesifikasjoner
-    compile("com.sun.xml.ws:jaxws-rt:2.3.2")
-    compile("javax.activation:activation:1.1.1")
-    
     compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
     // Test
