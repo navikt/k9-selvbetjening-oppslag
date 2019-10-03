@@ -40,8 +40,6 @@ spec:
   env:
     - name: LOGIN_SERVICE_V1_DISCOVERY_ENDPOINT
       value: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
-    - name: PERSON_V3_URL
-      value: https://wasapp-q1.adeo.no/tpsws/ws/Person/v3
     - name: ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL
       value: https://modapp-q1.adeo.no/aareg-core/api/v1
     - name: AKTOER_V1_URL

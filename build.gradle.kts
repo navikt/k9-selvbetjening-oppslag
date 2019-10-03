@@ -9,10 +9,7 @@ val kotlinVersion = ext.get("kotlinVersion").toString()
 val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
 val junitJupiterVersion = "5.5.2"
 
-val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
-
-fun tjenestespesifikasjon(name: String) = "no.nav.tjenestespesifikasjoner:$name:$tjenestespesifikasjonerVersion"
-
+val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"peronv
 
 plugins {
     kotlin("jvm") version "1.3.50"
@@ -29,9 +26,6 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
-
-    // Tjenestespesifikasjoner
-    compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
     // Test
     testCompile ( "no.nav.helse:dusseldorf-ktor-test-support:$dusseldorfKtorVersion")
