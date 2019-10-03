@@ -218,15 +218,16 @@ class ApplicationTest {
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
-                    "arbeidsgivere": [
-                    {
+                    "arbeidsgivere": {
                         "organisasjoner": [
                             {
-                            "organisasjonsnummer": "___"
+                            "organisasjonsnummer": "123456789"
+                            },
+                            {
+                            "organisasjonsnummer": "981585216"
                             }
                         ]
                     }
-                    ]
                  }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)

@@ -32,9 +32,7 @@ class ArbeidstakerResponseTransformer : ResponseTransformer() {
 
 private fun getResponse(navIdent: String) : String {
     when (navIdent) {
-        "01010112345" -> {
-            return "";
-        } else -> {
+        "01019012345" -> {
         return """
             [
   {
@@ -110,6 +108,7 @@ private fun getResponse(navIdent: String) : String {
     ],
     "arbeidsforholdId": "abc-321",
     "arbeidsgiver": {
+      "organisasjonsnummer": "123456789",
       "type": "Organisasjon"
     },
     "arbeidstaker": {
@@ -176,10 +175,86 @@ private fun getResponse(navIdent: String) : String {
         }
       }
     ]
-  }
+  },
+  
+  {
+    "ansettelsesperiode": {
+        "bruksperiode": {
+            "fom": "2015-08-13T10:19:33.697"
+        },
+        "sporingsinformasjon": {
+            "opprettetKilde": "EDAG",
+            "endretAv": "srvappserver",
+            "opprettetKildereferanse": "9c1857a0-f20a-4d56-8c12-14e32ca2eb62",
+            "opprettetTidspunkt": "2015-08-13T10:19:33.697",
+            "opprettetAv": "srvappserver",
+            "endretKilde": "EDAG",
+            "endretKildereferanse": "9c1857a0-f20a-4d56-8c12-14e32ca2eb62",
+            "endretTidspunkt": "2015-08-13T10:19:33.697"
+        },
+        "periode": {
+            "fom": "2000-04-24"
+        }
+    },
+    "sporingsinformasjon": {
+        "opprettetKilde": "EDAG",
+        "endretAv": "srvappserver",
+        "opprettetKildereferanse": "5eab5e0c-1251-4fa5-b2e3-af8b6becca02",
+        "opprettetTidspunkt": "2015-02-03T13:57:15.972",
+        "opprettetAv": "srvappserver",
+        "endretKilde": "EDAG",
+        "endretKildereferanse": "eda00000-0000-0000-0000-001883142102",
+        "endretTidspunkt": "2019-06-03T12:04:07.773"
+    },
+    "arbeidsgiver": {
+        "organisasjonsnummer": "981585216",
+        "type": "Organisasjon"
+    },
+    "navArbeidsforholdId": 34977713,
+    "arbeidsforholdId": "1012-20000424-1",
+    "opplysningspliktig": {
+        "organisasjonsnummer": "981566378",
+        "type": "Organisasjon"
+    },
+    "arbeidstaker": {
+        "offentligIdent": "12107548740",
+        "aktoerId": "1000036350643",
+        "type": "Person"
+    },
+    "arbeidsavtaler": [{
+        "antallTimerPrUke": 37.5,
+        "bruksperiode": {
+            "fom": "2019-02-01T11:16:49.299"
+        },
+        "sporingsinformasjon": {
+            "opprettetKilde": "EDAG",
+            "endretAv": "srvappserver",
+            "opprettetKildereferanse": "eda00000-0000-0000-0000-001644633930",
+            "opprettetTidspunkt": "2019-02-01T11:16:49.309",
+            "opprettetAv": "srvappserver",
+            "endretKilde": "EDAG",
+            "endretKildereferanse": "eda00000-0000-0000-0000-001644633930",
+            "endretTidspunkt": "2019-02-01T11:16:49.309"
+        },
+        "arbeidstidsordning": "ikkeSkift",
+        "yrke": "2130123",
+        "sistLoennsendring": "2019-01-01",
+        "gyldighetsperiode": {
+            "fom": "2019-01-01"
+        },
+        "beregnetAntallTimerPrUke": 37.5,
+        "stillingsprosent": 100
+    }],
+    "registrert": "2015-02-03T13:56:45.243",
+    "sistBekreftet": "2019-06-03T11:53:07",
+    "type": "ordinaertArbeidsforhold",
+    "innrapportertEtterAOrdningen": true
+}
 ]
         """.trimIndent()
-    }
+        } else -> {
+            return ""
+        }
     }
 }
 
