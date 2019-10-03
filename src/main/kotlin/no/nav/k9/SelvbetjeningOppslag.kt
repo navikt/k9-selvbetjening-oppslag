@@ -31,8 +31,6 @@ import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 import no.nav.k9.utgaende.rest.TpsProxyV1
-import no.nav.k9.utgaende.ws.WebServiceSTSClient
-import no.nav.k9.utgaende.ws.WebServices
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 

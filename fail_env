@@ -8,6 +8,5 @@ export TPS_PROXY_V1_URL=http://localhost:8085
 
 export REST_TOKEN_URL=http://localhost:8100
 
-export WS_STS_URL=http://localhost:8101
 export CLIENT_ID=foo
 export CLIENT_SECRET=bar
