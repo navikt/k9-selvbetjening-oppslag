@@ -32,7 +32,6 @@ class ApplicationTest {
         private val logger: Logger = LoggerFactory.getLogger(ApplicationTest::class.java)
 
         val wireMockServer = WireMockBuilder()
-            .withAzureSupport()
             .withNaisStsSupport()
             .withLoginServiceSupport()
             .k9SelvbetjeningOppslagConfig()
