@@ -16,6 +16,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(AktoerRegisterResponseTransformer())
         .extensions(TpsProxyResponseTransformer())
         .extensions(TpsProxyBarnResponseTransformer())
+        .extensions(ArbeidstakerResponseTransformer())
 }
 
 internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
@@ -55,6 +56,20 @@ internal fun WireMockServer.stubTpsProxyGetBarn() : WireMockServer {
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
                     .withTransformers("tps-proxy-barn")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$arbeidsgiverOgArbeidstakerRegisterServerPath/arbeidstaker/arbeidsforhold*"))
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("arbeidstaker-arbeidsforhold")
             )
     )
     return this

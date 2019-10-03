@@ -15,6 +15,7 @@ import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
+import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
 import no.nav.k9.wiremocks.stubTpsProxyGetBarn
 import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.junit.jupiter.api.AfterAll
@@ -40,6 +41,7 @@ class ApplicationTest {
             .stubAktoerRegisterGetAktoerId()
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
+            .stubArbeidsgiverOgArbeidstakerRegister()
 
         fun getConfig(): ApplicationConfig {
 
@@ -204,4 +206,33 @@ class ApplicationTest {
     }
 
 
+    @Test
+    fun `test arbeidsgiverOppslag orgnr`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "arbeidsgivere": [
+                    {
+                        "organisasjoner": [
+                            {
+                            "organisasjonsnummer": "___"
+                            }
+                        ]
+                    }
+                    ]
+                 }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+
+        // må teste arbeidstakerOgArbeidstakerRegisterV1.arbeidsforhold med fom- og tom-verdier?
+    }
 }
