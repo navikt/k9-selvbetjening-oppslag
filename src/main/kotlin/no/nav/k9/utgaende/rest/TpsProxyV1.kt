@@ -80,7 +80,7 @@ internal class TpsProxyV1 (
 
         return TpsPerson(
             fornavn = navn.getString("fornavn"),
-            mellomnavn = if (navn.has("mellomnavn")) navn.getString("mellomnavn") else null,
+            mellomnavn = if (navn.has("mellomnavn") && navn.getString("mellomnavn") != "") navn.getString("mellomnavn") else null,
             etternavn = navn.getString("slektsnavn"),
             fødselsdato = LocalDate.parse(json.getString("foedselsdato"))
         )

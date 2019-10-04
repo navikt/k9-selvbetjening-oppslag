@@ -165,8 +165,7 @@ class ApplicationTest {
                 val expectedResponse = """
                 {
                     "fornavn": "CATO",
-                    "mellomnavn": "",
-                    "etternavn": "NILSEN",
+                    "etternavn": "NILSEN"
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
@@ -245,7 +244,6 @@ class ApplicationTest {
                     "barn":[
                         {
                             "fornavn": "MANGLER",
-                            "mellomnavn": "",
                             "etternavn": "MELLOMNAVN"
                         }
                     ]
@@ -339,7 +337,6 @@ class ApplicationTest {
                 "barn":[
                     {
                         "fornavn": "PRIPPEN",
-                        "mellomnavn": "",
                         "etternavn": "JUMBOJET",
                         "fødselsdato": "1999-12-11"
                     },
