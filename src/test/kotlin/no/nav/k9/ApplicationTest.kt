@@ -16,6 +16,7 @@ import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
+import no.nav.k9.wiremocks.stubEnhetsRegister
 import no.nav.k9.wiremocks.stubTpsProxyGetBarn
 import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.junit.jupiter.api.AfterAll
@@ -42,6 +43,7 @@ class ApplicationTest {
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
+            .stubEnhetsRegister()
 
         fun getConfig(): ApplicationConfig {
 
@@ -233,7 +235,37 @@ class ApplicationTest {
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
-
-        // må teste arbeidstakerOgArbeidstakerRegisterV1.arbeidsforhold med fom- og tom-verdier?
     }
+
+    @Test
+    fun `test arbeidsgiverOppslag orgnr og navn`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
+                        },
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
 }

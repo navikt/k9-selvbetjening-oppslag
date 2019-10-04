@@ -17,6 +17,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(TpsProxyResponseTransformer())
         .extensions(TpsProxyBarnResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
+        .extensions(EnhetsregResponseTransformer())
 }
 
 internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
@@ -70,6 +71,19 @@ internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister() : WireMockS
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
                     .withTransformers("arbeidstaker-arbeidsforhold")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubEnhetsRegister() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$enhetsRegisterServerPath/organisasjon/([0-9]*)/noekkelinfo")) // organisasjon/{orgnummer}/noekkelinfo
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("enhetsreg-noekkelinfo")
             )
     )
     return this
