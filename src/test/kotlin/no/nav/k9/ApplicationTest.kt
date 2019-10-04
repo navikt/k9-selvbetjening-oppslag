@@ -91,6 +91,17 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test oppslag uten idToken gir unauthorized`() {
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.Unauthorized, response.status())
+            }
+        }
+    }
+
+    @Test
     fun `test megOppslag aktoerId`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
