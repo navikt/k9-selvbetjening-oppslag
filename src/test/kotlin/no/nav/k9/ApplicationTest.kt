@@ -181,7 +181,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -244,7 +244,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -278,7 +278,7 @@ class ApplicationTest {
                     "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
                     "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
