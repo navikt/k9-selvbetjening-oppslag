@@ -153,6 +153,28 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test megOppslag navn har ikke mellomnavn`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01010067894")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-har-ikke-mellomnavn")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "fornavn": "CATO",
+                    "mellomnavn": "",
+                    "etternavn": "NILSEN",
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test barnOppslag aktoerId`() {
         val idToken: String = LoginService.V1_0.generateJwt("10047025546")
         with(engine) {
@@ -208,6 +230,31 @@ class ApplicationTest {
         }
     }
 
+    @Test
+    fun `test barnOppslag navn har ikke mellomnavn`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01010067894")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn":[
+                        {
+                            "fornavn": "MANGLER",
+                            "mellomnavn": "",
+                            "etternavn": "MELLOMNAVN"
+                        }
+                    ]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
 
     @Test
     fun `test arbeidsgiverOppslag orgnr`() {
@@ -292,7 +339,7 @@ class ApplicationTest {
                 "barn":[
                     {
                         "fornavn": "PRIPPEN",
-                        
+                        "mellomnavn": "",
                         "etternavn": "JUMBOJET",
                         "fødselsdato": "1999-12-11"
                     },
