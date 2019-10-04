@@ -37,7 +37,12 @@ private fun getResponse(navIdent: String) : String {
     val foedselsdato: String
 
     when (navIdent) {
-        "25037139184" -> {
+        "01019012345" -> {
+            fornavn = "STOR-KAR"
+            mellomnavn = "LANGEMANN"
+            etternavn = "TEST"
+            foedselsdato = "1985-07-27"
+        } "25037139184" -> {
             fornavn = "ARNE"
             mellomnavn = "BJARNE"
             etternavn = "CARLSEN"

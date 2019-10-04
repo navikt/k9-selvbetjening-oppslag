@@ -186,20 +186,21 @@ class ApplicationTest {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
-                { "barn":[
-                    {
-                        "fornavn": "KLØKTIG",
-                        "mellomnavn": "BLUNKENDE",
-                        "etternavn": "KONSOLL",
-                        "fødselsdato": "2012-12-11"
-                    },
-                    {
-                        "fornavn": "SLAPP",
-                        "mellomnavn": "OVERSTRÅLENDE",
-                        "etternavn": "HEST",
-                        "fødselsdato": "2014-12-24"
-                    }
-                ]
+                { 
+                    "barn":[
+                        {
+                            "fornavn": "KLØKTIG",
+                            "mellomnavn": "BLUNKENDE",
+                            "etternavn": "KONSOLL",
+                            "fødselsdato": "2012-12-11"
+                        },
+                        {
+                            "fornavn": "SLAPP",
+                            "mellomnavn": "OVERSTRÅLENDE",
+                            "etternavn": "HEST",
+                            "fødselsdato": "2014-12-24"
+                        }
+                    ]
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
@@ -268,4 +269,56 @@ class ApplicationTest {
         }
     }
 
+
+    @Test
+    fun `test oppslag alle attributter`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
+                    "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
+                    "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+            {
+                "aktør_id": "12345",
+                "fornavn": "STOR-KAR",
+                "mellomnavn": "LANGEMANN",
+                "etternavn": "TEST",
+                "fødselsdato": "1985-07-27",
+                "barn":[
+                    {
+                        "fornavn": "PRIPPEN",
+                        
+                        "etternavn": "JUMBOJET",
+                        "fødselsdato": "1999-12-11"
+                    },
+                    {
+                        "fornavn": "MEGET",
+                        "mellomnavn": "STILIG",
+                        "etternavn": "PLANKE",
+                        "fødselsdato": "2014-12-24"
+                    }
+                ],
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
+                        },
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
 }
