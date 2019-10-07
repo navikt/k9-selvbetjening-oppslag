@@ -11,9 +11,6 @@ val junitJupiterVersion = "5.5.2"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
-fun tjenestespesifikasjon(name: String) = "no.nav.tjenestespesifikasjoner:$name:$tjenestespesifikasjonerVersion"
-
-
 plugins {
     kotlin("jvm") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "5.1.0"
@@ -29,9 +26,6 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
-
-    // Tjenestespesifikasjoner
-    compile(tjenestespesifikasjon("person-v3-tjenestespesifikasjon"))
 
     // Test
     testCompile ( "no.nav.helse:dusseldorf-ktor-test-support:$dusseldorfKtorVersion")
