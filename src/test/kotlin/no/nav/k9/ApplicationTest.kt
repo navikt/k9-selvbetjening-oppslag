@@ -91,6 +91,17 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test oppslag uten idToken gir unauthorized`() {
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.Unauthorized, response.status())
+            }
+        }
+    }
+
+    @Test
     fun `test megOppslag aktoerId`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
@@ -255,6 +266,26 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test barnOppslag ingenBarn`() {
+        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-ingen-barn")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn":[]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test arbeidsgiverOppslag orgnr`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
@@ -308,6 +339,28 @@ class ApplicationTest {
                     ]
                 }
              }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
+        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+            {
+                "arbeidsgivere":{
+                    "organisasjoner":[]
+                }
+            }
             """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }

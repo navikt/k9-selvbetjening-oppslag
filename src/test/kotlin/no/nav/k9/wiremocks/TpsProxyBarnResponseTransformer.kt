@@ -196,7 +196,7 @@ private fun getResponse(navIdent: String) : String {
         return """
             []
         """.trimIndent()
-    }
+        }
     }
 }
 
