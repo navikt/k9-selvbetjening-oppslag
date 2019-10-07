@@ -32,7 +32,70 @@ class TpsProxyBarnResponseTransformer : ResponseTransformer() {
 
 private fun getResponse(navIdent: String) : String {
     when (navIdent) {
-        "10047025546" -> {
+        "01019012345" -> {
+            return """
+            [
+          {
+            "datoFraOgMed": null,
+            "kilde": null,
+            "ident": "11129998665",
+            "relasjonsType": {
+              "verdi": "BARN",
+              "kodeverk": "Familierelasjoner"
+            },
+            "forkortetNavn": "JUMBOJET PRIPPEN",
+            "kjoenn": "K",
+            "foedselsdato": "1999-12-11",
+            "alder": 6,
+            "harSammeAdresse": true,
+            "statsborgerskap": {
+              "datoFraOgMed": "1999-12-11",
+              "kilde": "SKD",
+              "kode": {
+                "verdi": "NOR",
+                "kodeverk": "StatsborgerskapFreg"
+              }
+            },
+            "doedsdato": null,
+            "spesiellOpplysning": null,
+            "egenansatt": {
+              "datoFraOgMed": null,
+              "kilde": null,
+              "erEgenansatt": false
+            }
+          },
+          {
+            "datoFraOgMed": null,
+            "kilde": null,
+            "ident": "24121479590",
+            "relasjonsType": {
+              "verdi": "BARN",
+              "kodeverk": "Familierelasjoner"
+            },
+            "forkortetNavn": "PLANKE MEGET STILIG",
+            "kjoenn": "M",
+            "foedselsdato": "2014-12-24",
+            "alder": 4,
+            "harSammeAdresse": true,
+            "statsborgerskap": {
+              "datoFraOgMed": "2014-12-24",
+              "kilde": "SKD",
+              "kode": {
+                "verdi": "NOR",
+                "kodeverk": "StatsborgerskapFreg"
+              }
+            },
+            "doedsdato": null,
+            "spesiellOpplysning": null,
+            "egenansatt": {
+              "datoFraOgMed": null,
+              "kilde": null,
+              "erEgenansatt": false
+            }
+          }
+        ]
+            """.trimIndent()
+        } "10047025546" -> {
             return """
             [
           {
@@ -79,6 +142,40 @@ private fun getResponse(navIdent: String) : String {
             "harSammeAdresse": true,
             "statsborgerskap": {
               "datoFraOgMed": "2014-12-24",
+              "kilde": "SKD",
+              "kode": {
+                "verdi": "NOR",
+                "kodeverk": "StatsborgerskapFreg"
+              }
+            },
+            "doedsdato": null,
+            "spesiellOpplysning": null,
+            "egenansatt": {
+              "datoFraOgMed": null,
+              "kilde": null,
+              "erEgenansatt": false
+            }
+          }
+        ]
+            """.trimIndent()
+        } "01010067894" -> {
+        return """
+            [
+          {
+            "datoFraOgMed": null,
+            "kilde": null,
+            "ident": "11121279632",
+            "relasjonsType": {
+              "verdi": "BARN",
+              "kodeverk": "Familierelasjoner"
+            },
+            "forkortetNavn": "MELLOMNAVN MANGLER",
+            "kjoenn": "K",
+            "foedselsdato": "2012-12-11",
+            "alder": 6,
+            "harSammeAdresse": true,
+            "statsborgerskap": {
+              "datoFraOgMed": "2012-12-11",
               "kilde": "SKD",
               "kode": {
                 "verdi": "NOR",
