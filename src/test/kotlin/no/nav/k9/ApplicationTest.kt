@@ -479,6 +479,20 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"a","reason":"Er ikke en støttet attributt.","invalid_value":"ugyldigattrib","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
     }
@@ -492,6 +506,20 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"a","reason":"Er ikke en støttet attributt.","invalid_value":"ugyldigattrib","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
     }
