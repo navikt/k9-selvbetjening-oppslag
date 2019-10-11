@@ -1,7 +1,7 @@
 package no.nav.k9.utgaende.rest
 
 internal object NavHeaders {
-    internal const val CallId = "Nav-Call-id"
+    internal const val CallId = "Nav-Call-Id"
     internal const val PersonIdent = "Nav-Personident"
     internal const val PersonIdenter = "Nav-Personidenter"
     internal const val ConsumerToken = "Nav-Consumer-Token"
