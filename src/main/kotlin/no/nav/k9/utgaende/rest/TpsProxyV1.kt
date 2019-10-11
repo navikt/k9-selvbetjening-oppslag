@@ -142,8 +142,8 @@ internal class TpsProxyV1 (
         return json
             .map { it as JSONObject }
             .map {
-                val ident = it.getString("ident")
-                val navn = ForkortetNavn(it.getString("forkortetNavn")).somTpsNavn(Ident(ident))
+                val barnetsIdent = Ident(it.getString("ident"))
+                val navn = ForkortetNavn(it.getString("forkortetNavn")).somTpsNavn(barnetsIdent)
                 val dødsdato = it.getJsonObjectOrNull("doedsdato")?.getStringOrNull("dato")
 
                 TpsBarn(
@@ -152,7 +152,7 @@ internal class TpsProxyV1 (
                     etternavn = navn.etternavn,
                     fødselsdato = LocalDate.parse(it.getString("foedselsdato")),
                     dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null,
-                    ident = it.getString("ident")
+                    ident = barnetsIdent
                 )
             }
             .toSet()
@@ -229,7 +229,7 @@ internal data class TpsBarn(
     internal val etternavn: String,
     internal val fødselsdato: LocalDate,
     internal val dødsdato: LocalDate?,
-    internal val ident: String
+    internal val ident: Ident
 )
 
 internal data class TpsNavn(
