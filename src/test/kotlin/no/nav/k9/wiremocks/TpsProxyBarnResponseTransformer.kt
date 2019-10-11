@@ -106,7 +106,7 @@ private fun getResponse(navIdent: String) : String {
               "verdi": "BARN",
               "kodeverk": "Familierelasjoner"
             },
-            "forkortetNavn": "KONSOLL KLØKTIG BLUNKENDE",
+            "forkortetNavn": ${"SUPERKONSOLL KLØKTIG BLUNKENDE".take(25)},
             "kjoenn": "K",
             "foedselsdato": "2012-12-11",
             "alder": 6,

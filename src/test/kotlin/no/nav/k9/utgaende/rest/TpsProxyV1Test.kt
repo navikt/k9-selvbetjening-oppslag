@@ -2,7 +2,8 @@ import no.nav.k9.utgaende.rest.ForkortetNavn
 import org.junit.jupiter.api.Test
 
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TpsProxyV1Test {
 
@@ -11,31 +12,31 @@ class TpsProxyV1Test {
         val forkortetNavn = ForkortetNavn("Forsman Erik")
         assertEquals("Erik", forkortetNavn.fornavn)
         assertEquals("Forsman", forkortetNavn.etternavn)
-        assertNull(forkortetNavn.mellomnavn)
+        assertTrue(forkortetNavn.erKomplett)
     }
 
     @Test
     fun `Forkortet navn med mellomnavn og under 25 tegn håndteres riktig`() {
         val forkortetNavn = ForkortetNavn("Forsman Erik Maximilian")
-        assertEquals("Erik", forkortetNavn.fornavn)
+        assertEquals("Erik Maximilian", forkortetNavn.fornavn)
         assertEquals("Forsman", forkortetNavn.etternavn)
-        assertEquals("Maximilian", forkortetNavn.mellomnavn)
+        assertTrue(forkortetNavn.erKomplett)
     }
 
     @Test
     fun `Forkortet navn med mellomnavn og over 25 tegn håndteres riktig`() {
         val forkortetNavn = ForkortetNavn("Forsman Erik Maximilian Bernadott".take(25))
-        assertEquals("Erik", forkortetNavn.fornavn)
+        assertEquals("Erik Maximilian B", forkortetNavn.fornavn)
         assertEquals("Forsman", forkortetNavn.etternavn)
-        assertEquals("Maximilian B", forkortetNavn.mellomnavn)
-    }
+        assertFalse(forkortetNavn.erKomplett)
+     }
 
     @Test
     fun `Forkortet navn uten mellomnavn og over 25 tegn håndteres riktig`() {
         val forkortetNavn = ForkortetNavn("Forsman ErikMaximilianBernadott".take(25))
         assertEquals("ErikMaximilianBer", forkortetNavn.fornavn)
         assertEquals("Forsman", forkortetNavn.etternavn)
-        assertNull(forkortetNavn.mellomnavn)
+        assertFalse(forkortetNavn.erKomplett)
     }
 
     @Test
@@ -43,7 +44,8 @@ class TpsProxyV1Test {
         val forkortetNavn = ForkortetNavn("Et-veldig-langtetternavn ")
         assertEquals("", forkortetNavn.fornavn)
         assertEquals("Et-veldig-langtetternavn", forkortetNavn.etternavn)
-        assertNull(forkortetNavn.mellomnavn)
+        assertFalse(forkortetNavn.erKomplett)
+
     }
 
     @Test
@@ -51,6 +53,6 @@ class TpsProxyV1Test {
         val forkortetNavn = ForkortetNavn("")
         assertEquals("", forkortetNavn.fornavn)
         assertEquals("", forkortetNavn.etternavn)
-        assertNull(forkortetNavn.mellomnavn)
+        assertFalse(forkortetNavn.erKomplett)
     }
 }

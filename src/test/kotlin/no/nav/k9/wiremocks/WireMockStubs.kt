@@ -48,6 +48,28 @@ internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
     return this
 }
 
+internal fun WireMockServer.stubTpsProxyGetNavn() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/navn"))
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withBody(
+                        """  
+                            {
+                                "fornavn": "KLØKTIG",
+                                "mellomnavn": "BLUNKENDE",
+                                "etternavn": "SUPERKONSOLL"
+                            }
+                        """.trimIndent()
+                    )
+            )
+    )
+    return this
+}
+
 internal fun WireMockServer.stubTpsProxyGetBarn() : WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/innsyn/barn*"))

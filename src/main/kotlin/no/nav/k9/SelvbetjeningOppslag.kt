@@ -76,7 +76,8 @@ fun Application.SelvbetjeningOppslag() {
                     oppslagService = OppslagService(
                         tpsProxyV1Gateway = TpsProxyV1Gateway(
                             tpsProxyV1 = TpsProxyV1(
-                                baseUrl = environment.config.tpsProxyV1Url()
+                                baseUrl = environment.config.tpsProxyV1Url(),
+                                accessTokenClient = naisStsAccessTokenClient
                             )
                         ),
                         aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(

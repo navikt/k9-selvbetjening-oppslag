@@ -13,6 +13,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
@@ -44,6 +45,7 @@ class ApplicationTest {
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
+            .stubTpsProxyGetNavn()
 
         fun getConfig(): ApplicationConfig {
 
@@ -217,18 +219,18 @@ class ApplicationTest {
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                // Første barn har totalt navn over > 24 tegn, så gjøres eget oppslag på navnet, den andre unngår oppslag da den er <= 24 tegn
                 val expectedResponse = """
                 { 
                     "barn":[
                         {
                             "fornavn": "KLØKTIG",
                             "mellomnavn": "BLUNKENDE",
-                            "etternavn": "KONSOLL",
+                            "etternavn": "SUPERKONSOLL",
                             "fødselsdato": "2012-12-11"
                         },
                         {
-                            "fornavn": "SLAPP",
-                            "mellomnavn": "OVERSTRÅLENDE",
+                            "fornavn": "SLAPP OVERSTRÅLENDE",     
                             "etternavn": "HEST",
                             "fødselsdato": "2014-12-24"
                         }
@@ -394,8 +396,7 @@ class ApplicationTest {
                         "fødselsdato": "1999-12-11"
                     },
                     {
-                        "fornavn": "MEGET",
-                        "mellomnavn": "STILIG",
+                        "fornavn": "MEGET STILIG",
                         "etternavn": "PLANKE",
                         "fødselsdato": "2014-12-24"
                     }

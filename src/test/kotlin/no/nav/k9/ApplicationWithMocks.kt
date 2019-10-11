@@ -3,8 +3,11 @@ package no.nav.k9
 import io.ktor.server.testing.withApplication
 import no.nav.helse.dusseldorf.ktor.testsupport.asArguments
 import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
+import no.nav.k9.wiremocks.stubTpsProxyGetBarn
+import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,6 +26,11 @@ class ApplicationWithMocks {
                 .k9SelvbetjeningOppslagConfig()
                 .build()
                 .stubAktoerRegisterGetAktoerId()
+                .stubTpsProxyGetPerson()
+                .stubTpsProxyGetBarn()
+                .stubArbeidsgiverOgArbeidstakerRegister()
+                .stubEnhetsRegister()
+                .stubTpsProxyGetNavn()
 
             val testArgs = TestConfiguration.asMap(wireMockServer = wireMockServer).asArguments()
 
