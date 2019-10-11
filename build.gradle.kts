@@ -1,8 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "1.2.4.97e227b"
-val cxfVersion = "3.3.3"
+val dusseldorfKtorVersion = "1.2.5.b695602"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 
@@ -17,7 +16,7 @@ plugins {
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/97e227bcbb622e7843447470dab8f1d643f66327/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/b695602315f8f05305773db692fd1af7cfeae620/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -29,7 +28,7 @@ dependencies {
 
     // Test
     testCompile ( "no.nav.helse:dusseldorf-ktor-test-support:$dusseldorfKtorVersion")
-    testCompile ("io.ktor:ktor-server-test-host:1.2.3") {
+    testCompile ("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
