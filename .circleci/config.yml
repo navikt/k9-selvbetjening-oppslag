@@ -46,5 +46,22 @@ workflows:
             branches:
               only:
                 - master
+                - /dev-.*/
+          requires:
+            - build
+      - nais/deploy-gh-app:
+          name: prod-deploy
+          build-and-push-docker-image: false
+          repo: navikt/k9-selvbetjening-oppslag
+          image: docker.pkg.github.com/navikt/k9-selvbetjening-oppslag/k9-selvbetjening-oppslag
+          tag: $(git rev-parse --short HEAD)
+          github-app-id: 35124
+          nais-template: nais/prod-fss.yml
+          environment: prod-fss
+          team: dusseldorf
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - build
