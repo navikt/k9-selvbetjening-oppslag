@@ -192,10 +192,12 @@ internal class TpsProxyV1 (
                 { error ->
                     logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
                     logger.error(error.toString())
-                    throw IllegalStateException("Feil ved henting av person.")
+                    throw IllegalStateException("Feil ved henting av navn.")
                 }
             )
         }
+
+        logger.logResponse(json)
 
         return TpsNavn(
             fornavn = json.getStringOrNull("fornavn")?:"",
