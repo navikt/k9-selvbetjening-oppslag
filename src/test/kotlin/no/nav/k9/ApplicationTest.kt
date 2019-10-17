@@ -348,6 +348,37 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
+                        },
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
         val idToken: String = LoginService.V1_0.generateJwt("02029212345")
         with(engine) {
@@ -374,7 +405,8 @@ class ApplicationTest {
     fun `test oppslag alle attributter`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
+            handleRequest(HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
+                    "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                     "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
                     "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -415,6 +447,133 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test oppslag ingen attributter skal returnere tom JSON`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-ingen-attrib")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {}
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test oppslag bare ugyldig attributt - bad request`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=ugyldigAttrib") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"a","reason":"Er ikke en støttet attributt.","invalid_value":"ugyldigattrib","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test oppslag ugyldige attributt - bad request`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"a","reason":"Er ikke en støttet attributt.","invalid_value":"ugyldigattrib","type":"query"},
+                        {"name":"a","reason":"Er ikke en støttet attributt.","invalid_value":"annetugyldigattrib","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test arbeidsgiverOppslag feil format fom`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?fom=2019/02/02&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"fom","reason":"Må være på format yyyy-mm-dd.","invalid_value":"2019/02/02","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test arbeidsgiverOppslag feil format tom`() {
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?fom=2019-02-02&tom=2019.10.10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
+            }.apply {
+                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
+                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "detail":"Requesten inneholder ugyldige paramtere.",
+                    "instance":"about:blank",
+                    "type":"/problem-details/invalid-request-parameters",
+                    "title":"invalid-request-parameters",
+                    "invalid_parameters":[
+                        {"name":"tom","reason":"Må være på format yyyy-mm-dd.","invalid_value":"2019.10.10","type":"query"}
+                    ],
+                    "status":400
+                }
+                """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
