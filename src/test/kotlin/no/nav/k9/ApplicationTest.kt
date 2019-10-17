@@ -498,12 +498,12 @@ class ApplicationTest {
     }
 
     @Test
-    fun `test oppslag ugyldig attributt - bad request`() {
+    fun `test oppslag ugyldige attributt - bad request`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
             }.apply {
                 kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
                 kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
