@@ -32,6 +32,7 @@ workflows:
             branches:
               only:
                 - master
+                - /dev-.*/
       - nais/deploy-gh-app:
           name: dev-deploy
           build-and-push-docker-image: false
