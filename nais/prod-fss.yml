@@ -41,7 +41,7 @@ spec:
     - name: LOGIN_SERVICE_V1_DISCOVERY_ENDPOINT
       value: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
     - name: ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL
-      value: https://modapp.adeo.no/aareg-core/api/v1
+      value: https://modapp.adeo.no/aareg-services/api/v1
     - name: AKTOER_V1_URL
       value: https://app.adeo.no/aktoerregister/api/v1
     - name: ENHET_V1_URL
