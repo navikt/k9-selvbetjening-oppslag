@@ -444,13 +444,13 @@ class ApplicationTest {
                         "fornavn": "PRIPPEN",
                         "etternavn": "JUMBOJET",
                         "fødselsdato": "1999-12-11",
-                        "harSammeAdresse": true
+                        "har_samme_adresse": true
                     },
                     {
                         "fornavn": "MEGET STILIG",
                         "etternavn": "PLANKE",
                         "fødselsdato": "2014-12-24",
-                        "harSammeAdresse": true
+                        "har_samme_adresse": true
                     }
                 ],
                 "arbeidsgivere": {
