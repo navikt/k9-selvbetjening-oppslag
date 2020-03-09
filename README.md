@@ -22,6 +22,7 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | barn[].mellomnavn                                                     | x         |
 | barn[].etternavn                                                      |           |
 | barn[].fødselsdato                                                    |           |
+| barn[].har_samme_adresse                                              | x         |
 | arbeidsgivere[].organisasjoner[].organisasjonsnummer                  |           |
 | arbeidsgivere[].organisasjoner[].navn                                 | x         |
 
