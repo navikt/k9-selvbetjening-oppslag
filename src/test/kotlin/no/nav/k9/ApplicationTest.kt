@@ -11,8 +11,8 @@ import io.ktor.server.testing.contentType
 import io.ktor.server.testing.createTestEnvironment
 import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.helse.dusseldorf.ktor.testsupport.jws.LoginService
-import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
+import no.nav.helse.dusseldorf.testsupport.jws.LoginService
+import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId

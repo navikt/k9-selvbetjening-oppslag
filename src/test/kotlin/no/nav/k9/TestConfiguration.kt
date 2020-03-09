@@ -2,8 +2,8 @@ package no.nav.k9
 
 import com.github.kittinunf.fuel.httpGet
 import com.github.tomakehurst.wiremock.WireMockServer
-import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.getLoginServiceV1WellKnownUrl
-import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.getNaisStsWellKnownUrl
+import no.nav.helse.dusseldorf.testsupport.wiremock.getLoginServiceV1WellKnownUrl
+import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsWellKnownUrl
 import no.nav.k9.wiremocks.getAktoerRegisterUrl
 import no.nav.k9.wiremocks.getArbeidsgiverOgArbeidstakerRegisterUrl
 import no.nav.k9.wiremocks.getEnhetsregisterUrl

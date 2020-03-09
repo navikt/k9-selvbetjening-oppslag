@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "1.2.5.b695602"
+val dusseldorfKtorVersion = "1.3.1.4a7d6cd"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 
@@ -16,7 +16,7 @@ plugins {
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/b695602315f8f05305773db692fd1af7cfeae620/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/master/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -27,7 +27,7 @@ dependencies {
     compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
     // Test
-    testCompile ( "no.nav.helse:dusseldorf-ktor-test-support:$dusseldorfKtorVersion")
+    testCompile ( "no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
     testCompile ("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
@@ -41,6 +41,15 @@ repositories {
     maven("https://dl.bintray.com/kotlin/ktor")
     maven("https://kotlin.bintray.com/kotlinx")
     maven("http://packages.confluent.io/maven/")
+
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 
     jcenter()
     mavenLocal()

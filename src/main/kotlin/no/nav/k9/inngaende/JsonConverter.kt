@@ -7,8 +7,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.withCharset
 import io.ktor.request.ApplicationReceiveRequest
 import io.ktor.util.pipeline.PipelineContext
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.jvm.javaio.toInputStream
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import org.json.JSONArray
 import org.json.JSONObject
 
