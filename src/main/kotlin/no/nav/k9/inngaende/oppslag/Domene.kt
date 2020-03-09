@@ -18,6 +18,7 @@ internal enum class Attributt(internal val api: String) {
     barnMellomnavn("barn[].mellomnavn"),
     barnEtternavn("barn[].etternavn"),
     barnFødselsdato("barn[].fødselsdato"),
+    barnHarSammeAdresse("barn[].har_samme_adresse"),
 
     arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer")
@@ -35,6 +36,7 @@ internal enum class Attributt(internal val api: String) {
 }
 internal fun Set<Attributt>.etterspurtBarn() =
     any { it.api.startsWith("barn[].") }
+
 internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
     any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 

@@ -204,7 +204,11 @@ class ApplicationTest {
                     ]
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true) //feiler. AktørId for barn blir satt til forelders aktørId
+                JSONAssert.assertEquals(
+                    expectedResponse,
+                    response.content!!,
+                    true
+                ) //feiler. AktørId for barn blir satt til forelders aktørId
             }
         }
     }
@@ -213,7 +217,10 @@ class ApplicationTest {
     fun `test barnOppslag navn og fødselsdato`() {
         val idToken: String = LoginService.V1_0.generateJwt("10047025546")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
             }.apply {
@@ -320,7 +327,10 @@ class ApplicationTest {
     fun `test arbeidsgiverOppslag orgnr og navn`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
@@ -351,7 +361,10 @@ class ApplicationTest {
     fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
@@ -382,7 +395,10 @@ class ApplicationTest {
     fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
         val idToken: String = LoginService.V1_0.generateJwt("02029212345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
             }.apply {
@@ -405,10 +421,12 @@ class ApplicationTest {
     fun `test oppslag alle attributter`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
-                    "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
-                    "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
-                    "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+            handleRequest(
+                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
+                        "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
+                        "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse" +
+                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
             }.apply {
@@ -425,12 +443,14 @@ class ApplicationTest {
                     {
                         "fornavn": "PRIPPEN",
                         "etternavn": "JUMBOJET",
-                        "fødselsdato": "1999-12-11"
+                        "fødselsdato": "1999-12-11",
+                        "harSammeAdresse": true
                     },
                     {
                         "fornavn": "MEGET STILIG",
                         "etternavn": "PLANKE",
-                        "fødselsdato": "2014-12-24"
+                        "fødselsdato": "2014-12-24",
+                        "harSammeAdresse": true
                     }
                 ],
                 "arbeidsgivere": {
@@ -529,7 +549,10 @@ class ApplicationTest {
     fun `test arbeidsgiverOppslag feil format fom`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?fom=2019/02/02&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?fom=2019/02/02&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
             }.apply {
@@ -556,7 +579,10 @@ class ApplicationTest {
     fun `test arbeidsgiverOppslag feil format tom`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?fom=2019-02-02&tom=2019.10.10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?fom=2019-02-02&tom=2019.10.10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer"
+            ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
             }.apply {
