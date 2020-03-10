@@ -1,8 +1,8 @@
 package no.nav.k9
 
 import io.ktor.server.testing.withApplication
-import no.nav.helse.dusseldorf.ktor.testsupport.asArguments
-import no.nav.helse.dusseldorf.ktor.testsupport.wiremock.WireMockBuilder
+import no.nav.helse.dusseldorf.testsupport.asArguments
+import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister

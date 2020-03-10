@@ -21,7 +21,7 @@ import java.time.Duration
 import java.time.LocalDate
 import kotlin.coroutines.coroutineContext
 
-internal class TpsProxyV1 (
+internal class TpsProxyV1(
     baseUrl: URI,
     private val accessTokenClient: AccessTokenClient,
     private val henteNavnScopes: Set<String> = setOf("openid")
@@ -48,7 +48,7 @@ internal class TpsProxyV1 (
         pathParts = listOf("innsyn", "barn")
     ).toString()
 
-    internal suspend fun person(ident: Ident) : TpsPerson {
+    internal suspend fun person(ident: Ident): TpsPerson {
         val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
 
         val httpRequest = personUrl
@@ -69,7 +69,7 @@ internal class TpsProxyV1 (
             factor = 2.0,
             logger = logger
         ) {
-            val (request,_, result) = Operation.monitored(
+            val (request, _, result) = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
                 operation = "hente-person",
                 resultResolver = { 200 == it.second.statusCode }
@@ -78,7 +78,9 @@ internal class TpsProxyV1 (
             result.fold(
                 { success -> JSONObject(success) },
                 { error ->
-                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
+                    logger.error(
+                        "Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'"
+                    )
                     logger.error(error.toString())
                     throw IllegalStateException("Feil ved henting av person.")
                 }
@@ -98,7 +100,7 @@ internal class TpsProxyV1 (
         )
     }
 
-    internal suspend fun barn(ident: Ident) : Set<TpsBarn> {
+    internal suspend fun barn(ident: Ident): Set<TpsBarn> {
         val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
 
         val httpRequest = barnUrl
@@ -119,7 +121,7 @@ internal class TpsProxyV1 (
             factor = 2.0,
             logger = logger
         ) {
-            val (request,_, result) = Operation.monitored(
+            val (request, _, result) = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
                 operation = "hente-barn",
                 resultResolver = { 200 == it.second.statusCode }
@@ -128,7 +130,9 @@ internal class TpsProxyV1 (
             result.fold(
                 { success -> JSONArray(success) },
                 { error ->
-                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
+                    logger.error(
+                        "Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'"
+                    )
                     logger.error(error.toString())
                     throw IllegalStateException("Feil ved henting av person.")
                 }
@@ -145,6 +149,7 @@ internal class TpsProxyV1 (
                 val barnetsIdent = Ident(it.getString("ident"))
                 val navn = ForkortetNavn(it.getString("forkortetNavn")).somTpsNavn(barnetsIdent)
                 val dødsdato = it.getJsonObjectOrNull("doedsdato")?.getStringOrNull("dato")
+                val harSammeAdresse = it.getBoolean("harSammeAdresse")
 
                 TpsBarn(
                     fornavn = navn.fornavn,
@@ -152,13 +157,14 @@ internal class TpsProxyV1 (
                     etternavn = navn.etternavn,
                     fødselsdato = LocalDate.parse(it.getString("foedselsdato")),
                     dødsdato = if (dødsdato != null) LocalDate.parse(dødsdato) else null,
+                    harSammeAdresse = harSammeAdresse,
                     ident = barnetsIdent
                 )
             }
             .toSet()
     }
 
-    private suspend fun navn(ident: Ident) : TpsNavn {
+    private suspend fun navn(ident: Ident): TpsNavn {
         val authorizationHeader = cachedAccessTokenClient
             .getAccessToken(henteNavnScopes)
             .asAuthoriationHeader()
@@ -181,7 +187,7 @@ internal class TpsProxyV1 (
             factor = 2.0,
             logger = logger
         ) {
-            val (request,_, result) = Operation.monitored(
+            val (request, _, result) = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
                 operation = "hente-navn",
                 resultResolver = { 200 == it.second.statusCode }
@@ -190,7 +196,9 @@ internal class TpsProxyV1 (
             result.fold(
                 { success -> JSONObject(success) },
                 { error ->
-                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
+                    logger.error(
+                        "Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'"
+                    )
                     logger.error(error.toString())
                     throw IllegalStateException("Feil ved henting av navn.")
                 }
@@ -200,9 +208,9 @@ internal class TpsProxyV1 (
         logger.logResponse(json)
 
         return TpsNavn(
-            fornavn = json.getStringOrNull("fornavn")?:"",
+            fornavn = json.getStringOrNull("fornavn") ?: "",
             mellomnavn = json.getStringOrNull("mellomnavn"),
-            etternavn = json.getStringOrNull("etternavn")?:""
+            etternavn = json.getStringOrNull("etternavn") ?: ""
         )
     }
 
@@ -218,19 +226,20 @@ internal class TpsProxyV1 (
 }
 
 
-
 internal data class TpsPerson(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
     internal val fødselsdato: LocalDate
 )
+
 internal data class TpsBarn(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
     internal val fødselsdato: LocalDate,
     internal val dødsdato: LocalDate?,
+    internal val harSammeAdresse: Boolean,
     internal val ident: Ident
 )
 
@@ -244,9 +253,10 @@ internal data class ForkortetNavn(private val value: String) {
     private companion object {
         private const val MaksLengdePåForkortetNavnFraTpsProxy = 25
     }
-    internal val fornavn : String
-    internal val etternavn : String
-    internal val erKomplett : Boolean
+
+    internal val fornavn: String
+    internal val etternavn: String
+    internal val erKomplett: Boolean
 
     init {
         val splittetNavn = value
@@ -254,7 +264,8 @@ internal data class ForkortetNavn(private val value: String) {
             .filterNot { it.isBlank() }
         fornavn = splittetNavn.fornavn()
         etternavn = splittetNavn.etternavn()
-        erKomplett = value.length < MaksLengdePåForkortetNavnFraTpsProxy && fornavn.isNotBlank() && etternavn.isNotBlank()
+        erKomplett =
+            value.length < MaksLengdePåForkortetNavnFraTpsProxy && fornavn.isNotBlank() && etternavn.isNotBlank()
     }
 }
 

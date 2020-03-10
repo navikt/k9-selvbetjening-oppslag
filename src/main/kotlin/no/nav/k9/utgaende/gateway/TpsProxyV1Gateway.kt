@@ -22,6 +22,7 @@ internal class TpsProxyV1Gateway(
             Attributt.barnFornavn,
             Attributt.barnMellomnavn,
             Attributt.barnEtternavn,
+            Attributt.barnHarSammeAdresse,
             Attributt.barnFødselsdato
         )
     }
