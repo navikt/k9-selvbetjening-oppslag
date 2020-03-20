@@ -1,22 +1,21 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "1.3.1.4a7d6cd"
+val dusseldorfKtorVersion = "1.3.2.4e29fb7"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 
-val tjenestespesifikasjonerVersion = "1.2019.08.16-13.46-35cbdfd492d4"
-val junitJupiterVersion = "5.5.2"
+val junitJupiterVersion = "5.6.0"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.3.50"
-    id("com.github.johnrengelman.shadow") version "5.1.0"
+    kotlin("jvm") version "1.3.70"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/master/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/4e29fb7f5f69ab1b8d998fc1f674085e2e01e7ad/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -86,5 +85,5 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "5.6.2"
+    gradleVersion = "6.2.2"
 }
