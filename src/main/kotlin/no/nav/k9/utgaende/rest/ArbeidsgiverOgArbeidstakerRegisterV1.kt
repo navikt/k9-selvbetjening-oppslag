@@ -12,7 +12,6 @@ import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
-import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -80,7 +79,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             ) { httpRequest.awaitStringResponseResult() }
 
             result.fold(
-                { success -> JSONArray(success) },
+                { success -> success.somJsonArray() },
                 { error ->
                     logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
                     logger.error(error.toString())
