@@ -109,6 +109,7 @@ private fun getResponse(navIdent: String) : String {
     "arbeidsforholdId": "abc-321",
     "arbeidsgiver": {
       "organisasjonsnummer": "123456789",
+      "type": "DuplikatKey",
       "type": "Organisasjon"
     },
     "arbeidstaker": {
