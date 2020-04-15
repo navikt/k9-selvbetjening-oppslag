@@ -17,6 +17,7 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | mellomnavn                                                            | x         |
 | etternavn                                                             |           |
 | fødselsdato                                                           |           |
+| kontonummer                                                           | x         |
 | barn[].aktør_id                                                       |           |
 | barn[].fornavn                                                        |           |
 | barn[].mellomnavn                                                     | x         |
@@ -25,6 +26,12 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | barn[].har_samme_adresse                                              | x         |
 | arbeidsgivere[].organisasjoner[].organisasjonsnummer                  |           |
 | arbeidsgivere[].organisasjoner[].navn                                 | x         |
+| foretak[].organisasjonsnummer                                         |           |
+| foretak[].navn                                                        |           |
+| foretak[].organisasjonsform                                           |           |
+
+### Foretak
+`foretak[]` returnerer personlig eide foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).
 
 ### Eksempel
 
@@ -48,4 +55,4 @@ Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. K
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
 
-Interne henvendelser kan sendes via Slack i kanalen #team-düsseldorf.
+Interne henvendelser kan sendes via Slack i kanalen #sykdom-i-familient
