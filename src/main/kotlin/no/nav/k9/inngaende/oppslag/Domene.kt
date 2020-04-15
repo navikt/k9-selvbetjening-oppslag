@@ -1,9 +1,5 @@
 package no.nav.k9.inngaende.oppslag
 
-import io.ktor.http.Url
-import no.nav.helse.dusseldorf.ktor.client.buildURL
-import java.net.URI
-
 internal data class Ident(internal val value: String)
 
 internal enum class Attributt(internal val api: String) {
@@ -12,6 +8,7 @@ internal enum class Attributt(internal val api: String) {
     mellomnavn("mellomnavn"),
     etternavn("etternavn"),
     fødselsdato("fødselsdato"),
+    kontonummer("kontonummer"),
 
     barnAktørId("barn[].aktør_id"),
     barnFornavn("barn[].fornavn"),
@@ -21,7 +18,11 @@ internal enum class Attributt(internal val api: String) {
     barnHarSammeAdresse("barn[].har_samme_adresse"),
 
     arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
-    arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer")
+    arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer"),
+
+    foretakOrganisasjonsnummer("foretak[].organisasjonsnummer"),
+    foretakNavn("foretak[].navn"),
+    foretakOrganisasjonsform("foretak[].organisasjonsform")
 
     ;
 
@@ -40,12 +41,16 @@ internal fun Set<Attributt>.etterspurtBarn() =
 internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
     any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
+internal fun Set<Attributt>.etterspurtForetak() =
+    any { it.api.startsWith("foretak[]") }
+
 private val megAttributter = setOf(
     Attributt.aktørId,
     Attributt.fornavn,
     Attributt.mellomnavn,
     Attributt.etternavn,
-    Attributt.fødselsdato
+    Attributt.fødselsdato,
+    Attributt.kontonummer
 )
 internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
 

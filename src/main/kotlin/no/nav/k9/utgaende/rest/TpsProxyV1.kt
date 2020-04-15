@@ -12,6 +12,7 @@ import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.inngaende.oppslag.iDag
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -23,7 +24,7 @@ import kotlin.coroutines.coroutineContext
 
 internal class TpsProxyV1(
     baseUrl: URI,
-    private val accessTokenClient: AccessTokenClient,
+    accessTokenClient: AccessTokenClient,
     private val henteNavnScopes: Set<String> = setOf("openid")
 ) {
 
@@ -91,12 +92,12 @@ internal class TpsProxyV1(
 
         val navn = json.getJSONObject("navn")
 
-
         return TpsPerson(
             fornavn = navn.getString("fornavn"),
             mellomnavn = navn.getStringOrNull("mellomnavn"),
             etternavn = navn.getString("slektsnavn"),
-            fødselsdato = LocalDate.parse(json.getString("foedselsdato"))
+            fødselsdato = LocalDate.parse(json.getString("foedselsdato")),
+            kontonummer = json.kontonummer()
         )
     }
 
@@ -230,7 +231,8 @@ internal data class TpsPerson(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
-    internal val fødselsdato: LocalDate
+    internal val fødselsdato: LocalDate,
+    internal val kontonummer: String?
 )
 
 internal data class TpsBarn(
@@ -271,3 +273,16 @@ internal data class ForkortetNavn(private val value: String) {
 
 private fun List<String>.etternavn() = if (isEmpty()) "" else first()
 private fun List<String>.fornavn() = if (size > 1) subList(1, size).joinToString(" ") else ""
+
+private fun LocalDate.erFørEllerLik(dato: LocalDate) = isBefore(dato) || isEqual(dato)
+
+private fun JSONObject.kontonummer() : String? {
+    val kontonummer = getJsonObjectOrNull("kontonummer") ?: return null
+    val nummer = kontonummer.getStringOrNull("nummer") ?: return null
+    val fraOgMed = kontonummer.getStringOrNull("datoFraOgMed")
+    return when {
+        fraOgMed == null -> nummer
+        LocalDate.parse(fraOgMed).erFørEllerLik(iDag()) -> nummer
+        else -> null
+    }
+}

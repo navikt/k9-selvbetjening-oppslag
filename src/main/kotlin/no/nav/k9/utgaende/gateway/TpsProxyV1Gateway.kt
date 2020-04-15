@@ -14,7 +14,8 @@ internal class TpsProxyV1Gateway(
             Attributt.fornavn,
             Attributt.mellomnavn,
             Attributt.etternavn,
-            Attributt.fødselsdato
+            Attributt.fødselsdato,
+            Attributt.kontonummer
         )
 
         private val barnAttributter = setOf(

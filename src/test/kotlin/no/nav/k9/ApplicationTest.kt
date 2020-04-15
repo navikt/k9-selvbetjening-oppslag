@@ -416,7 +416,6 @@ class ApplicationTest {
         }
     }
 
-
     @Test
     fun `test oppslag alle attributter`() {
         val idToken: String = LoginService.V1_0.generateJwt("01019012345")
@@ -425,7 +424,7 @@ class ApplicationTest {
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse" +
-                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
@@ -439,6 +438,7 @@ class ApplicationTest {
                 "mellomnavn": "LANGEMANN",
                 "etternavn": "TEST",
                 "fødselsdato": "1985-07-27",
+                "kontonummer": "96850814136",
                 "barn":[
                     {
                         "fornavn": "PRIPPEN",
