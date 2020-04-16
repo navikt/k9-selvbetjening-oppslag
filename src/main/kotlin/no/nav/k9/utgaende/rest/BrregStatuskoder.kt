@@ -27,7 +27,7 @@ private object BrregStatuskoder {
         PersonHarVerge(Pair(1,183), "Personen x har verge.")
     }
 
-    private enum class Hovedstatuser {
+    internal enum class Hovedstatuser {
         Ok,
         ManglerData,
         TekniskFeil;
@@ -87,8 +87,7 @@ private object BrregStatuskoder {
     }
 
     internal fun JSONObject.statusKombinasjoner() : Set<Triple<Int,Int,String>> {
-        val statuskoder = getJSONObject("statuskoder")
-        val hovedstatus = statuskoder.getInt("hovedstatus")
+        val (hovedstatus, statuskoder) = forsikreIkkeTekniskFeil()
         val understatus = statuskoder.getJsonArrayOrEmpty("understatus")
 
         return when (Hovedstatuser.fraBrregVerdi(hovedstatus)) {
@@ -119,7 +118,14 @@ internal fun MutableSet<Foretak>.filtrerPåStatuskoder(brregResponse: JSONObject
     }
     return filtrert
 }
-
+internal fun JSONObject.forsikreIkkeTekniskFeil() : Pair<Int, JSONObject> {
+    val statuskoder = getJSONObject("statuskoder")
+    val hovedstatus = statuskoder.getInt("hovedstatus")
+    if (BrregStatuskoder.Hovedstatuser.TekniskFeil == BrregStatuskoder.Hovedstatuser.fraBrregVerdi(hovedstatus)) {
+        throw IllegalStateException("Teknisk feil mot Brønnøysundregisteret. Mottok statuskoder ${statuskoder}.")
+    }
+    return Pair(hovedstatus, statuskoder)
+}
 
 private fun <T>MutableSet<T>.fjernAlle(set: Set<T>) : MutableSet<T> {
     removeAll(set)
