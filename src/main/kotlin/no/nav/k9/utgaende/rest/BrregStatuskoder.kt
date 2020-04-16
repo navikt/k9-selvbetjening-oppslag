@@ -88,15 +88,10 @@ private object BrregStatuskoder {
 
     internal fun JSONObject.statusKombinasjoner() : Set<Triple<Int,Int,String>> {
         val (hovedstatus, statuskoder) = forsikreIkkeTekniskFeil()
-        val understatus = statuskoder.getJsonArrayOrEmpty("understatus")
-
-        return when (Hovedstatuser.fraBrregVerdi(hovedstatus)) {
-            Hovedstatuser.TekniskFeil -> throw IllegalStateException("Teknisk feil mot Brønnøysundregisteret. Mottok statuskoder ${statuskoder}.")
-            else -> understatus
-                .map { it as JSONObject }
-                .map { Triple(hovedstatus, it.getInt("kode"), it.getString("melding")) }
-                .toSet()
-        }
+        return statuskoder.getJsonArrayOrEmpty("understatus")
+            .map { it as JSONObject }
+            .map { Triple(hovedstatus, it.getInt("kode"), it.getString("melding")) }
+            .toSet()
     }
 }
 

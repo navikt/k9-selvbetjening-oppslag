@@ -32,8 +32,9 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | personlige_foretak[].registreringsdato                                |           |
 | personlige_foretak[].opphørsdato                                      | x         |
 
-### Foretak
-`foretak[]` returnerer personlig eide foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).
+### Personlige foretak
+`personlige_foretak[]` returnerer personlig foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).
+Det tre nevnte verdiene er de man kan få som `organisasjonsform`
 
 ### Eksempel
 
