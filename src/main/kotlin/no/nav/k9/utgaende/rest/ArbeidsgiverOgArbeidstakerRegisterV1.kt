@@ -73,7 +73,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             logger = logger
         ) {
             val (request,_, result) = Operation.monitored(
-                app = "k9-selvbetjening-oppslag",
+                app = NavHeaderValues.ConsumerId,
                 operation = "hente-arbeidsforhold-per-arbeidstaker",
                 resultResolver = { 200 == it.second.statusCode }
             ) { httpRequest.awaitStringResponseResult() }
