@@ -2,7 +2,6 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.rest.Arbeidsforhold
-import no.nav.k9.utgaende.rest.EnhetOrganisasjonsnummer
 
 internal class ArbeidsgivereOppslag(
     private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway
@@ -33,7 +32,7 @@ internal class ArbeidsgivereOppslag(
     ) = try {
         enhetsregisterV1Gateway.organisasjon(
             attributter = attributter,
-            organisasjonsnummer = EnhetOrganisasjonsnummer(organisasjonsnummer)
+            organisasjonsnummer = organisasjonsnummer
         )?.navn
     } catch (cause: Throwable) {
         null

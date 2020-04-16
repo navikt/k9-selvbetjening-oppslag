@@ -20,10 +20,11 @@ internal enum class Attributt(internal val api: String) {
     arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer"),
 
-    foretakOrganisasjonsnummer("foretak[].organisasjonsnummer"),
-    foretakNavn("foretak[].navn"),
-    foretakOrganisasjonsform("foretak[].organisasjonsform")
-
+    personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
+    personligForetakNavn("personlige_foretak[].navn"),
+    personligForetakOrganisasjonsform("personlige_foretak[].organisasjonsform"),
+    personligForetakRegistreringsdato("personlige_foretak[].registreringsdato"),
+    personligForetakOpphørsdato("personlige_foretak[].opphørsdato")
     ;
 
     internal companion object {
@@ -41,8 +42,8 @@ internal fun Set<Attributt>.etterspurtBarn() =
 internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
     any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
-internal fun Set<Attributt>.etterspurtForetak() =
-    any { it.api.startsWith("foretak[]") }
+internal fun Set<Attributt>.etterspurtPersonligForetak() =
+    any { it.api.startsWith("personlige_foretak[]") }
 
 private val megAttributter = setOf(
     Attributt.aktørId,
@@ -57,5 +58,6 @@ internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
 internal data class OppslagResultat(
     internal val meg: Meg?,
     internal val barn: Set<Barn>?,
-    internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>?
+    internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>?,
+    internal val personligeForetak: Set<PersonligForetak<String>>?
 )

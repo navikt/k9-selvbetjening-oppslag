@@ -26,9 +26,11 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | barn[].har_samme_adresse                                              | x         |
 | arbeidsgivere[].organisasjoner[].organisasjonsnummer                  |           |
 | arbeidsgivere[].organisasjoner[].navn                                 | x         |
-| foretak[].organisasjonsnummer                                         |           |
-| foretak[].navn                                                        |           |
-| foretak[].organisasjonsform                                           |           |
+| personlige_foretak[].organisasjonsnummer                              |           |
+| personlige_foretak[].navn                                             | x         |
+| personlige_foretak[].organisasjonsform                                |           |
+| personlige_foretak[].registreringsdato                                |           |
+| personlige_foretak[].opphørsdato                                      | x         |
 
 ### Foretak
 `foretak[]` returnerer personlig eide foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).

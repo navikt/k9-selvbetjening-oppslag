@@ -28,6 +28,7 @@ import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
+import no.nav.k9.utgaende.rest.BrregProxyV1
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 import no.nav.k9.utgaende.rest.TpsProxyV1
@@ -96,6 +97,9 @@ fun Application.SelvbetjeningOppslag() {
                                 baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
                                 accessTokenClient = naisStsAccessTokenClient
                             )
+                        ),
+                        brregProxyV1Gateway = BrregProxyV1Gateway(
+                            brregProxyV1 = BrregProxyV1()
                         )
                     )
                 )
