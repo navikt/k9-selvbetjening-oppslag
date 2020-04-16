@@ -1,6 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.inngaende.oppslag.PersonligForetakRoller.Companion.fraRolle
+import no.nav.k9.inngaende.oppslag.PersonligForetakRoller.Companion.fraRolleBeskrivelse
 import no.nav.k9.utgaende.gateway.BrregProxyV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import java.time.LocalDate
@@ -16,7 +16,7 @@ internal class PersonligeForetakOppslag(
         if (!attributter.etterspurtPersonligForetak()) return null
 
         return brregProxyV1Gateway.foretak(ident, attributter)!!
-            .filterNot { fraRolle(it.rolle) == PersonligForetakRoller.IkkePersonligForetakRolle }
+            .filterNot { fraRolleBeskrivelse(it.rollebeskrivelse) == PersonligForetakRoller.IkkePersonligForetakRolle }
             .map {
                 val enhet = enhetsregisterV1Gateway.enhet(it.organisasjonsnummer, attributter)!!
                 PersonligForetak(
@@ -70,7 +70,7 @@ private enum class PersonligForetakRoller (internal val rolle: String) {
     IkkePersonligForetakRolle("N/A");
 
     internal companion object {
-        internal fun fraRolle(rolle: String?) = when (rolle?.trim()?.toUpperCase()) {
+        internal fun fraRolleBeskrivelse(rolleBeskrivelse: String?) = when (rolleBeskrivelse?.trim()?.toUpperCase()) {
             Innehaver.rolle -> Innehaver
             DeltAnsvar.rolle -> DeltAnsvar
             FulltAnsvar.rolle -> FulltAnsvar

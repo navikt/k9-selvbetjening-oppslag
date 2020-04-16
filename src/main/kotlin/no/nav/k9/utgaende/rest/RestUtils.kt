@@ -12,6 +12,8 @@ private object RestUtils {
 internal fun Logger.restKall(url: String) = info("Utgående kall til $url")
 internal fun Logger.logResponse(response: Any) = debug("Response = '$response'")
 internal fun JSONObject.getJsonObjectOrNull(key: String) = if (has(key) && !isNull(key)) getJSONObject(key) else null
+internal fun JSONObject.getJsonArrayOrEmpty(key: String) = if (has(key) && !isNull(key)) getJSONArray(key) else JSONArray()
+
 internal fun JSONObject.getStringOrNull(key: String) = if (has(key) && !isNull(key) && !getString(key).isBlank()) getString(key) else null
 /**
  * ArbeidsgiverOgArbeidstakerRegisterV1 returnerer ugyldig json som gir org.json.JSONException: Duplicate key
