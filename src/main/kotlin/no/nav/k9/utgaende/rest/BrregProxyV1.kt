@@ -1,17 +1,80 @@
 package no.nav.k9.utgaende.rest
 
+import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
+import com.github.kittinunf.fuel.httpGet
+import io.ktor.http.HttpHeaders
+import io.ktor.http.Url
+import no.nav.helse.dusseldorf.ktor.client.buildURL
+import no.nav.helse.dusseldorf.ktor.core.Retry
+import no.nav.helse.dusseldorf.ktor.metrics.Operation
+import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
+import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
+import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.oppslag.Ident
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.URI
+import java.time.Duration
 import java.time.LocalDate
+import kotlin.coroutines.coroutineContext
 
-internal class BrregProxyV1 {
+internal class BrregProxyV1(
+    baseUrl: URI,
+    accessTokenClient: AccessTokenClient,
+    private val hentePersonRolleoversiktScopes: Set<String> = setOf("openid")
+) {
+    private val hentePersonRolleoversiktUrl = Url.buildURL(
+        baseUrl = baseUrl,
+        pathParts = listOf("person", "rolleoversikt")
+    ).toString()
+
+    private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
+
     internal suspend fun foretak(
         ident: Ident
     ) : Set<Foretak> {
+        val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(hentePersonRolleoversiktScopes).asAuthoriationHeader()
+        //val authorizationHeader = "Bearer ${coroutineContext.idToken().value}" TODO: Skal bruke denne på sikt.
+        val authorizationHeader = navConsumerIdHeader
 
-        val json = JSONObject()
+        val httpRequest = hentePersonRolleoversiktUrl
+            .httpGet()
+            .header(
+                HttpHeaders.Authorization to authorizationHeader,
+                HttpHeaders.Accept to "application/json",
+                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
+                NavHeaders.CallId to coroutineContext.correlationId().value,
+                NavHeaders.ConsumerToken to navConsumerIdHeader,
+                IdentHeader to ident.value
+            )
+
+        logger.restKall(hentePersonRolleoversiktUrl)
+
+        val json = Retry.retry(
+            operation = OperationHentePersonRolleoversikt,
+            initialDelay = Duration.ofMillis(200),
+            factor = 2.0,
+            logger = logger
+        ) {
+            val (request,_, result) = Operation.monitored(
+                app = NavHeaderValues.ConsumerId,
+                operation = OperationHentePersonRolleoversikt,
+                resultResolver = { 200 == it.second.statusCode }
+            ) { httpRequest.awaitStringResponseResult() }
+
+            result.fold(
+                { success -> JSONObject(success) },
+                { error ->
+                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
+                    logger.error(error.toString())
+                    throw IllegalStateException("Feil ved henting av roller for person.")
+                }
+            )
+        }
+
+        logger.logResponse(json)
+
         json.forsikreIkkeTekniskFeil()
 
         val roller = json.getJsonArrayOrEmpty("roller")
@@ -38,7 +101,9 @@ internal class BrregProxyV1 {
     }
 
     private companion object {
-        internal val logger: Logger = LoggerFactory.getLogger(BrregProxyV1::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(BrregProxyV1::class.java)
+        private const val OperationHentePersonRolleoversikt = "hente-person-rolleoversikt"
+        private const val IdentHeader = "Personident"
     }
 }
 

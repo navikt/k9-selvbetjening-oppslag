@@ -22,7 +22,7 @@ import kotlin.coroutines.coroutineContext
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     baseUrl: URI,
-    private val accessTokenClient: AccessTokenClient,
+    accessTokenClient: AccessTokenClient,
     private val henteArbeidsforholdPerArbeidstakerScopes: Set<String> = setOf("openid")
 ) {
     private companion object {

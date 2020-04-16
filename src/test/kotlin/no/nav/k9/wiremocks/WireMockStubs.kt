@@ -10,6 +10,7 @@ private const val aktoerRegisterServerPath = "/aktoer-register-mock"
 private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val tpsProxyServerPath = "/tps-proxy-mock"
+private const val brregProxyV1ServerPath = "/brreg-proxy-v1-mock"
 
 internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
@@ -115,3 +116,4 @@ internal fun WireMockServer.getAktoerRegisterUrl() = baseUrl() + aktoerRegisterS
 internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() = baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
 internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
 internal fun WireMockServer.getTpsProxyUrl() = baseUrl() + tpsProxyServerPath
+internal fun WireMockServer.getBrregProxyV1BaseUrl() = baseUrl() + brregProxyV1ServerPath

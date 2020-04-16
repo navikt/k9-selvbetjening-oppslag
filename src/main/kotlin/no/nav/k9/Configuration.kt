@@ -18,6 +18,9 @@ internal fun ApplicationConfig.arbeidsgiverOgArbeidstakerV1Url() = URI(getRequir
 internal fun ApplicationConfig.enhetsregisterV1Url() = URI(getRequiredString("nav.register_urls.enhetsregister_v1", secret = false))
 
 @KtorExperimentalAPI
+internal fun ApplicationConfig.brregProxyV1Url() = URI(getRequiredString("nav.register_urls.brreg_proxy_v1", secret = false))
+
+@KtorExperimentalAPI
 internal fun ApplicationConfig.restTokenUrl() = URI(getRequiredString("nav.auth.rest_token_url", secret = false))
 
 @KtorExperimentalAPI

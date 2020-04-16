@@ -50,3 +50,5 @@ spec:
       value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
     - name: TPS_PROXY_V1_URL
       value: https://tps-proxy.nais.adeo.no/api/v1
+    - name: BRREG_PROXY_V1_URL
+      value: https://brreg-proxy-rolleoversikt.nais.adeo.no/api/v1

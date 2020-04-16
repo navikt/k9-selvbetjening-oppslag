@@ -99,7 +99,10 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         ),
                         brregProxyV1Gateway = BrregProxyV1Gateway(
-                            brregProxyV1 = BrregProxyV1()
+                            brregProxyV1 = BrregProxyV1(
+                                baseUrl = environment.config.brregProxyV1Url(),
+                                accessTokenClient = naisStsAccessTokenClient
+                            )
                         )
                     )
                 )
