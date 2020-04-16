@@ -18,7 +18,7 @@ internal class PersonligeForetakOppslag(
         return brregProxyV1Gateway.foretak(ident, attributter)!!
             .filterNot { fraRolle(it.rolle) == PersonligForetakRoller.IkkePersonligForetakRolle }
             .map {
-                val enhet = enhetsregisterV1Gateway.organisasjon(it.organisasjonsnummer, attributter)!!
+                val enhet = enhetsregisterV1Gateway.enhet(it.organisasjonsnummer, attributter)!!
                 PersonligForetak(
                     organisasjonsummer = it.organisasjonsnummer,
                     navn = enhet.navn,

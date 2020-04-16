@@ -30,7 +30,7 @@ internal class ArbeidsgivereOppslag(
         organisasjonsnummer: String,
         attributter: Set<Attributt>
     ) = try {
-        enhetsregisterV1Gateway.organisasjon(
+        enhetsregisterV1Gateway.enhet(
             attributter = attributter,
             organisasjonsnummer = organisasjonsnummer
         )?.navn

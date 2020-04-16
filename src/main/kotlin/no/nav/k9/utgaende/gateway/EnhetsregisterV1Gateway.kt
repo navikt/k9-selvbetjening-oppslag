@@ -21,7 +21,7 @@ internal class EnhetsregisterV1Gateway(
         )
     }
 
-    suspend internal fun organisasjon( //TODO: enhet
+    internal suspend fun enhet(
         organisasjonsnummer: String,
         attributter: Set<Attributt>
     ) : Enhet? {
