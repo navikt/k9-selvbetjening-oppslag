@@ -13,6 +13,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 @KtorExperimentalAPI
 class ApplicationTest {
@@ -46,6 +48,7 @@ class ApplicationTest {
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
             .stubTpsProxyGetNavn()
+            .stubBrregProxyV1()
 
         fun getConfig(): ApplicationConfig {
 
@@ -98,7 +101,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
     }
@@ -111,8 +114,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { "aktør_id": "12345" }
                 """.trimIndent()
@@ -130,8 +133,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-fornavn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { "aktør_id": "23456",
                  "fornavn": "ARNE"}
@@ -149,8 +152,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-navn-foedselsdato")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { 
                     "aktør_id": "23456",
@@ -173,8 +176,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-har-ikke-mellomnavn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "fornavn": "CATO",
@@ -194,8 +197,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[
@@ -224,8 +227,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 // Første barn har totalt navn over > 24 tegn, så gjøres eget oppslag på navnet, den andre unngår oppslag da den er <= 24 tegn
                 val expectedResponse = """
                 { 
@@ -257,8 +260,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[
@@ -282,8 +285,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-ingen-barn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[]
@@ -302,8 +305,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "arbeidsgivere": {
@@ -334,8 +337,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
             {
                 "arbeidsgivere": {
@@ -368,8 +371,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
             {
                 "arbeidsgivere": {
@@ -402,8 +405,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
             {
                 "arbeidsgivere":{
@@ -429,8 +432,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
             {
                 "aktør_id": "12345",
@@ -485,8 +488,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
             {
                 "aktør_id": "12345",
@@ -533,8 +536,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ingen-attrib")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {}
                 """.trimIndent()
@@ -551,8 +554,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -578,8 +581,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -609,8 +612,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -639,8 +642,8 @@ class ApplicationTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
             }.apply {
-                kotlin.test.assertEquals(HttpStatusCode.BadRequest, response.status())
-                kotlin.test.assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -651,6 +654,65 @@ class ApplicationTest {
                         {"name":"tom","reason":"Må være på format yyyy-mm-dd.","invalid_value":"2019.10.10","type":"query"}
                     ],
                     "status":400
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+    
+    @Test
+    fun `Hente personlige foretak for en person som har det`() {
+        val idToken: String = LoginService.V1_0.generateJwt("111111111111")
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                MegUrlGenerator.PersonligeForetak
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "personlige_foretak": [{
+                        "organisasjonsform": "ENK",
+                        "registreringsdato": "2020-01-01",
+                        "organisasjonsnummer": "1"
+                    }, {
+                        "organisasjonsform": "DA",
+                        "registreringsdato": "2020-02-01",
+                        "organisasjonsnummer": "2"
+                    }, {
+                        "opphørsdato": "2020-06-01",
+                        "organisasjonsform": "ANS",
+                        "registreringsdato": "2020-03-01",
+                        "organisasjonsnummer": "3"
+                    }]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Hente personlige foretak for en person som ikke har det`() {
+        val idToken: String = LoginService.V1_0.generateJwt("111111111112")
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                MegUrlGenerator.PersonligeForetak
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "personlige_foretak": []
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)

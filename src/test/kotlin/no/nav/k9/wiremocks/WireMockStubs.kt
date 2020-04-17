@@ -19,6 +19,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(TpsProxyBarnResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
+        .extensions(BrregProxyV1ResponseTransformer())
 }
 
 internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
@@ -107,6 +108,19 @@ internal fun WireMockServer.stubEnhetsRegister() : WireMockServer {
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
                     .withTransformers("enhetsreg-noekkelinfo")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubBrregProxyV1() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$brregProxyV1ServerPath/person/rolleoversikt"))
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("brreg-proxy-v1")
             )
     )
     return this

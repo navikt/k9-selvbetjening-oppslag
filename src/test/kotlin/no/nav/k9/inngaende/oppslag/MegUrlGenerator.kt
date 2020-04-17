@@ -29,4 +29,11 @@ object MegUrlGenerator {
             queryParameters = queries
         )
     }
+
+    internal val PersonligeForetak = "/meg?" +
+            "a=personlige_foretak[].organisasjonsnummer&" +
+            "a=personlige_foretak[].organisasjonsform&" +
+            "a=personlige_foretak[].navn&" +
+            "a=personlige_foretak[].registreringsdato&" +
+            "a=personlige_foretak[].opphørsdato"
 }

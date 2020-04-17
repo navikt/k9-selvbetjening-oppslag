@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import kotlin.coroutines.coroutineContext
 
 internal class BrregProxyV1(
@@ -89,7 +90,7 @@ internal class BrregProxyV1(
         roller.map { it as JSONObject }.forEach {
             foretak.leggTil(
                 Foretak(
-                    organisasjonsnummer = it.getString("orgnr"),
+                    organisasjonsnummer = it.getString("orgNr"),
                     registreringsdato = LocalDate.parse(it.getString("registreringsDato")),
                     rollebeskrivelser = setOf(it.getString("rollebeskrivelse"))
                 )
