@@ -46,7 +46,7 @@ internal class BrregProxyV1(
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
                 NavHeaders.CallId to coroutineContext.correlationId().value,
                 NavHeaders.ConsumerToken to navConsumerIdHeader,
-                IdentHeader to ident.value
+                NavHeaders.PersonIdent to ident.value
             )
 
         logger.restKall(hentePersonRolleoversiktUrl)
@@ -77,7 +77,7 @@ internal class BrregProxyV1(
 
         json.forsikreIkkeTekniskFeil()
 
-        val roller = json.getJsonArrayOrEmpty("roller")
+        val roller = json.getJsonArrayOrEmpty("rolle")
 
         if (roller.isEmpty) {
             logger.info("Har ikke noen roller i noen foretak.")
@@ -89,7 +89,7 @@ internal class BrregProxyV1(
         roller.map { it as JSONObject }.forEach {
             foretak.leggTil(
                 Foretak(
-                    organisasjonsnummer = it.getString("organisasjonsnummer"),
+                    organisasjonsnummer = it.getString("orgnr"),
                     registreringsdato = LocalDate.parse(it.getString("registreringsDato")),
                     rollebeskrivelser = setOf(it.getString("rollebeskrivelse"))
                 )
@@ -107,7 +107,6 @@ internal class BrregProxyV1(
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(BrregProxyV1::class.java)
         private const val OperationHentePersonRolleoversikt = "hente-person-rolleoversikt"
-        private const val IdentHeader = "Personident"
     }
 }
 
