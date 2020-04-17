@@ -19,21 +19,22 @@ buildscript {
 }
 
 dependencies {
-    compile ( "no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
-    compile ( "no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
-    compile ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
-    compile ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
-    compile ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
     // Test
-    testCompile ( "no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
-    testCompile ("io.ktor:ktor-server-test-host:$ktorVersion") {
+    testImplementation ( "no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
+    testImplementation ("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testCompile("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testCompile ("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation ("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("io.mockk:mockk:1.9.3")
 }
 
 repositories {

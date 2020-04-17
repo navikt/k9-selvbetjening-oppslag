@@ -85,3 +85,25 @@ private enum class PersonligForetakRoller (internal val rolle: String) {
         }
     }
 }
+
+/*
+ROLLER:
+Bestyrende reder
+Bostyrer
+Daglig leder/administrerende direktør
+Deltaker med proratarisk ansvar (delt ansvar)
+Deltaker med solidarisk ansvar (fullt ansvarlig)
+Forretningsfører
+Innehaver
+Komplementar
+Kontaktperson
+Styrets leder
+Styremedlem
+Nestleder
+Varamedlem
+Observatør
+Regnskapsfører
+Norsk representant for utenlandsk enhet
+Revisor
+Sameiere
+ */
