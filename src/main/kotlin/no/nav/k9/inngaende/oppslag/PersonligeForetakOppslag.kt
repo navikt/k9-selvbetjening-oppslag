@@ -16,7 +16,14 @@ internal class PersonligeForetakOppslag(
         if (!attributter.etterspurtPersonligForetak()) return null
 
         return brregProxyV1Gateway.foretak(ident, attributter)!!
-            .filterNot { fraRolleBeskrivelse(it.rollebeskrivelse) == PersonligForetakRoller.IkkePersonligForetakRolle }
+            .map {
+                it.copy(
+                    rollebeskrivelser = it.rollebeskrivelser.filterNot { rollebeskrivelse ->
+                        fraRolleBeskrivelse(rollebeskrivelse) == PersonligForetakRoller.IkkePersonligForetakRolle
+                    }.toSet()
+                )
+            }
+            .filterNot { it.rollebeskrivelser.isEmpty() }
             .map {
                 val enhet = enhetsregisterV1Gateway.enhet(it.organisasjonsnummer, attributter)!!
                 PersonligForetak(

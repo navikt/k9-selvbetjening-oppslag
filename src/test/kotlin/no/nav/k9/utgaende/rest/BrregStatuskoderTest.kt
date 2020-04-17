@@ -81,9 +81,9 @@ internal class BrregStatuskoderTest {
     }
 
     private companion object {
-        internal val F_991 = Foretak(organisasjonsnummer = "991", registreringsdato = LocalDate.now(), rollebeskrivelse = "991")
-        internal val F_992 = Foretak(organisasjonsnummer = "992", registreringsdato = LocalDate.now(), rollebeskrivelse = "992")
-        internal val F_993 = Foretak(organisasjonsnummer = "993", registreringsdato = LocalDate.now(), rollebeskrivelse = "993")
+        internal val F_991 = Foretak(organisasjonsnummer = "991", registreringsdato = LocalDate.now(), rollebeskrivelser = setOf("991"))
+        internal val F_992 = Foretak(organisasjonsnummer = "992", registreringsdato = LocalDate.now(), rollebeskrivelser = setOf("992"))
+        internal val F_993 = Foretak(organisasjonsnummer = "993", registreringsdato = LocalDate.now(), rollebeskrivelser = setOf("993"))
         internal val foretak = mutableSetOf(F_991, F_992, F_993)
 
         internal fun brregResponseMedEnUnderstatus(

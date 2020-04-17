@@ -84,13 +84,17 @@ internal class BrregProxyV1(
             return setOf()
         }
 
-        val foretak = roller.map { it as JSONObject }.map {
-            Foretak(
-                organisasjonsnummer = it.getString("organisasjonsnummer"),
-                registreringsdato = LocalDate.parse(it.getString("registreringsDato")),
-                rollebeskrivelse = it.getString("rollebeskrivelse")
+        val foretak = mutableSetOf<Foretak>()
+
+        roller.map { it as JSONObject }.forEach {
+            foretak.leggTil(
+                Foretak(
+                    organisasjonsnummer = it.getString("organisasjonsnummer"),
+                    registreringsdato = LocalDate.parse(it.getString("registreringsDato")),
+                    rollebeskrivelser = setOf(it.getString("rollebeskrivelse"))
+                )
             )
-        }.toMutableSet()
+        }
 
         val antallForetakFørFiltrering = foretak.size
         val filtrert = foretak.filtrerPåStatuskoder(json)
@@ -107,8 +111,24 @@ internal class BrregProxyV1(
     }
 }
 
+private fun MutableSet<Foretak>.leggTil(foretak: Foretak) {
+    val eksisterendeForetak = firstOrNull { it.organisasjonsnummer == foretak.organisasjonsnummer }
+
+    if (eksisterendeForetak != null) {
+        val oppdatertForetak = Foretak(
+            organisasjonsnummer = eksisterendeForetak.organisasjonsnummer,
+            registreringsdato = eksisterendeForetak.registreringsdato,
+            rollebeskrivelser = eksisterendeForetak.rollebeskrivelser.plus(foretak.rollebeskrivelser)
+        )
+        remove(eksisterendeForetak)
+        add(oppdatertForetak)
+    } else {
+        add(foretak)
+    }
+}
+
 internal data class Foretak(
     val organisasjonsnummer: String,
     val registreringsdato: LocalDate,
-    val rollebeskrivelse: String
+    val rollebeskrivelser: Set<String>
 )

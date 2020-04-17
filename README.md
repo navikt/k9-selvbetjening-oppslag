@@ -58,4 +58,4 @@ Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. K
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
 
-Interne henvendelser kan sendes via Slack i kanalen #sykdom-i-familient
+Interne henvendelser kan sendes via Slack i kanalen #sykdom-i-familien
