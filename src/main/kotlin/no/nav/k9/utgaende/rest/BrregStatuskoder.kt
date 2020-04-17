@@ -1,8 +1,8 @@
 package no.nav.k9.utgaende.rest
 
-import no.nav.k9.utgaende.rest.BrregStatuskoder.filtrerPåEnhetStatuskoder
-import no.nav.k9.utgaende.rest.BrregStatuskoder.filtrerPåPersonStatuskoder
-import no.nav.k9.utgaende.rest.BrregStatuskoder.statusKombinasjoner
+import no.nav.k9.utgaende.rest.BrregStatuskoder.filtrerPåEnhetStatuskombinasjoner
+import no.nav.k9.utgaende.rest.BrregStatuskoder.filtrerPåPersonStatuskombinasjoner
+import no.nav.k9.utgaende.rest.BrregStatuskoder.statuskombinasjoner
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory
 private object BrregStatuskoder {
     internal val logger: Logger = LoggerFactory.getLogger(BrregStatuskoder::class.java)
 
-    private enum class StatusKombinasjoner(
-        internal val statusKombinasjon: Pair<Int, Int>,
+    private enum class Statuskombinasjon(
+        internal val statuskombinasjon: Pair<Int, Int>,
         internal val melding: String) {
         Ok(Pair(0,0),"Data returnert."),
 
@@ -45,48 +45,48 @@ private object BrregStatuskoder {
         }
     }
 
-    internal val okStatuskombinasjoner = setOf(StatusKombinasjoner.Ok.statusKombinasjon)
+    internal val okStatuskombinasjoner = setOf(Statuskombinasjon.Ok.statuskombinasjon)
 
     internal val håndtertePersonStatuskombinasjoner = setOf(
-        StatusKombinasjoner.PersonIkkeFunnet.statusKombinasjon,
-        StatusKombinasjoner.PersonDød.statusKombinasjon,
-        StatusKombinasjoner.PersonUgyldig.statusKombinasjon,
-        StatusKombinasjoner.PersonHarVerge.statusKombinasjon
+        Statuskombinasjon.PersonIkkeFunnet.statuskombinasjon,
+        Statuskombinasjon.PersonDød.statuskombinasjon,
+        Statuskombinasjon.PersonUgyldig.statuskombinasjon,
+        Statuskombinasjon.PersonHarVerge.statuskombinasjon
     )
 
     internal val håndterteEnhetStatuskombinasjoner = setOf(
-        StatusKombinasjoner.EnhetSlettetSomDublett.statusKombinasjon,
-        StatusKombinasjoner.EnhetSlettetSomSammenslått.statusKombinasjon,
-        StatusKombinasjoner.EnhetAldriOpprettet.statusKombinasjon,
-        StatusKombinasjoner.EnhetSlettet.statusKombinasjon,
-        StatusKombinasjoner.EnhetSlettetSomDublettEllerSammenslått.statusKombinasjon
+        Statuskombinasjon.EnhetSlettetSomDublett.statuskombinasjon,
+        Statuskombinasjon.EnhetSlettetSomSammenslått.statuskombinasjon,
+        Statuskombinasjon.EnhetAldriOpprettet.statuskombinasjon,
+        Statuskombinasjon.EnhetSlettet.statuskombinasjon,
+        Statuskombinasjon.EnhetSlettetSomDublettEllerSammenslått.statuskombinasjon
     )
 
-    internal fun MutableSet<Foretak>.filtrerPåPersonStatuskoder(statusKombinasjoner: Set<Triple<Int,Int,String>>) = when {
-        this.isEmpty() || statusKombinasjoner.isEmpty() -> this
+    internal fun MutableSet<Foretak>.filtrerPåPersonStatuskombinasjoner(statuskombinasjoner: Set<Triple<Int,Int,String>>) = when {
+        this.isEmpty() || statuskombinasjoner.isEmpty() -> this
         else -> {
-            logger.info("$size foretak filtreres bort på grunn av statuskombinasjoner på person: ${statusKombinasjoner.utenMeldinger().somString()}")
+            logger.info("$size foretak filtreres bort på grunn av statuskombinasjoner på person: ${statuskombinasjoner.utenMeldinger().somString()}")
             mutableSetOf()
         }
     }
 
-    internal fun MutableSet<Foretak>.filtrerPåEnhetStatuskoder(statusKombinasjoner: Set<Triple<Int,Int,String>>) = when {
-        this.isEmpty() || statusKombinasjoner.isEmpty() -> this
+    internal fun MutableSet<Foretak>.filtrerPåEnhetStatuskombinasjoner(statuskombinasjoner: Set<Triple<Int,Int,String>>) = when {
+        this.isEmpty() || statuskombinasjoner.isEmpty() -> this
         else -> {
             val antallFørFiltrering = this.size
-            val meldingerUtenKorrektEnhet = statusKombinasjoner.joinToString {
-                if (it.utenMelding() == StatusKombinasjoner.EnhetSlettetSomDublettEllerSammenslått.statusKombinasjon) it.third
+            val meldingerUtenKorrektEnhet = statuskombinasjoner.joinToString {
+                if (it.utenMelding() == Statuskombinasjon.EnhetSlettetSomDublettEllerSammenslått.statuskombinasjon) it.third
                 else it.third.split("-")[0]
             }
             val filtrert = this.filterNot { meldingerUtenKorrektEnhet.contains(it.organisasjonsnummer) }
             if (antallFørFiltrering != filtrert.size) {
-                logger.info("${antallFørFiltrering-filtrert.size} foretak filtreres bort på grunn av statuskominasjoner på enhet: ${statusKombinasjoner.utenMeldinger().somString()}")
+                logger.info("${antallFørFiltrering-filtrert.size} foretak filtreres bort på grunn av statuskominasjoner på enhet: ${statuskombinasjoner.utenMeldinger().somString()}")
             }
             filtrert.toMutableSet()
         }
     }
 
-    internal fun JSONObject.statusKombinasjoner() : Set<Triple<Int,Int,String>> {
+    internal fun JSONObject.statuskombinasjoner() : Set<Triple<Int,Int,String>> {
         val (hovedstatus, statuskoder) = forsikreIkkeTekniskFeil()
         return statuskoder.getJsonArrayOrEmpty("understatus")
             .map { it as JSONObject }
@@ -96,20 +96,20 @@ private object BrregStatuskoder {
 }
 
 internal fun MutableSet<Foretak>.filtrerPåStatuskoder(brregResponse: JSONObject) : Set<Foretak> {
-    val statusKombinasjoner = brregResponse.statusKombinasjoner()
-    val okStatuskombinasjoner = statusKombinasjoner.filter { it.utenMelding() in BrregStatuskoder.okStatuskombinasjoner }.toSet()
-    val personStatuskombinasjoner = statusKombinasjoner.filter { it.utenMelding() in BrregStatuskoder.håndtertePersonStatuskombinasjoner }.toSet()
-    val enhetStatuskombinasjoner = statusKombinasjoner.filter { it.utenMelding() in BrregStatuskoder.håndterteEnhetStatuskombinasjoner }.toSet()
-    val filtrert = filtrerPåPersonStatuskoder(personStatuskombinasjoner).filtrerPåEnhetStatuskoder(enhetStatuskombinasjoner)
-    val uhåndterteStatusKombinasjoner = statusKombinasjoner
+    val statuskombinasjoner = brregResponse.statuskombinasjoner()
+    val okStatuskombinasjoner = statuskombinasjoner.filter { it.utenMelding() in BrregStatuskoder.okStatuskombinasjoner }.toSet()
+    val personStatuskombinasjoner = statuskombinasjoner.filter { it.utenMelding() in BrregStatuskoder.håndtertePersonStatuskombinasjoner }.toSet()
+    val enhetStatuskombinasjoner = statuskombinasjoner.filter { it.utenMelding() in BrregStatuskoder.håndterteEnhetStatuskombinasjoner }.toSet()
+    val filtrert = filtrerPåPersonStatuskombinasjoner(personStatuskombinasjoner).filtrerPåEnhetStatuskombinasjoner(enhetStatuskombinasjoner)
+    val uhåndterteStatuskombinasjoner = statuskombinasjoner
         .toMutableSet()
         .fjernAlle(okStatuskombinasjoner)
         .fjernAlle(personStatuskombinasjoner)
         .fjernAlle(enhetStatuskombinasjoner)
 
-    if (uhåndterteStatusKombinasjoner.size > 0) {
-        BrregStatuskoder.logger.info("AntallUhåndterteStatusKombinasjoner=${uhåndterteStatusKombinasjoner.size}")
-        BrregStatuskoder.logger.info("UhåndterteStatuskombinasjoner=${uhåndterteStatusKombinasjoner.utenMeldinger().somString()}")
+    if (uhåndterteStatuskombinasjoner.size > 0) {
+        BrregStatuskoder.logger.info("AntallUhåndterteStatuskombinasjoner=${uhåndterteStatuskombinasjoner.size}")
+        BrregStatuskoder.logger.info("UhåndterteStatuskombinasjoner=${uhåndterteStatuskombinasjoner.utenMeldinger().somString()}")
     }
     return filtrert
 }
@@ -135,7 +135,7 @@ private fun Set<Triple<Int,Int,String>>.utenMeldinger() = map {it.utenMelding()}
 
 https://www.brreg.no/produkter-og-tjenester/bestille-produkter/maskinlesbare-data-enhetsregisteret/full-tilgang-enhetsregisteret/teknisk-dokumentasjon-for-maskinell-tilgang-til-enhetsregisteret/grunndataws/
 
-Stjerne (*) Foran betyr at vi håndterer statusKombinasjonen i koden ovenfor.
+Stjerne (*) Foran betyr at vi håndterer statuskombinasjonen i koden ovenfor.
 Spørsmålstegn (?) foran må undersøkes nærmere.
 De uten noe lar vi passere i stillhet om vi får dem.
 
