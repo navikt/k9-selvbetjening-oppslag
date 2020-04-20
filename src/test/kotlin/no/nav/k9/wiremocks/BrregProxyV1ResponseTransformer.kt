@@ -34,15 +34,15 @@ private fun getResponse(personIdent: String) = when (personIdent) {
     "111111111111" -> """
     {
     	"rolle": [{
-    		"orgNr": "1",
+    		"orgnr": "1",
     		"rollebeskrivelse": "Innehaver",
     		"registreringsDato": "2020-01-01"
     	}, {
-    		"orgNr": "2",
+    		"orgnr": "2",
     		"rollebeskrivelse": "Deltaker med proratarisk ansvar (delt ansvar)",
     		"registreringsDato": "2020-02-01"
     	}, {
-    		"orgNr": "3",
+    		"orgnr": "3",
     		"rollebeskrivelse": "Deltaker med solidarisk ansvar (fullt ansvarlig)",
     		"registreringsDato": "2020-03-01"
     	}],
