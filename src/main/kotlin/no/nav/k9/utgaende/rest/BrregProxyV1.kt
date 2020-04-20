@@ -11,6 +11,7 @@ import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.inngaende.oppslag.filtrertForetak
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -96,11 +97,9 @@ internal class BrregProxyV1(
             )
         }
 
-        val antallForetakFørFiltrering = foretak.size
+        logger.info("Har roller i ${foretak.size} foretak.")
         val filtrert = foretak.filtrerPåStatuskoder(json)
-        if (antallForetakFørFiltrering != filtrert.size) {
-            logger.info("Filtrert fra $antallForetakFørFiltrering til ${filtrert.size} foretak.")
-        }
+        logger.filtrertForetak("Statuskoder", filtrert.size)
         return filtrert
     }
 

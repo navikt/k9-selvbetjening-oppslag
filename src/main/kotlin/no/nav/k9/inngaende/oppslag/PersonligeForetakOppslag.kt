@@ -3,6 +3,8 @@ package no.nav.k9.inngaende.oppslag
 import no.nav.k9.inngaende.oppslag.PersonligForetakRoller.Companion.fraRolleBeskrivelse
 import no.nav.k9.utgaende.gateway.BrregProxyV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 internal class PersonligeForetakOppslag(
@@ -24,6 +26,9 @@ internal class PersonligeForetakOppslag(
                 )
             }
             .filterNot { it.rollebeskrivelser.isEmpty() }
+            .also {
+                logger.filtrertForetak("PersonligForetakRoller", it.size)
+            }
             .map {
                 val enhet = enhetsregisterV1Gateway.enhet(it.organisasjonsnummer, attributter)!!
                 PersonligForetak(
@@ -35,6 +40,9 @@ internal class PersonligeForetakOppslag(
                 )
             }
             .filterNot { it.organisasjonsform == PersonligForetakOrganisasjonsform.IkkePersonligForetak }
+            .also {
+                logger.filtrertForetak("PersonligForetakOrganisasjonsform", it.size)
+            }
             .map {
                 PersonligForetak(
                     organisasjonsummer = it.organisasjonsummer,
@@ -46,6 +54,14 @@ internal class PersonligeForetakOppslag(
             }
             .toSet()
     }
+
+    private companion object {
+        private val logger: Logger = LoggerFactory.getLogger(PersonligeForetakOppslag::class.java)
+    }
+}
+
+internal fun Logger.filtrertForetak(filtrertPå: String, antallEtterFiltrering: Int) {
+    info("Filtrert foretak på $filtrertPå. Antall igjen etter filtrering er $antallEtterFiltrering")
 }
 
 internal data class PersonligForetak<T>(
