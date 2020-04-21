@@ -136,8 +136,8 @@ private fun Set<Triple<Int,Int,String>>.utenMeldinger() = map {it.utenMelding()}
 https://www.brreg.no/produkter-og-tjenester/bestille-produkter/maskinlesbare-data-enhetsregisteret/full-tilgang-enhetsregisteret/teknisk-dokumentasjon-for-maskinell-tilgang-til-enhetsregisteret/grunndataws/
 
 Stjerne (*) Foran betyr at vi håndterer statuskombinasjonen i koden ovenfor.
-Spørsmålstegn (?) foran må undersøkes nærmere.
 De uten noe lar vi passere i stillhet om vi får dem.
+Alfakrøll (@) Under en kombinasjon er avklaringer gjort etter spørsmål til Brønnøysundregisteret.
 
 *   0	0	    Data returnert.
 *   0	1       Enhet x er slettet som dublett - korrekt enhet y er innført
@@ -163,7 +163,8 @@ De uten noe lar vi passere i stillhet om vi får dem.
     0	1010	Enhet x har ikke forretningsadresse.
     0	1020	Enhet x har ikke postadresse.
     0	1030	Enhet x har ikke adresse.
-?   0	1060	Enhet x har ikke stiftelsesdato.
+    0	1060	Enhet x har ikke stiftelsesdato.
+@   Det vil alltid leveres en registreringsdato.
     0	1070	Enhet x har ikke målform.
     0	1090	Enhet x har ikke virksomhet/art/bransje.
     0	1100	Enhet x har ikke formål.
@@ -180,10 +181,12 @@ De uten noe lar vi passere i stillhet om vi får dem.
     0	1140	Enhet x har ikke kapital.
     0	1145	Enhet x har ikke bedrifter/virksomheter.
     0	1150	Enhet x inngår ikke i konsern.
-?   0	1155	Enhet x har ikke dato for oppstart.
+    0	1155	Enhet x har ikke dato for oppstart.
+@   Det vil alltid leveres en registreringsdato.
     0	1160	Enhet x har ikke dato for eierskifte.
     0	1165	Enhet x har ikke hovedforetak.
-?   0	1180	Enhet x har rolleblokk n (et sett av roller).
+    0	1180	Enhet x har rolleblokk n (et sett av roller).
+@   Understatus 1180 skal ikke forekomme i denne tjenesten. Denne brukes i tjenester som skal returnere roller knyttet til en enhet.
 *   -1	-100	Bruker mangler autorisasjon for denne tjenesten.
 *   -1	-101	Feil i brukernavn og/eller passord.
 *   -1	-1000	Det har oppstått en uventet feil. Ved fortsatt gjentakelse, ta kontakt med Brønnøysundregistrene.
