@@ -50,7 +50,7 @@ internal class PersonligeForetakOppslagTest {
 
     @Test
     fun `Daglig leder av et enkeltpersonforetak`() {
-        mockBrreg(setOf(foretak("Daglig leder/administrerende direktør", "123")))
+        mockBrreg(setOf(foretak("Daglig leder/ adm.direktør", "123")))
         mockEreg(enhet("ENK"))
         val personligeForetak = hentPersonligeForetak()
         assertNotNull(personligeForetak)
@@ -60,8 +60,8 @@ internal class PersonligeForetakOppslagTest {
     @Test
     fun `Fler roller i samme ansvarlige foretak`() {
         mockBrreg(setOf(
-            foretak("Deltaker med proratarisk ansvar (delt ansvar)", "123"),
-            foretak("Deltaker med solidarisk ansvar (fullt ansvarlig)", "123")
+            foretak("Deltaker med delt ansvar", "123"),
+            foretak("Deltaker med fullt ansvar", "123")
         ))
         mockEreg(enhet("ANS"))
         val personligeForetak = hentPersonligeForetak()
@@ -74,8 +74,8 @@ internal class PersonligeForetakOppslagTest {
     @Test
     fun `Enkeltpersonforetak - ansvarslig fortak og delt ansvar`() {
         mockBrreg(setOf(
-            foretak("Deltaker med proratarisk ansvar (delt ansvar)", "123"),
-            foretak("Deltaker med solidarisk ansvar (fullt ansvarlig)", "234"),
+            foretak("Deltaker med delt ansvar", "123"),
+            foretak("Deltaker med fullt ansvar", "234"),
             foretak("Innehaver", "567")
         ))
         mockEreg(setOf(

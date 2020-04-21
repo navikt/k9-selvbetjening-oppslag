@@ -88,8 +88,8 @@ private enum class PersonligForetakOrganisasjonsform {
 }
 private enum class PersonligForetakRoller (internal val rolle: String) {
     Innehaver("Innehaver".toUpperCase()),
-    DeltAnsvar("Deltaker med proratarisk ansvar (delt ansvar)".toUpperCase()),
-    FulltAnsvar("Deltaker med solidarisk ansvar (fullt ansvarlig)".toUpperCase()),
+    DeltAnsvar("Deltaker med delt ansvar".toUpperCase()),
+    FulltAnsvar("Deltaker med fullt ansvar".toUpperCase()),
     IkkePersonligForetakRolle("N/A");
 
     internal companion object {
@@ -105,10 +105,9 @@ private enum class PersonligForetakRoller (internal val rolle: String) {
 /*
 ROLLER:
 Bestyrende reder
-Bostyrer
-Daglig leder/administrerende direktør
-Deltaker med proratarisk ansvar (delt ansvar)
-Deltaker med solidarisk ansvar (fullt ansvarlig)
+Daglig leder/ adm.direktør
+Deltaker med delt ansvar
+Deltaker med fullt ansvar
 Forretningsfører
 Innehaver
 Komplementar
@@ -116,10 +115,13 @@ Kontaktperson
 Styrets leder
 Styremedlem
 Nestleder
-Varamedlem
 Observatør
-Regnskapsfører
-Norsk representant for utenlandsk enhet
-Revisor
-Sameiere
+Prokura i fellesskap
+Prokura hver for seg
+Prokura
+Norsk repr. for utenl. enhet
+Signatur i fellesskap
+Signatur
+Signatur hver for seg
+Varamedlem
  */
