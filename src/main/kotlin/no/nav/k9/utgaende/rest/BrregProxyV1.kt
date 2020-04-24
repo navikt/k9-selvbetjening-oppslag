@@ -36,7 +36,7 @@ internal class BrregProxyV1(
         ident: Ident
     ) : Set<Foretak> {
         val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(hentePersonRolleoversiktScopes).asAuthoriationHeader()
-        //val authorizationHeader = "Bearer ${coroutineContext.idToken().value}" TODO: Skal bruke denne på sikt.
+        //val authorizationHeader = "Bearer ${coroutineContext.idToken().value}" TODO: https://github.com/navikt/k9-selvbetjening-oppslag/issues/18
         val authorizationHeader = navConsumerIdHeader
 
         val httpRequest = hentePersonRolleoversiktUrl
