@@ -28,8 +28,8 @@ spec:
   ingresses:
     - https://k9-selvbetjening-oppslag.nais.adeo.no
   replicas:
-    min: 1
-    max: 1
+    min: 2
+    max: 2
     cpuThresholdPercentage: 90
   prometheus:
     enabled: true
@@ -51,4 +51,4 @@ spec:
     - name: TPS_PROXY_V1_URL
       value: https://tps-proxy.nais.adeo.no/api/v1
     - name: BRREG_PROXY_V1_URL
-      value: https://brreg-proxy-rolleoversikt.nais.adeo.no/api/v1
+      value: https://brreg-proxy.nais.adeo.no/api/v1

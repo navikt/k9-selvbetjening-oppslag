@@ -51,5 +51,5 @@ spec:
     - name: TPS_PROXY_V1_URL
       value: https://tps-proxy-q1.nais.preprod.local/api/v1
     - name: BRREG_PROXY_V1_URL
-      value: https://brreg-proxy-rolleoversikt.nais.preprod.local/api/v1
+      value: https://brreg-proxy.nais.preprod.local/api/v1
 
