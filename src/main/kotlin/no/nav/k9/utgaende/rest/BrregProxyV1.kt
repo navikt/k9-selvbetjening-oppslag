@@ -10,7 +10,6 @@ import no.nav.helse.dusseldorf.ktor.metrics.Operation
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
-import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.filtrertForetak
 import org.json.JSONObject
@@ -37,7 +36,8 @@ internal class BrregProxyV1(
         ident: Ident
     ) : Set<Foretak> {
         val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(hentePersonRolleoversiktScopes).asAuthoriationHeader()
-        val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
+        //val authorizationHeader = "Bearer ${coroutineContext.idToken().value}" TODO: https://github.com/navikt/k9-selvbetjening-oppslag/issues/18
+        val authorizationHeader = navConsumerIdHeader
 
         val httpRequest = hentePersonRolleoversiktUrl
             .httpGet()
