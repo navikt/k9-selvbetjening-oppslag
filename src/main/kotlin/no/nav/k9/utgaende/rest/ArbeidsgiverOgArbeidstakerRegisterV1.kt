@@ -22,7 +22,7 @@ import kotlin.coroutines.coroutineContext
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     baseUrl: URI,
-    private val accessTokenClient: AccessTokenClient,
+    accessTokenClient: AccessTokenClient,
     private val henteArbeidsforholdPerArbeidstakerScopes: Set<String> = setOf("openid")
 ) {
     private companion object {
@@ -73,7 +73,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             logger = logger
         ) {
             val (request,_, result) = Operation.monitored(
-                app = "k9-selvbetjening-oppslag",
+                app = NavHeaderValues.ConsumerId,
                 operation = "hente-arbeidsforhold-per-arbeidstaker",
                 resultResolver = { 200 == it.second.statusCode }
             ) { httpRequest.awaitStringResponseResult() }

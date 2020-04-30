@@ -17,6 +17,7 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | mellomnavn                                                            | x         |
 | etternavn                                                             |           |
 | fødselsdato                                                           |           |
+| kontonummer                                                           | x         |
 | barn[].aktør_id                                                       |           |
 | barn[].fornavn                                                        |           |
 | barn[].mellomnavn                                                     | x         |
@@ -25,6 +26,15 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | barn[].har_samme_adresse                                              | x         |
 | arbeidsgivere[].organisasjoner[].organisasjonsnummer                  |           |
 | arbeidsgivere[].organisasjoner[].navn                                 | x         |
+| personlige_foretak[].organisasjonsnummer                              |           |
+| personlige_foretak[].navn                                             | x         |
+| personlige_foretak[].organisasjonsform                                |           |
+| personlige_foretak[].registreringsdato                                |           |
+| personlige_foretak[].opphørsdato                                      | x         |
+
+### Personlige foretak
+`personlige_foretak[]` returnerer personlig foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).
+Det tre nevnte verdiene er de man kan få som `organisasjonsform`
 
 ### Eksempel
 
@@ -48,4 +58,4 @@ Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. K
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
 
-Interne henvendelser kan sendes via Slack i kanalen #team-düsseldorf.
+Interne henvendelser kan sendes via Slack i kanalen #sykdom-i-familien

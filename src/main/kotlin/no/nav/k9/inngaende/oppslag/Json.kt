@@ -13,6 +13,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.tpsPerson!!.mellomnavn)
         if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.tpsPerson!!.etternavn)
         if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.tpsPerson!!.fødselsdato.toString())
+        if (attributter.contains(Attributt.kontonummer)) json.put("kontonummer", meg!!.tpsPerson!!.kontonummer)
     }
 
     // Barn
@@ -45,5 +46,21 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         arbeidsgivereJson.put("organisasjoner", organisasjonerJson)
         json.put("arbeidsgivere", arbeidsgivereJson)
     }
+
+    // Personlige foretak
+    if (attributter.etterspurtPersonligForetak()) {
+        val personligeForetakJsonArray = JSONArray()
+        personligeForetak?.forEach {
+            personligeForetakJsonArray.put(JSONObject().apply {
+                if (attributter.contains(Attributt.personligForetakOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsummer)
+                if (attributter.contains(Attributt.personligForetakNavn)) put("navn", it.navn)
+                if (attributter.contains(Attributt.personligForetakOrganisasjonsform)) put("organisasjonsform", it.organisasjonsform)
+                if (attributter.contains(Attributt.personligForetakRegistreringsdato)) put("registreringsdato", it.registreringsdato)
+                if (attributter.contains(Attributt.personligForetakOpphørsdato)) put("opphørsdato", it.opphørsdato)
+            })
+        }
+        json.put("personlige_foretak", personligeForetakJsonArray)
+    }
+
     return json
 }

@@ -13,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Duration
+import java.time.LocalDate
 import kotlin.coroutines.coroutineContext
 
 internal class EnhetsregisterV1(
@@ -23,13 +24,13 @@ internal class EnhetsregisterV1(
         private const val Operation_HenteOrganisasjonNøkkelinfo = "hente-organisasjon-noekkelinfo"
     }
 
-    private fun nøkkelInfoUrl(organisasjonsnummer: EnhetOrganisasjonsnummer) = Url.buildURL(
+    private fun nøkkelInfoUrl(organisasjonsnummer: String) = Url.buildURL(
         baseUrl = baseUrl,
-        pathParts = listOf("organisasjon", organisasjonsnummer.value, "noekkelinfo")
+        pathParts = listOf("organisasjon", organisasjonsnummer, "noekkelinfo")
     ).toString()
 
 
-    internal suspend fun nøkkelinfo(organisasjonsnummer: EnhetOrganisasjonsnummer) : EnhetOrganisasjon {
+    internal suspend fun nøkkelinfo(organisasjonsnummer: String) : Enhet {
         val url = nøkkelInfoUrl(organisasjonsnummer)
         val httpRequest = url
             .httpGet()
@@ -48,7 +49,7 @@ internal class EnhetsregisterV1(
             logger = logger
         ) {
             val (request,_, result) = Operation.monitored(
-                app = "k9-selvbetjening-oppslag",
+                app = NavHeaderValues.ConsumerId,
                 operation = Operation_HenteOrganisasjonNøkkelinfo,
                 resultResolver = { 200 == it.second.statusCode }
             ) { httpRequest.awaitStringResponseResult() }
@@ -58,7 +59,7 @@ internal class EnhetsregisterV1(
                 { error ->
                     logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
                     logger.error(error.toString())
-                    throw IllegalStateException("Feil ved henting av Nøkkelinfo for organisasjon ${organisasjonsnummer.value}")
+                    throw IllegalStateException("Feil ved henting av Nøkkelinfo for organisasjon ${organisasjonsnummer}")
                 }
             )
         }
@@ -66,10 +67,12 @@ internal class EnhetsregisterV1(
         logger.logResponse(json)
 
         if (!json.has("navn")) {
-            logger.warn("Inget navn tilgjenelig for organisasjon ${organisasjonsnummer.value}. Response = '$json'")
-            return EnhetOrganisasjon(
+            logger.warn("Inget navn tilgjenelig for organisasjon ${organisasjonsnummer}. Response = '$json'")
+            return Enhet(
                 organisasjonsnummer = organisasjonsnummer,
-                navn = null
+                navn = null,
+                enhetstype = json.enhetstype(),
+                opphørsdato = json.opphørsdato()
             )
         }
         val navn = json.getJSONObject("navn")
@@ -86,14 +89,26 @@ internal class EnhetsregisterV1(
             navnlinjer.joinToString(", ")
         }
 
-        return EnhetOrganisasjon(
+        return Enhet(
             organisasjonsnummer = organisasjonsnummer,
-            navn = sammensattNavn
+            navn = sammensattNavn,
+            enhetstype = json.enhetstype(),
+            opphørsdato = json.opphørsdato()
         )
     }
 
     private fun JSONObject.navnlinje(nummer: Int) = getStringOrNull("navnelinje$nummer")
+    private fun JSONObject.enhetstype() = getStringOrNull("enhetstype")
+    private fun JSONObject.opphørsdato() : LocalDate? {
+        val stringValue = getStringOrNull("opphoersdato") ?: return null
+        return LocalDate.parse(stringValue)
+    }
 }
 
-internal data class EnhetOrganisasjon(internal val organisasjonsnummer: EnhetOrganisasjonsnummer, internal val navn: String?)
-internal data class EnhetOrganisasjonsnummer(internal val value: String)
+internal data class Enhet(
+    internal val organisasjonsnummer: String,
+    internal val navn: String?,
+    internal val enhetstype: String?,
+    internal val opphørsdato: LocalDate?
+)
+

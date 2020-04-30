@@ -14,6 +14,7 @@ import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.ZoneId
 
 private const val ATTRIBUTT_QUERY_NAVN = "a"
 private const val FRA_OG_MED_QUERY_NAVN = "fom"
@@ -81,8 +82,8 @@ private fun ApplicationCall.hentFraOgMedTilOgMed() : Pair<LocalDate, LocalDate> 
     val fomQuery = request.queryParameters[FRA_OG_MED_QUERY_NAVN]
     val tomQuery = request.queryParameters[TIL_OG_MED_QUERY_NAVN]
     return Pair(
-        first = if (fomQuery == null) LocalDate.now() else fomQuery.somLocalDate(FRA_OG_MED_QUERY_NAVN),
-        second = if (tomQuery == null) LocalDate.now() else tomQuery.somLocalDate(TIL_OG_MED_QUERY_NAVN)
+        first = if (fomQuery == null) iDag() else fomQuery.somLocalDate(FRA_OG_MED_QUERY_NAVN),
+        second = if (tomQuery == null) iDag() else tomQuery.somLocalDate(TIL_OG_MED_QUERY_NAVN)
     )
 }
 private fun String.somLocalDate(queryParameterName: String) = try {
@@ -97,3 +98,4 @@ private fun String.somLocalDate(queryParameterName: String) = try {
 }
 
 private suspend fun ApplicationCall.tomJsonResponse() = respond(tomJson)
+internal fun iDag() = LocalDate.now(ZoneId.of("Europe/Oslo"))

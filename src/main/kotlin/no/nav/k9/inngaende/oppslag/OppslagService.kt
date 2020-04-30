@@ -9,7 +9,8 @@ internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
     aktoerRegisterV1Gateway: AktoerRegisterV1Gateway,
     enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
-    tpsProxyV1Gateway: TpsProxyV1Gateway
+    tpsProxyV1Gateway: TpsProxyV1Gateway,
+    brregProxyV1Gateway: BrregProxyV1Gateway
 ) {
 
     private val megOppslag = MegOppslag(
@@ -24,6 +25,11 @@ internal class OppslagService(
 
     private val arbeidsgiverOppslag = ArbeidsgivereOppslag(
         enhetsregisterV1Gateway = enhetsregisterV1Gateway
+    )
+
+    private val personligeForetakOppslag = PersonligeForetakOppslag(
+        enhetsregisterV1Gateway = enhetsregisterV1Gateway,
+        brregProxyV1Gateway = brregProxyV1Gateway
     )
 
     internal suspend fun oppslag(
@@ -51,6 +57,10 @@ internal class OppslagService(
             arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
                 attributter = attributter,
                 arbeidsforhold = arbeidsforhold
+            ),
+            personligeForetak = personligeForetakOppslag.personligeForetak(
+                ident = ident,
+                attributter = attributter
             )
         )
     }
