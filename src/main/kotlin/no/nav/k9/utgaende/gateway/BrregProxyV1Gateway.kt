@@ -1,5 +1,6 @@
 package no.nav.k9.utgaende.gateway
 
+import io.prometheus.client.Counter
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.BrregProxyV1
@@ -16,6 +17,11 @@ internal class BrregProxyV1Gateway (
             Attributt.personligForetakNavn,
             Attributt.personligForetakOpphørsdato
         )
+
+        private val rolleCounter = Counter
+            .build("brreg_roller", "Roller fra oppslag mot Brønnøysundregisteret.")
+            .labelNames("rolle")
+            .register()
     }
 
     internal suspend fun foretak(
@@ -23,6 +29,11 @@ internal class BrregProxyV1Gateway (
         attributter: Set<Attributt>
     ) : Set<Foretak>? {
         if (!attributter.any { it in støttedeAttributter }) return null
-        return brregProxyV1.foretak(ident)
+        val foretak = brregProxyV1.foretak(ident)
+        foretak
+            .flatMap { it.rollebeskrivelser }
+            .map { it.metricsFriendly() }
+            .forEach { rolleCounter.labels(it).inc() }
+        return foretak
     }
 }
