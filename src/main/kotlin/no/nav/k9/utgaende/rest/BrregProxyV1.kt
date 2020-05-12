@@ -115,7 +115,10 @@ private fun MutableSet<Foretak>.leggTil(foretak: Foretak) {
     if (eksisterendeForetak != null) {
         val oppdatertForetak = Foretak(
             organisasjonsnummer = eksisterendeForetak.organisasjonsnummer,
-            registreringsdato = eksisterendeForetak.registreringsdato,
+            registreringsdato = when (foretak.registreringsdato.isBefore(eksisterendeForetak.registreringsdato)) {
+                true -> foretak.registreringsdato
+                false -> eksisterendeForetak.registreringsdato
+            },
             rollebeskrivelser = eksisterendeForetak.rollebeskrivelser.plus(foretak.rollebeskrivelser)
         )
         remove(eksisterendeForetak)

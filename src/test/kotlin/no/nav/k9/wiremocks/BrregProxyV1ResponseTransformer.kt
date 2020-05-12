@@ -55,6 +55,30 @@ private fun getResponse(personIdent: String) = when (personIdent) {
     	}
     }
     """.trimIndent()
+    "22222222222" -> """
+    {
+    	"rolle": [{
+    		"orgnr": "1",
+    		"rollebeskrivelse": "Daglig leder/ adm.direktør",
+    		"registreringsDato": "2020-05-05"
+    	},{
+    		"orgnr": "1",
+    		"rollebeskrivelse": "Innehaver",
+    		"registreringsDato": "2020-01-02"
+    	}, {
+    		"orgnr": "1",
+    		"rollebeskrivelse": "Kontaktperson",
+    		"registreringsDato": "2020-04-04"
+    	}],
+    	"statuskoder": {
+    		"hovedstatus": 0,
+    		"understatus": [{
+    			"kode": 0,
+    			"melding": "Data returnert."
+    		}]
+    	}
+    }
+    """.trimIndent()
     else  -> """
     {
     	"rolle": [],

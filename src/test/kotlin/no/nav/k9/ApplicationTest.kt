@@ -719,4 +719,31 @@ class ApplicationTest {
             }
         }
     }
+
+    @Test
+    fun `Hente personlige foretak for en person som har fler roller i samme foretak`() {
+        val idToken: String = LoginService.V1_0.generateJwt("22222222222")
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                MegUrlGenerator.PersonligeForetak
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                {
+                    "personlige_foretak": [{
+                        "organisasjonsform": "ENK",
+                        "registreringsdato": "2020-01-02",
+                        "organisasjonsnummer": "1"
+                    }]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
 }
