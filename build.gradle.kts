@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "1.3.2.9c88b78"
+val dusseldorfKtorVersion = "1.3.2.6840711"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 
@@ -15,7 +15,7 @@ plugins {
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/9c88b788e57939fb6e3d18650393a7e9fb65960f/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/684071162815a8c33befcd0e2fab40a5b987ba2e/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -34,7 +34,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation ("org.skyscreamer:jsonassert:1.5.0")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.10.0")
 }
 
 repositories {
@@ -86,5 +86,5 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "6.3"
+    gradleVersion = "6.4.1"
 }
