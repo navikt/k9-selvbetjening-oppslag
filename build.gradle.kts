@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.internal.DefaultDependencyFilter
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
@@ -85,12 +86,14 @@ tasks.withType<ShadowJar>{
     }
 }
 
-tasks.register<ShadowJar>("applicationWithMocks") {
-    archiveBaseName.set("applicationWithMocks")
+tasks.register<ShadowJar>("shadowJarWithMocks") {
+    archiveBaseName.set("app")
     archiveClassifier.set("")
-    from(sourceSets.test.get().output)
-    from(sourceSets.main.get().output)
-    configurations = mutableListOf(project.configurations.testRuntime.get())
+    from(sourceSets.main.get().output, sourceSets.test.get().output)
+    configurations = mutableListOf(
+        project.configurations.runtimeClasspath.get(),
+        project.configurations.testRuntimeClasspath.get()
+    )
     manifest {
         attributes(
             mapOf(
