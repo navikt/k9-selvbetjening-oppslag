@@ -69,10 +69,10 @@ jobs:
       - name: Build Mock
         run: ./gradlew clean shadowJarWithMocks
       - name: Build and publish Docker image mock
-          run: |
-            docker build --tag ${IMAGE_WITH_MOCKS} .
-            docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-            docker push ${IMAGE_WITH_MOCKS}
+        run: |
+          docker build --tag ${IMAGE_WITH_MOCKS} .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE_WITH_MOCKS}
 
   deploy-dev-fss:
     name: Deploy to dev-fss
