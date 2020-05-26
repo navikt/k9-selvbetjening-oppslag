@@ -67,7 +67,7 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
       - name: Build Mock
-          run: ./gradlew clean shadowJarWithMocks
+        run: ./gradlew clean shadowJarWithMocks
       - name: Build and publish Docker image mock
           run: |
             docker build --tag ${IMAGE_WITH_MOCKS} .
