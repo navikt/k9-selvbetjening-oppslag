@@ -73,13 +73,28 @@ tasks.withType<Test> {
     }
 }
 
-tasks.withType<ShadowJar> {
+tasks.withType<ShadowJar>{
     archiveBaseName.set("app")
     archiveClassifier.set("")
     manifest {
         attributes(
             mapOf(
                 "Main-Class" to mainClass
+            )
+        )
+    }
+}
+
+tasks.register<ShadowJar>("applicationWithMocks") {
+    archiveBaseName.set("applicationWithMocks")
+    archiveClassifier.set("")
+    from(sourceSets.test.get().output)
+    from(sourceSets.main.get().output)
+    configurations = mutableListOf(project.configurations.testRuntime.get())
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to "no.nav.k9.ApplicationWithMocks"
             )
         )
     }
