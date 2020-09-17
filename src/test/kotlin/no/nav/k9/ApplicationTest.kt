@@ -426,7 +426,7 @@ class ApplicationTest {
             handleRequest(
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
-                        "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse" +
+                        "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
                         "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -447,13 +447,15 @@ class ApplicationTest {
                         "fornavn": "PRIPPEN",
                         "etternavn": "JUMBOJET",
                         "fødselsdato": "1999-12-11",
-                        "har_samme_adresse": true
+                        "har_samme_adresse": true,
+                        "identitetsnummer": "11129998665"
                     },
                     {
                         "fornavn": "MEGET STILIG",
                         "etternavn": "PLANKE",
                         "fødselsdato": "2014-12-24",
-                        "har_samme_adresse": true
+                        "har_samme_adresse": true,
+                        "identitetsnummer": "24121479590"
                     }
                 ],
                 "arbeidsgivere": {
