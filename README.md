@@ -19,6 +19,7 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | fødselsdato                                                           |           |
 | kontonummer                                                           | x         |
 | barn[].aktør_id                                                       |           |
+| barn[].identitetsnummer                                               |           |
 | barn[].fornavn                                                        |           |
 | barn[].mellomnavn                                                     | x         |
 | barn[].etternavn                                                      |           |

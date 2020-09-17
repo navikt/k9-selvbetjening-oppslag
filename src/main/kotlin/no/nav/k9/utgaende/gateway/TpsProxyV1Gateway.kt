@@ -20,6 +20,7 @@ internal class TpsProxyV1Gateway(
 
         private val barnAttributter = setOf(
             Attributt.barnAktørId, // Må hente opp barn for å vite hvem vi skal slå opp aktørId på
+            Attributt.barnIdentitetsnummer,
             Attributt.barnFornavn,
             Attributt.barnMellomnavn,
             Attributt.barnEtternavn,

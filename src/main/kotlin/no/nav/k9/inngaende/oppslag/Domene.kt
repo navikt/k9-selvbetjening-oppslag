@@ -11,6 +11,7 @@ internal enum class Attributt(internal val api: String) {
     kontonummer("kontonummer"),
 
     barnAktørId("barn[].aktør_id"),
+    barnIdentitetsnummer("barn[].identitetsnummer"),
     barnFornavn("barn[].fornavn"),
     barnMellomnavn("barn[].mellomnavn"),
     barnEtternavn("barn[].etternavn"),
