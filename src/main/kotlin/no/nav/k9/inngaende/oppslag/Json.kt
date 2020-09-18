@@ -22,6 +22,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         barn?.forEach {
             barnJsonArray.put(JSONObject().apply {
                 if (attributter.contains(Attributt.barnAktørId)) put("aktør_id", it.aktørId!!.value)
+                if (attributter.contains(Attributt.barnIdentitetsnummer)) put("identitetsnummer", it.tpsBarn!!.ident.value)
                 if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.tpsBarn!!.fornavn)
                 if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.tpsBarn!!.mellomnavn)
                 if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.tpsBarn!!.etternavn)
