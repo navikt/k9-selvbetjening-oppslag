@@ -44,3 +44,5 @@ spec:
      - name: {{@key}}
        value: "{{this}}"
   {{/each}}
+  envFrom:
+    - configmap: loginservice-idporten
