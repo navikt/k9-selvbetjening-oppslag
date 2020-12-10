@@ -5,7 +5,7 @@ dependencies {
     compile 'no.nav.helse:dusseldorf-ktor-client:1.4.0.fff48ae'
     compile 'no.nav.helse:dusseldorf-ktor-metrics:1.4.0.fff48ae'
     compile 'no.nav.helse:dusseldorf-oauth2-client:1.4.0.fff48ae'
-    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testCompile 'no.nav.helse:dusseldorf-test-support:1.4.0.fff48ae'
     testCompile 'io.ktor:ktor-server-test-host:1.4.0'
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.6.2'
