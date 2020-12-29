@@ -11,7 +11,7 @@ dependencies {
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.6.2'
     testCompile 'org.jetbrains.kotlin:kotlin-test:1.4.10'
     testCompile 'org.skyscreamer:jsonassert:1.5.0'
-    testCompile 'io.mockk:mockk:1.10.0'
+    testCompile 'io.mockk:mockk:1.10.4'
     testCompile 'no.nav.helse:dusseldorf-ktor-core:1.4.0.fff48ae'
     testCompile 'no.nav.helse:dusseldorf-ktor-auth:1.4.0.fff48ae'
     testCompile 'no.nav.helse:dusseldorf-ktor-client:1.4.0.fff48ae'
