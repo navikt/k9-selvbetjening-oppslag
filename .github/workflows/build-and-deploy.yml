@@ -38,7 +38,7 @@ jobs:
         with:
           java-version: 11
       - name: Test Code
-        run: ./gradlew check
+        run: ./gradlew check --stacktrace
 
   build-code-and-push-docker:
     name: Build code and push docker image
