@@ -13,7 +13,7 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
     kotlin("jvm") version "1.4.21"
-    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 buildscript {
