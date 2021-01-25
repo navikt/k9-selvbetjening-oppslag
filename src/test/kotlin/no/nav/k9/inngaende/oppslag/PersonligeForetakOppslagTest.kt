@@ -4,11 +4,13 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.prometheus.client.CollectorRegistry
 import kotlinx.coroutines.runBlocking
 import no.nav.k9.utgaende.gateway.BrregProxyV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.rest.Enhet
 import no.nav.k9.utgaende.rest.Foretak
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -35,6 +37,11 @@ internal class PersonligeForetakOppslagTest {
             enhetsregisterV1Gateway = enhetsregisterV1Gateway,
             brregProxyV1Gateway = brregProxyV1Gateway
         )
+    }
+
+    @AfterAll
+    fun tearDown() {
+        CollectorRegistry.defaultRegistry.clear()
     }
 
     @Test
