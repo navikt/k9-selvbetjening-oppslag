@@ -76,7 +76,6 @@ class ApplicationTest {
         @JvmStatic
         fun tearDown() {
             logger.info("Tearing down")
-            //CollectorRegistry.defaultRegistry.clear()
             wireMockServer.stop()
             logger.info("Tear down complete")
         }
