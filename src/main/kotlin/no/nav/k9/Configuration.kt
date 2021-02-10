@@ -9,6 +9,9 @@ import java.net.URI
 internal fun ApplicationConfig.tpsProxyV1Url() = URI(getRequiredString("nav.register_urls.tps_proxy_v1", secret = false))
 
 @KtorExperimentalAPI
+internal fun ApplicationConfig.pdlUrl() = URI(getRequiredString("nav.register_urls.pdl_url", secret = false))
+
+@KtorExperimentalAPI
 internal fun ApplicationConfig.aktørV1Url() = URI(getRequiredString("nav.register_urls.aktoer_v1", secret = false))
 
 @KtorExperimentalAPI

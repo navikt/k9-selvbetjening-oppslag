@@ -64,7 +64,7 @@ internal class TpsProxyV1(
 
         logger.restKall(personUrl)
 
-        val json = Retry.retry(
+        val json: JSONObject = Retry.retry(
             operation = "hente-person",
             initialDelay = Duration.ofMillis(200),
             factor = 2.0,

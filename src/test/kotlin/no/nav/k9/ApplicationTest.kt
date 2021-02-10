@@ -77,6 +77,7 @@ class ApplicationTest {
         fun tearDown() {
             logger.info("Tearing down")
             wireMockServer.stop()
+            CollectorRegistry.defaultRegistry.clear()
             logger.info("Tear down complete")
         }
     }

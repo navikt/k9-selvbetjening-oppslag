@@ -32,6 +32,7 @@ object TestConfiguration {
             Pair("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", "$arbeidsgiverOgArbeidstakerRegisterBaseUrl"),
             Pair("nav.register_urls.enhetsregister_v1", "$enhetsRegisterBaseUrl"),
             Pair("nav.register_urls.brreg_proxy_v1", "$brregProxyV1BaseUrl"),
+            Pair("nav.register_urls.pdl_url", "$brregProxyV1BaseUrl"),
 
             Pair("nav.auth.rest_token_url", "${naisStsWellKnownJson?.getString("token_endpoint")}"),
             Pair("nav.auth.client_id", "k9-selvbetjening-oppslag"),

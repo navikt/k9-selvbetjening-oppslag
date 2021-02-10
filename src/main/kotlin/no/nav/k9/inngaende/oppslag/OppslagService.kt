@@ -10,12 +10,18 @@ internal class OppslagService(
     aktoerRegisterV1Gateway: AktoerRegisterV1Gateway,
     enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
     tpsProxyV1Gateway: TpsProxyV1Gateway,
-    brregProxyV1Gateway: BrregProxyV1Gateway
+    brregProxyV1Gateway: BrregProxyV1Gateway,
+    pdlProxyGateway: PDLProxyGateway
 ) {
 
     private val megOppslag = MegOppslag(
         aktoerRegisterV1Gateway = aktoerRegisterV1Gateway,
         tpsProxyV1Gateway = tpsProxyV1Gateway
+    )
+
+    private val personOppslag = Personppslag(
+        aktoerRegisterV1Gateway = aktoerRegisterV1Gateway,
+        pdlProxyGateway = pdlProxyGateway
     )
 
     private val barnOppslag = BarnOppslag(

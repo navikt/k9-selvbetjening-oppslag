@@ -1,6 +1,11 @@
 package no.nav.k9
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.Application
+import io.ktor.application.ApplicationStopping
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
@@ -26,12 +31,16 @@ import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
+import no.nav.k9.utgaende.rest.*
 import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.BrregProxyV1
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
 import no.nav.k9.utgaende.rest.TpsProxyV1
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.prometheus.client.CollectorRegistry
+import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 
@@ -78,6 +87,12 @@ fun Application.SelvbetjeningOppslag() {
                         tpsProxyV1Gateway = TpsProxyV1Gateway(
                             tpsProxyV1 = TpsProxyV1(
                                 baseUrl = environment.config.tpsProxyV1Url(),
+                                accessTokenClient = naisStsAccessTokenClient
+                            )
+                        ),
+                        pdlProxyGateway = PDLProxyGateway(
+                            pdlProxy = PDLProxy(
+                                environment.config.pdlUrl(),
                                 accessTokenClient = naisStsAccessTokenClient
                             )
                         ),
@@ -128,4 +143,14 @@ fun Application.SelvbetjeningOppslag() {
         correlationIdAndRequestIdInMdc()
         logRequests()
     }
+
+    environment.monitor.subscribe(ApplicationStopping) {
+        CollectorRegistry.defaultRegistry.clear()
+    }
+}
+
+fun objectMapper(): ObjectMapper {
+    return jacksonObjectMapper()
+        .dusseldorfConfigured()
+        .enable(SerializationFeature.INDENT_OUTPUT)
 }

@@ -1,6 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
+import com.expediagroup.graphql.plugin.gradle.graphql
+
 val dusseldorfKtorVersion = "1.5.0.ae98b7c"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
@@ -14,6 +17,7 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 plugins {
     kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.expediagroup.graphql") version "4.0.0-alpha.11"
 }
 
 buildscript {
@@ -22,10 +26,13 @@ buildscript {
 
 dependencies {
     implementation ( "no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
+    implementation ( "no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
     implementation ( "no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation ( "no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
     implementation ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     implementation ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
+
+    implementation("com.expediagroup:graphql-kotlin-ktor-client:4.0.0-alpha.11")
 
     // Test
     testImplementation ( "no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
@@ -37,6 +44,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 repositories {
@@ -105,6 +113,27 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
     }
 }
 
+graphql {
+    client {
+        endpoint = "https://pdl-api.dev.intern.nav.no/graphql"
+        packageName = "no.nav.k9"
+        queryFileDirectory = "src/main/resources/pdl"
+        clientType = GraphQLClientType.KTOR
+        headers = mapOf(
+            "user-agent" to "k9-selvbetjening-oppslag",
+            "Tema" to "OMS"
+        )
+    }
+}
+
 tasks.withType<Wrapper> {
     gradleVersion = "6.7.1"
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
 }
