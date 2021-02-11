@@ -8,12 +8,9 @@ query($ident: ID!){
         }
         folkeregisteridentifikator(historikk: false){
             identifikasjonsnummer
-        }
-        kjoenn(historikk: false){
-            kjoenn
-        }
-        doedsfall{
-            doedsdato
+        },
+        foedsel {
+            foedselsdato
         }
     }
 }

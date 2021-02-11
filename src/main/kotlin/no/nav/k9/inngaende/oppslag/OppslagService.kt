@@ -11,16 +11,36 @@ internal class OppslagService(
     enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
     tpsProxyV1Gateway: TpsProxyV1Gateway,
     brregProxyV1Gateway: BrregProxyV1Gateway,
-    pdlProxyGateway: PDLProxyGateway
+    pdlProxyGateway: PDLProxyGateway,
 ) {
+    internal companion object {
+        val støttedeAttributter = setOf(
+            Attributt.aktørId,
+            Attributt.barnAktørId
+        )
+
+        val personAttributter = setOf(
+            Attributt.fornavn,
+            Attributt.mellomnavn,
+            Attributt.etternavn,
+            Attributt.fødselsdato,
+            Attributt.kontonummer
+        )
+
+        val barnAttributter = setOf(
+            Attributt.barnAktørId, // Må hente opp barn for å vite hvem vi skal slå opp aktørId på
+            Attributt.barnIdentitetsnummer,
+            Attributt.barnFornavn,
+            Attributt.barnMellomnavn,
+            Attributt.barnEtternavn,
+            Attributt.barnHarSammeAdresse,
+            Attributt.barnFødselsdato
+        )
+    }
 
     private val megOppslag = MegOppslag(
         aktoerRegisterV1Gateway = aktoerRegisterV1Gateway,
-        tpsProxyV1Gateway = tpsProxyV1Gateway
-    )
-
-    private val personOppslag = Personppslag(
-        aktoerRegisterV1Gateway = aktoerRegisterV1Gateway,
+        tpsProxyV1Gateway = tpsProxyV1Gateway,
         pdlProxyGateway = pdlProxyGateway
     )
 
@@ -42,7 +62,8 @@ internal class OppslagService(
         ident: Ident,
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
-        tilOgMed: LocalDate) : OppslagResultat {
+        tilOgMed: LocalDate,
+    ): OppslagResultat {
 
         val arbeidsforhold = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsforhold(
             ident = ident,

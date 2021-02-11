@@ -1,31 +1,30 @@
 package no.nav.k9.utgaende.rest
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
-import com.github.kittinunf.fuel.httpPost
+import com.expediagroup.graphql.client.GraphQLKtorClient
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.util.*
-import no.nav.helse.dusseldorf.ktor.client.buildURL
 import no.nav.helse.dusseldorf.ktor.core.Retry
+import no.nav.helse.dusseldorf.ktor.core.Violation
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
+import no.nav.k9.HentIdent
+import no.nav.k9.HentPerson
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.objectMapper
 import no.nav.k9.utils.Cache
-import no.nav.k9.utils.CacheObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.coroutineContext
 
 class PDLProxy(
     val baseUrl: URI,
     val accessTokenClient: AccessTokenClient,
-    private val henteNavnScopes: Set<String> = setOf("openid")
+    private val henteNavnScopes: Set<String> = setOf("openid"),
 ) {
 
     private companion object {
@@ -35,91 +34,102 @@ class PDLProxy(
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
     private val cache = Cache<String>(10_000)
 
-    private val personUrl = Url.buildURL(
-        baseUrl = baseUrl,
-        pathParts = listOf()
-    ).toString()
+    @KtorExperimentalAPI
+    private val client = GraphQLKtorClient(
+        url = baseUrl.toURL(),
+        mapper = objectMapper()
+    ) {
+        engine {
+            this.requestTimeout
+        }
+        request {
+            headers {
+                header(
+                    NavHeaders.ConsumerToken,
+                    cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader()
+                )
+                header(NavHeaders.Tema, "OMS")
+            }
+        }
+    }
 
     @KtorExperimentalAPI
-    suspend fun person(aktorId: String): PersonPdlResponse {
-        val queryRequest = QueryRequest(
-            getStringFromResource("/pdl/hentPerson.graphql"),
-            mapOf("ident" to aktorId)
-        )
-        val query = objectMapper().writeValueAsString(queryRequest)
+    suspend fun person(ident: String): HentPerson.Person {
+        val token = coroutineContext.idToken().value
 
-        val cachedObject = cache.get(query)
-        return if (cachedObject == null) {
-            val callId = UUID.randomUUID().toString()
-            val httpRequest = personUrl
-                .httpPost()
-                .body(
-                    query
-                )
-                .header(
-                    HttpHeaders.Authorization to "Bearer ${coroutineContext.idToken().value}",
-                    NavHeaders.ConsumerToken to cachedAccessTokenClient.getAccessToken(henteNavnScopes)
-                        .asAuthoriationHeader(),
-                    HttpHeaders.Accept to "application/json",
-                    HttpHeaders.ContentType to "application/json",
-                    NavHeaders.Tema to "OMS",
-                    NavHeaders.CallId to callId
-                )
-
-            val json: PersonPdlResponse = Retry.retry(
-                operation = "hente-person",
-                initialDelay = Duration.ofMillis(200),
-                factor = 2.0,
-                logger = logger
-            ) {
-                val (request, _, result) = Operation.monitored(
-                    app = "k9-los-api",
-                    operation = "hente-person",
-                    resultResolver = { 200 == it.second.statusCode }
-                ) { httpRequest.awaitStringResponseResult() }
-
-                result.fold(
-                    { success ->
-                        val personPdl = objectMapper().readValue<PersonPdl>(success)
-                        cache.set(query, CacheObject(success, LocalDateTime.now().plusHours(7)))
-
-                        PersonPdlResponse(false, personPdl)
-                    },
-                    { error ->
-                        logger.warn(
-                            "Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'"
-                        )
-
-                        val value = objectMapper().readValue<Error>(error.errorData)
-                        if (value.errors.any { it.extensions.code == "unauthorized" }) {
-                            PersonPdlResponse(true, null)
-                        }
-
-                        logger.warn(error.toString() + "aktorId callId: " + callId)
-                        throw IllegalStateException("Feil ved henting av person.")
-                    }
-                )
+        val hentPersonRequest = HentPerson(client.apply {
+            request {
+                headers {
+                    header(NavHeaders.CallId, UUID.randomUUID().toString())
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
-            return json
+        })
+
+        return Retry.retry(
+            operation = "hente-person",
+            initialDelay = Duration.ofMillis(200),
+            factor = 2.0,
+            logger = logger
+        ) {
+            val result = Operation.monitored(
+                app = "k9-selvbetjening-oppslag",
+                operation = "hente-person",
+                resultResolver = { it.errors.isNullOrEmpty() }
+            ) { hentPersonRequest.execute(HentPerson.Variables(ident)) }
+
+            when {
+                result.data!!.hentPerson != null -> result.data!!.hentPerson!!
+                !result.errors.isNullOrEmpty() -> {
+                    val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.data)
+                    logger.info("Feil ved henting av person. Årsak: {}", errorSomJson)
+                    throw IllegalStateException("Feil ved henting av person.")
+                }
+                else -> {
+                    logger.error("Hva skjer her?? {}", result)
+                    throw IllegalStateException("Feil ved henting av person.")
+                }
+            }
         }
-        else PersonPdlResponse(false, objectMapper().readValue<PersonPdl>(cachedObject.value))
     }
 
-    data class QueryRequest(
-        val query: String,
-        val variables: Map<String, Any>,
-        val operationName: String? = null
-    ) {
-        data class Variables(
-            val variables: Map<String, Any>
-        )
-    }
+    @KtorExperimentalAPI
+    suspend fun aktørId(ident: String): List<HentIdent.IdentInformasjon> {
+        val token = coroutineContext.idToken().value
 
-    private fun getStringFromResource(path: String) =
-        PDLProxy::class.java.getResourceAsStream(path).bufferedReader().use { it.readText() }
+        val hentPersonRequest = HentIdent(client.apply {
+            request {
+                headers {
+                    header(NavHeaders.CallId, UUID.randomUUID().toString())
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
+            }
+        })
+
+        return Retry.retry(
+            operation = "hente-person",
+            initialDelay = Duration.ofMillis(200),
+            factor = 2.0,
+            logger = logger
+        ) {
+            val result = Operation.monitored(
+                app = "k9-selvbetjening-oppslag",
+                operation = "hente-person",
+                resultResolver = { it.errors.isNullOrEmpty() }
+            ) { hentPersonRequest.execute(HentIdent.Variables(ident, listOf(HentIdent.IdentGruppe.AKTORID))) }
+
+            when {
+                !result.errors.isNullOrEmpty() -> {
+                    val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.data)
+                    logger.info("Feil ved henting av person. Årsak: {}", errorSomJson)
+                    throw IllegalStateException("Feil ved henting av person.")
+                }
+                result.data!!.hentIdenter!!.identer.isNullOrEmpty() -> result.data!!.hentIdenter!!.identer
+                else -> {
+                    logger.error("Hva skjer her?? {}", result)
+                    throw IllegalStateException("Feil ved henting av person.")
+                }
+            }
+        }
+    }
 }
-
-data class PersonPdlResponse(
-    val ikkeTilgang: Boolean,
-    val person: PersonPdl?
-)

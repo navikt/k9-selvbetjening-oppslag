@@ -1,18 +1,33 @@
 package no.nav.k9.utgaende.gateway
 
 import io.ktor.util.*
+import no.nav.k9.HentIdent
+import no.nav.k9.HentPerson
+import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
 import no.nav.k9.utgaende.rest.PDLProxy
-import no.nav.k9.utgaende.rest.PersonPdlResponse
 
 class PDLProxyGateway(
-    val pdlProxy: PDLProxy
+    val pdlProxy: PDLProxy,
 ) {
 
     @KtorExperimentalAPI
     internal suspend fun person(
-        ident: Ident
-    ): PersonPdlResponse {
-        return pdlProxy.person(ident.value)
+        ident: Ident,
+        attributter: Set<Attributt>,
+    ): HentPerson.Person? = when {
+        !attributter.any { it in OppslagService.barnAttributter } -> null
+        else -> pdlProxy.person(ident.value)
+    }
+
+    @KtorExperimentalAPI
+    internal suspend fun aktørId(
+        ident: Ident,
+        attributter: Set<Attributt>,
+    ): List<HentIdent.IdentInformasjon>? = when {
+        attributter.any { it in støttedeAttributter } -> pdlProxy.aktørId(ident.value)
+        else -> null
     }
 }
