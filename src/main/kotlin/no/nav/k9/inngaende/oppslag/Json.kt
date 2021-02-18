@@ -9,10 +9,10 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     // Meg
     if (attributter.etterspurtMeg()) {
         if (attributter.contains(Attributt.aktørId)) json.put("aktør_id", meg!!.aktørId!!.value)
-        if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.tpsPerson!!.fornavn)
-        if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.tpsPerson!!.mellomnavn)
-        if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.tpsPerson!!.etternavn)
-        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.tpsPerson!!.fødselsdato.toString())
+        if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.pdlPerson!!.fornavn)
+        if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.pdlPerson!!.mellomnavn)
+        if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.pdlPerson!!.etternavn)
+        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.pdlPerson!!.fødselsdato.toString())
         if (attributter.contains(Attributt.kontonummer)) json.put("kontonummer", meg!!.tpsPerson!!.kontonummer)
     }
 

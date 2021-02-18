@@ -44,11 +44,13 @@ class ApplicationTest {
             .k9SelvbetjeningOppslagConfig()
             .build()
             .stubAktoerRegisterGetAktoerId()
+            .stubPDLGetAktørId()
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
             .stubTpsProxyGetNavn()
+            .stubPDLGetPerson()
             .stubBrregProxyV1()
 
         fun getConfig(): ApplicationConfig {
@@ -123,7 +125,6 @@ class ApplicationTest {
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
-
         }
     }
 
@@ -183,6 +184,7 @@ class ApplicationTest {
                 val expectedResponse = """
                 {
                     "fornavn": "CATO",
+                    "mellomnavn": "",
                     "etternavn": "NILSEN"
                 }
                 """.trimIndent()

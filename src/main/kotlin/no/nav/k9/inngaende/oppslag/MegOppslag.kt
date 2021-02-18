@@ -1,7 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
 import io.ktor.util.*
-import no.nav.k9.HentPerson
+import no.nav.k9.clients.pdl.generated.HentPerson
 import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
@@ -19,22 +19,25 @@ internal class MegOppslag(
     internal suspend fun meg(
         ident: Ident,
         attributter: Set<Attributt>,
-    ) = Meg(
-        tpsPerson = tpsProxyV1Gateway.person(
+    ): Meg {
+        val pdlPerson = pdlProxyGateway.person(
             ident = ident,
             attributter = attributter
-        ),
+        )
+        val tpsPerson = tpsProxyV1Gateway.person(
+            ident = ident,
+            attributter = attributter
+        )
+        return Meg(
+            tpsPerson = tpsPerson,
+            aktørId = pdlProxyGateway.aktørId(
+                ident = ident,
+                attributter = attributter
+            )?.first()?.ident?.let { AktørId(it) },
 
-        aktørId = pdlProxyGateway.aktørId(
-            ident = ident,
-            attributter = attributter
-        )?.first()?.ident?.let { AktørId(it) },
-
-        pdlPerson = pdlProxyGateway.person(
-            ident = ident,
-            attributter = attributter
-        )?.tilPdlPerson()
-    )
+            pdlPerson = pdlPerson?.tilPdlPerson()
+        )
+    }
 
     private fun HentPerson.Person.tilPdlPerson(): PdlPerson {
         val navn1 = this.navn[0]

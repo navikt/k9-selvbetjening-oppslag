@@ -1,12 +1,14 @@
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-import com.expediagroup.graphql.plugin.gradle.config.GraphQLClientType
-import com.expediagroup.graphql.plugin.gradle.graphql
 
-val dusseldorfKtorVersion = "1.5.0.ae98b7c"
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
+val dusseldorfKtorVersion = "1.5.1.609bb61"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
+val graphqlKotlinClientVersion = "4.0.0-alpha.12"
 
 val mockkVersion = "1.10.5"
 val jsonassertVersion = "1.5.0"
@@ -17,11 +19,11 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 plugins {
     kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("com.expediagroup.graphql") version "4.0.0-alpha.11"
+    id("com.expediagroup.graphql") version "4.0.0-alpha.12"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/ae98b7cfa4b75bf15d8d5bb5a7e19a7432b69c47/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/609bb6132fa5a3d25cc3816f0e53f656d24e1549/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -32,7 +34,7 @@ dependencies {
     implementation ( "no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     implementation ( "no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
-    implementation("com.expediagroup:graphql-kotlin-ktor-client:4.0.0-alpha.11")
+    implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphqlKotlinClientVersion")
 
     // Test
     testImplementation ( "no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
@@ -113,17 +115,11 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
     }
 }
 
-graphql {
-    client {
-        endpoint = "https://pdl-api.dev.intern.nav.no/graphql"
-        packageName = "no.nav.k9"
-        queryFileDirectory = "src/main/resources/pdl"
-        clientType = GraphQLClientType.KTOR
-        headers = mapOf(
-            "user-agent" to "k9-selvbetjening-oppslag",
-            "Tema" to "OMS"
-        )
-    }
+tasks.withType<GraphQLGenerateClientTask> {
+    packageName.set("no.nav.k9.clients.pdl.generated")
+    schemaFile.set(file("${project.projectDir}/src/main/resources/pdl/pdl-api-schema.graphql"))
+    queryFileDirectory.set("${project.projectDir}/src/main/resources/pdl")
+    clientType.set(GraphQLClientType.KTOR)
 }
 
 tasks.withType<Wrapper> {

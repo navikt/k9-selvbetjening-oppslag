@@ -1,8 +1,8 @@
 package no.nav.k9.utgaende.gateway
 
 import io.ktor.util.*
-import no.nav.k9.HentIdent
-import no.nav.k9.HentPerson
+import no.nav.k9.clients.pdl.generated.HentIdent
+import no.nav.k9.clients.pdl.generated.HentPerson
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService
@@ -18,7 +18,7 @@ class PDLProxyGateway(
         ident: Ident,
         attributter: Set<Attributt>,
     ): HentPerson.Person? = when {
-        !attributter.any { it in OppslagService.barnAttributter } -> null
+        !attributter.any { it in OppslagService.personAttributter } -> null
         else -> pdlProxy.person(ident.value)
     }
 

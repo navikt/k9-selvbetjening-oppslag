@@ -93,10 +93,6 @@ internal class TpsProxyV1(
         val navn = json.getJSONObject("navn")
 
         return TpsPerson(
-            fornavn = navn.getString("fornavn"),
-            mellomnavn = navn.getStringOrNull("mellomnavn"),
-            etternavn = navn.getString("slektsnavn"),
-            fødselsdato = LocalDate.parse(json.getString("foedselsdato")),
             kontonummer = json.kontonummer()
         )
     }
@@ -228,10 +224,6 @@ internal class TpsProxyV1(
 
 
 internal data class TpsPerson(
-    internal val fornavn: String,
-    internal val mellomnavn: String?,
-    internal val etternavn: String,
-    internal val fødselsdato: LocalDate,
     internal val kontonummer: String?
 )
 
