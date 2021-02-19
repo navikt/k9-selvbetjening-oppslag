@@ -33,6 +33,7 @@ class TpsProxyBarnResponseTransformer : ResponseTransformer() {
 private fun getResponse(navIdent: String) : String {
     when (navIdent) {
         "01019012345" -> {
+            //language=json
             return """
             [
           {
@@ -101,7 +102,7 @@ private fun getResponse(navIdent: String) : String {
           {
             "datoFraOgMed": null,
             "kilde": null,
-            "ident": "11121279632",
+            "ident": "c",
             "relasjonsType": {
               "verdi": "BARN",
               "kodeverk": "Familierelasjoner"

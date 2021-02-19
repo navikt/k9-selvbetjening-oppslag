@@ -17,7 +17,6 @@ import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
-import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
 import no.nav.k9.wiremocks.stubEnhetsRegister
 import no.nav.k9.wiremocks.stubTpsProxyGetBarn
@@ -43,14 +42,14 @@ class ApplicationTest {
             .withLoginServiceSupport()
             .k9SelvbetjeningOppslagConfig()
             .build()
-            .stubAktoerRegisterGetAktoerId()
-            .stubPDLGetAktørId()
+            .stubPDLHentIdent()
+            .stubPDLHentPerson()
+            .stubPDLHentPersonBolk()
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
             .stubTpsProxyGetNavn()
-            .stubPDLGetPerson()
             .stubBrregProxyV1()
 
         fun getConfig(): ApplicationConfig {
@@ -195,7 +194,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag aktoerId`() {
-        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -206,7 +205,6 @@ class ApplicationTest {
                 val expectedResponse = """
                 { 
                     "barn":[
-                        {"aktør_id":"54321"}, 
                         {"aktør_id":"65432"}
                     ]
                 }

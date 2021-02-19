@@ -1,8 +1,6 @@
 package no.nav.k9
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.Application
 import io.ktor.application.ApplicationStopping
@@ -29,10 +27,8 @@ import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.rest.*
-import no.nav.k9.utgaende.rest.AktoerregisterV1
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.BrregProxyV1
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
@@ -86,19 +82,12 @@ fun Application.SelvbetjeningOppslag() {
                     oppslagService = OppslagService(
                         tpsProxyV1Gateway = TpsProxyV1Gateway(
                             tpsProxyV1 = TpsProxyV1(
-                                baseUrl = environment.config.tpsProxyV1Url(),
-                                accessTokenClient = naisStsAccessTokenClient
+                                baseUrl = environment.config.tpsProxyV1Url()
                             )
                         ),
                         pdlProxyGateway = PDLProxyGateway(
                             pdlProxy = PDLProxy(
                                 environment.config.pdlUrl(),
-                                accessTokenClient = naisStsAccessTokenClient
-                            )
-                        ),
-                        aktoerRegisterV1Gateway = AktoerRegisterV1Gateway(
-                            aktørRegisterV1 = AktoerregisterV1(
-                                baseUrl = environment.config.aktørV1Url(),
                                 accessTokenClient = naisStsAccessTokenClient
                             )
                         ),

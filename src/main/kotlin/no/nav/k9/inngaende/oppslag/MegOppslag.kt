@@ -1,16 +1,14 @@
 package no.nav.k9.inngaende.oppslag
 
 import io.ktor.util.*
+import no.nav.k9.clients.pdl.generated.HentIdent
 import no.nav.k9.clients.pdl.generated.HentPerson
-import no.nav.k9.utgaende.gateway.AktoerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
-import no.nav.k9.utgaende.rest.AktørId
 import no.nav.k9.utgaende.rest.TpsPerson
 import java.time.LocalDate
 
 internal class MegOppslag(
-    private val aktoerRegisterV1Gateway: AktoerRegisterV1Gateway,
     private val tpsProxyV1Gateway: TpsProxyV1Gateway,
     private val pdlProxyGateway: PDLProxyGateway,
 ) {
@@ -21,9 +19,9 @@ internal class MegOppslag(
         attributter: Set<Attributt>,
     ): Meg {
         val pdlPerson = pdlProxyGateway.person(
-            ident = ident,
-            attributter = attributter
+            ident = ident
         )
+
         val tpsPerson = tpsProxyV1Gateway.person(
             ident = ident,
             attributter = attributter
@@ -33,8 +31,7 @@ internal class MegOppslag(
             aktørId = pdlProxyGateway.aktørId(
                 ident = ident,
                 attributter = attributter
-            )?.first()?.ident?.let { AktørId(it) },
-
+            )?.tilAktørId(),
             pdlPerson = pdlPerson?.tilPdlPerson()
         )
     }
@@ -46,10 +43,17 @@ internal class MegOppslag(
             mellomnavn = navn1.mellomnavn,
             etternavn = navn1.etternavn,
             forkortetNavn = navn1.forkortetNavn,
-            fødselsdato = LocalDate.parse(foedsel.first().foedselsdato)
+            fødselsdato = LocalDate.parse(foedsel.first().foedselsdato),
+            barnIdenter = this.barnIdenter()
         )
     }
 }
+
+fun HentPerson.Person.barnIdenter(): List<Ident> = familierelasjoner
+    .filter { it.relatertPersonsRolle == HentPerson.Familierelasjonsrolle.BARN }
+    .map { Ident(it.relatertPersonsIdent) }
+
+fun List<HentIdent.IdentInformasjon>.tilAktørId(): Ident = Ident(first().ident)
 
 data class PdlPerson(
     internal val fornavn: String,
@@ -57,10 +61,11 @@ data class PdlPerson(
     internal val etternavn: String,
     internal val forkortetNavn: String?,
     internal val fødselsdato: LocalDate,
+    internal val barnIdenter: List<Ident>
 )
 
 internal data class Meg(
     internal val tpsPerson: TpsPerson?,
     internal val pdlPerson: PdlPerson?,
-    internal val aktørId: AktørId?,
+    internal val aktørId: Ident?,
 )

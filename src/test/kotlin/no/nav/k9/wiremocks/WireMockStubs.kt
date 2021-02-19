@@ -20,26 +20,13 @@ private const val brregProxyV1ServerPath = "/brreg-proxy-v1-mock"
 internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
         .extensions(PdlAktoerIdResponseTransformer())
-        .extensions(TpsProxyResponseTransformer())
+        .extensions(PDLHentPersonBolkResponseTransformer())
         .extensions(PDLPersonResponseTransformer())
+        .extensions(TpsProxyResponseTransformer())
         .extensions(TpsProxyBarnResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
-}
-
-internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$aktoerRegisterServerPath/.*"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("aktoer-register")
-            )
-    )
-    return this
 }
 
 internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
@@ -56,7 +43,7 @@ internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubPDLGetPerson() : WireMockServer {
+internal fun WireMockServer.stubPDLHentPerson() : WireMockServer {
     WireMock.stubFor(
         WireMock.post(WireMock.urlPathMatching(pdlServerPath))
             .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
@@ -68,13 +55,31 @@ internal fun WireMockServer.stubPDLGetPerson() : WireMockServer {
                 WireMock.aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
-                    .withTransformers("pdl-person")
+                    .withTransformers("pdl-hent-person")
             )
     )
     return this
 }
 
-internal fun WireMockServer.stubPDLGetAktørId() : WireMockServer {
+internal fun WireMockServer.stubPDLHentPersonBolk() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
+            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .withHeader(NavHeaders.CallId, AnythingPattern())
+            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
+            .withRequestBody(matchingJsonPath("$.query", containing("hentPersonBolk")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("pdl-hent-person-bolk")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubPDLHentIdent() : WireMockServer {
     WireMock.stubFor(
         WireMock.post(WireMock.urlPathMatching(pdlServerPath))
             .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
@@ -86,7 +91,7 @@ internal fun WireMockServer.stubPDLGetAktørId() : WireMockServer {
                 WireMock.aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
-                    .withTransformers("pdl-aktoer-id")
+                    .withTransformers("pdl-hent-ident")
             )
     )
     return this

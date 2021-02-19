@@ -3,6 +3,8 @@ package no.nav.k9.utgaende.gateway
 import io.ktor.util.*
 import no.nav.k9.clients.pdl.generated.HentIdent
 import no.nav.k9.clients.pdl.generated.HentPerson
+import no.nav.k9.clients.pdl.generated.HentPersonBolk
+import no.nav.k9.clients.pdl.generated.ID
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService
@@ -15,12 +17,14 @@ class PDLProxyGateway(
 
     @KtorExperimentalAPI
     internal suspend fun person(
-        ident: Ident,
-        attributter: Set<Attributt>,
-    ): HentPerson.Person? = when {
-        !attributter.any { it in OppslagService.personAttributter } -> null
-        else -> pdlProxy.person(ident.value)
-    }
+        ident: Ident
+    ): HentPerson.Person = pdlProxy.person(ident.value)
+
+    @KtorExperimentalAPI
+    internal suspend fun personBolk(
+        identer: List<Ident>,
+    ): List<HentPersonBolk.HentPersonBolkResult> = pdlProxy.personBolk(identer.map { it.value })
+
 
     @KtorExperimentalAPI
     internal suspend fun aktørId(

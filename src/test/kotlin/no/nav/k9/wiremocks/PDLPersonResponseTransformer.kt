@@ -30,7 +30,7 @@ class PDLPersonResponseTransformer : ResponseTransformer() {
     }
 
     override fun getName(): String {
-        return "pdl-person"
+        return "pdl-hent-person"
     }
 
     override fun applyGlobally(): Boolean {
@@ -39,11 +39,18 @@ class PDLPersonResponseTransformer : ResponseTransformer() {
 }
 
 private fun getResponse(navIdent: String) : String {
+    // søker
     val fornavn: String
     val mellomnavn: String
     val etternavn: String
     val forkortetNavn: String
     val foedselsdato: String
+
+    // barn
+    val relatertPersonsIdent: String
+    val relatertPersonsRolle: String
+    val minRolleForPerson: String
+
 
     when (navIdent) {
         "01019012345" -> {
@@ -52,18 +59,32 @@ private fun getResponse(navIdent: String) : String {
             etternavn = "TEST"
             forkortetNavn = "$fornavn $mellomnavn $etternavn"
             foedselsdato = "1985-07-27"
+
+            relatertPersonsIdent = "11129998665"
+            relatertPersonsRolle = "BARN"
+            minRolleForPerson = "MOR"
+
         } "25037139184" -> {
             fornavn = "ARNE"
             mellomnavn = "BJARNE"
             etternavn = "CARLSEN"
             forkortetNavn = "$fornavn $mellomnavn $etternavn"
             foedselsdato = "1990-01-02"
+
+            relatertPersonsIdent = "01010067894"
+            relatertPersonsRolle = "BARN"
+            minRolleForPerson = "MOR"
+
         } else -> {
             fornavn = "CATO"
             mellomnavn = ""
             etternavn = "NILSEN"
             forkortetNavn = "$fornavn $etternavn"
             foedselsdato = "1980-05-20"
+
+            relatertPersonsIdent = "24021982330"
+            relatertPersonsRolle = "BARN"
+            minRolleForPerson = "MOR"
         }
     }
     //language=json
@@ -88,7 +109,21 @@ private fun getResponse(navIdent: String) : String {
                     {
                         "foedselsdato": "$foedselsdato"
                     }
-                ]
+                ],
+                "familierelasjoner": [
+                {
+                    "relatertPersonsIdent": "$relatertPersonsIdent",
+                    "relatertPersonsRolle": "$relatertPersonsRolle",
+                    "minRolleForPerson": "$minRolleForPerson"
+                }
+            ],
+            "forelderBarnRelasjon": [
+                {
+                    "relatertPersonsIdent": "$relatertPersonsIdent",
+                    "relatertPersonsRolle": "$relatertPersonsRolle",
+                    "minRolleForPerson": "$minRolleForPerson"
+                }
+              ]
             }
         }
     }

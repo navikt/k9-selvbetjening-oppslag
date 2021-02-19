@@ -8,14 +8,14 @@ import com.github.tomakehurst.wiremock.http.Response
 import no.nav.k9.utgaende.rest.NavHeaders
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-
 private val identMap = mapOf(
     "01019012345" to "12345",
     "25037139184" to "23456",
     "10047025546" to "34567",
-    "11121279632" to "54321", // barn av 10047025546
-    "24121479490" to "65432" // barn av 10047025546
+    "24021982330" to "54321", // barn av 01019012345
+    "08051175957" to "65432", // barn av 25037139184
 )
+
 
 class PdlAktoerIdResponseTransformer : ResponseTransformer() {
     private companion object {
@@ -45,7 +45,7 @@ class PdlAktoerIdResponseTransformer : ResponseTransformer() {
     }
 
     override fun getName(): String {
-        return "pdl-aktoer-id"
+        return "pdl-hent-ident"
     }
 
     override fun applyGlobally(): Boolean {

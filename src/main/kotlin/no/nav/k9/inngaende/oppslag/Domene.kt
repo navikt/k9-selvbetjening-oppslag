@@ -1,6 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
-internal data class Ident(internal val value: String)
+data class Ident(internal val value: String)
 
 internal enum class Attributt(internal val api: String) {
     aktørId("aktør_id"),
