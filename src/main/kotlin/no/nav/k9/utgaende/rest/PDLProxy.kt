@@ -110,7 +110,7 @@ class PDLProxy(
             }
 
             when {
-                result.data!!.hentPersonBolk.isNullOrEmpty() -> result.data!!.hentPersonBolk
+                result.data!!.hentPersonBolk.isNotEmpty() -> result.data!!.hentPersonBolk
                 !result.errors.isNullOrEmpty() -> {
                     val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.errors)
                     logger.info("Feil ved henting av person-bolk. Årsak: {}", errorSomJson)

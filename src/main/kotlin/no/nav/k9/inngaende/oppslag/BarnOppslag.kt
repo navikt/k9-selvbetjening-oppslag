@@ -18,19 +18,25 @@ internal class BarnOppslag(
     ) : Set<Barn>? {
         if (!attributter.etterspurtBarn()) return null
 
-        val pdlBarn = pdlProxyV1Gateway.personBolk(barnasIdenter) ?: return null
+        return when {
+            barnasIdenter.isEmpty() -> null
+            else -> {
 
-        return pdlBarn.filter { it.person != null }
-            .filter { it.person!!.doedsfall.isNullOrEmpty() }
-            .map {
-                Barn(
-                    pdlBarn = it.tilPdlBarn(),
-                    aktørId = pdlProxyV1Gateway.aktørId(
-                        ident = Ident(it.ident),
-                        attributter = attributter
-                    )?.tilAktørId()
-                )
-            }.toSet()
+                val pdlBarn = pdlProxyV1Gateway.personBolk(barnasIdenter) ?: return null
+
+                pdlBarn.filter { it.person != null }
+                    .filter { it.person!!.doedsfall.isNullOrEmpty() }
+                    .map {
+                        Barn(
+                            pdlBarn = it.tilPdlBarn(),
+                            aktørId = pdlProxyV1Gateway.aktørId(
+                                ident = Ident(it.ident),
+                                attributter = attributter
+                            )?.tilAktørId()
+                        )
+                    }.toSet()
+            }
+        }
     }
 }
 
@@ -38,7 +44,7 @@ private fun HentPersonBolk.HentPersonBolkResult.tilPdlBarn(): PdlBarn {
     val barn = person!!
     val navn = barn.navn.first()
     val doedsdato = when {
-        barn.doedsfall.first().doedsdato.isNullOrBlank() -> null
+        barn.doedsfall.isEmpty() -> null
         else -> LocalDate.parse(barn.doedsfall.first().doedsdato!!)
     }
     val foedselsdato = when {

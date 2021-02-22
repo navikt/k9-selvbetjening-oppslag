@@ -18,7 +18,7 @@ class PDLPersonResponseTransformer : ResponseTransformer() {
         request: Request?,
         response: Response?,
         files: FileSource?,
-        parameters: Parameters?
+        parameters: Parameters?,
     ): Response {
         val requestBody = JSONObject(request!!.body.decodeToString())
         val ident = requestBody.getJSONObject("variables").getString("ident")
@@ -38,7 +38,7 @@ class PDLPersonResponseTransformer : ResponseTransformer() {
     }
 }
 
-private fun getResponse(navIdent: String) : String {
+private fun getResponse(navIdent: String): String {
     // søker
     val fornavn: String
     val mellomnavn: String
@@ -47,9 +47,9 @@ private fun getResponse(navIdent: String) : String {
     val foedselsdato: String
 
     // barn
-    val relatertPersonsIdent: String
-    val relatertPersonsRolle: String
-    val minRolleForPerson: String
+    val relatertPersonsIdent: String?
+    val relatertPersonsRolle: String?
+    val minRolleForPerson: String?
 
 
     when (navIdent) {
@@ -64,7 +64,8 @@ private fun getResponse(navIdent: String) : String {
             relatertPersonsRolle = "BARN"
             minRolleForPerson = "MOR"
 
-        } "25037139184" -> {
+        }
+        "25037139184" -> {
             fornavn = "ARNE"
             mellomnavn = "BJARNE"
             etternavn = "CARLSEN"
@@ -75,59 +76,92 @@ private fun getResponse(navIdent: String) : String {
             relatertPersonsRolle = "BARN"
             minRolleForPerson = "MOR"
 
-        } else -> {
+        }
+        else -> {
             fornavn = "CATO"
             mellomnavn = ""
             etternavn = "NILSEN"
             forkortetNavn = "$fornavn $etternavn"
             foedselsdato = "1980-05-20"
 
-            relatertPersonsIdent = "24021982330"
-            relatertPersonsRolle = "BARN"
-            minRolleForPerson = "MOR"
+            relatertPersonsIdent = null
+            relatertPersonsRolle = null
+            minRolleForPerson = null
         }
     }
+
     //language=json
-    return """
-    {
-        "data": {
-            "hentPerson": {
-                "navn": [
-                    {
-                        "fornavn": "$fornavn",
-                        "mellomnavn": "$mellomnavn",
-                        "etternavn": "$etternavn",
-                        "forkortetNavn": "$forkortetNavn"
+    return when (relatertPersonsIdent) {
+        null -> """
+            {
+                "data": {
+                    "hentPerson": {
+                        "navn": [
+                            {
+                                "fornavn": "$fornavn",
+                                "mellomnavn": "$mellomnavn",
+                                "etternavn": "$etternavn",
+                                "forkortetNavn": "$forkortetNavn"
+                            }
+                        ],
+                        "folkeregisteridentifikator": [
+                            {
+                                "identifikasjonsnummer": "$navIdent"
+                            }
+                        ],
+                        "foedsel": [
+                            {
+                                "foedselsdato": "$foedselsdato"
+                            }
+                        ],
+                        "familierelasjoner": [],
+                        "forelderBarnRelasjon": []
                     }
-                ],
-                "folkeregisteridentifikator": [
-                    {
-                        "identifikasjonsnummer": "$navIdent"
-                    }
-                ],
-                "foedsel": [
-                    {
-                        "foedselsdato": "$foedselsdato"
-                    }
-                ],
-                "familierelasjoner": [
-                {
-                    "relatertPersonsIdent": "$relatertPersonsIdent",
-                    "relatertPersonsRolle": "$relatertPersonsRolle",
-                    "minRolleForPerson": "$minRolleForPerson"
                 }
-            ],
-            "forelderBarnRelasjon": [
-                {
-                    "relatertPersonsIdent": "$relatertPersonsIdent",
-                    "relatertPersonsRolle": "$relatertPersonsRolle",
-                    "minRolleForPerson": "$minRolleForPerson"
-                }
-              ]
             }
-        }
-    }
     """.trimIndent()
+
+        else -> """
+            {
+                "data": {
+                    "hentPerson": {
+                        "navn": [
+                            {
+                                "fornavn": "$fornavn",
+                                "mellomnavn": "$mellomnavn",
+                                "etternavn": "$etternavn",
+                                "forkortetNavn": "$forkortetNavn"
+                            }
+                        ],
+                        "folkeregisteridentifikator": [
+                            {
+                                "identifikasjonsnummer": "$navIdent"
+                            }
+                        ],
+                        "foedsel": [
+                            {
+                                "foedselsdato": "$foedselsdato"
+                            }
+                        ],
+                        "familierelasjoner": [
+                            {
+                                "relatertPersonsIdent": "$relatertPersonsIdent",
+                                "relatertPersonsRolle": "$relatertPersonsRolle",
+                                "minRolleForPerson": "$minRolleForPerson"
+                            }
+                        ],
+                        "forelderBarnRelasjon": [
+                            {
+                                "relatertPersonsIdent": "$relatertPersonsIdent",
+                                "relatertPersonsRolle": "$relatertPersonsRolle",
+                                "minRolleForPerson": "$minRolleForPerson"
+                            }
+                          ]
+                    }
+                }
+            }
+    """.trimIndent()
+    }
 }
 
 

@@ -220,7 +220,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn og fødselsdato`() {
-        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -232,19 +232,15 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 // Første barn har totalt navn over > 24 tegn, så gjøres eget oppslag på navnet, den andre unngår oppslag da den er <= 24 tegn
+                //language=json
                 val expectedResponse = """
                 { 
                     "barn":[
                         {
-                            "fornavn": "KLØKTIG",
-                            "mellomnavn": "BLUNKENDE",
-                            "etternavn": "SUPERKONSOLL",
-                            "fødselsdato": "2012-12-11"
-                        },
-                        {
-                            "fornavn": "SLAPP OVERSTRÅLENDE",     
-                            "etternavn": "HEST",
-                            "fødselsdato": "2014-12-24"
+                            "fornavn": "TALENTFULL",
+                            "mellomnavn": "MELLOMROM",
+                            "etternavn": "STAUDE",
+                            "fødselsdato": "2017-03-18"
                         }
                     ]
                 }
@@ -256,7 +252,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn har ikke mellomnavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01010067894")
+        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -268,8 +264,8 @@ class ApplicationTest {
                 { 
                     "barn":[
                         {
-                            "fornavn": "MANGLER",
-                            "etternavn": "MELLOMNAVN"
+                            "fornavn": "OLA",
+                            "etternavn": "NORDMANN"
                         }
                     ]
                 }
@@ -281,7 +277,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag ingenBarn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -446,71 +442,10 @@ class ApplicationTest {
                 "kontonummer": "96850814136",
                 "barn":[
                     {
-                        "fornavn": "PRIPPEN",
-                        "etternavn": "JUMBOJET",
-                        "fødselsdato": "1999-12-11",
-                        "har_samme_adresse": true,
+                        "fornavn": "OLA",
+                        "etternavn": "NORDMANN",
+                        "fødselsdato": "2012-02-24",
                         "identitetsnummer": "11129998665"
-                    },
-                    {
-                        "fornavn": "MEGET STILIG",
-                        "etternavn": "PLANKE",
-                        "fødselsdato": "2014-12-24",
-                        "har_samme_adresse": true,
-                        "identitetsnummer": "24121479590"
-                    }
-                ],
-                "arbeidsgivere": {
-                    "organisasjoner": [
-                        {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
-                        {
-                            "organisasjonsnummer": "981585216",
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
-                        }
-                    ]
-                }
-             }
-            """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
-            }
-        }
-    }
-
-    @Test
-    fun `test at oppslag av barn uten har_samme_adresse attributt ikke feiler`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
-                        "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
-                        "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
-                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
-            ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                val expectedResponse = """
-            {
-                "aktør_id": "12345",
-                "fornavn": "STOR-KAR",
-                "mellomnavn": "LANGEMANN",
-                "etternavn": "TEST",
-                "fødselsdato": "1985-07-27",
-                "barn":[
-                    {
-                        "fornavn": "PRIPPEN",
-                        "etternavn": "JUMBOJET",
-                        "fødselsdato": "1999-12-11"
-                    },
-                    {
-                        "fornavn": "MEGET STILIG",
-                        "etternavn": "PLANKE",
-                        "fødselsdato": "2014-12-24"
                     }
                 ],
                 "arbeidsgivere": {

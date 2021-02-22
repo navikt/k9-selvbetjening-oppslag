@@ -5,33 +5,32 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
+import no.nav.k9.utgaende.rest.getStringOrNull
+import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
 private val barnMap = mapOf(
     "11129998665" to JSONObject(mapOf(
-        "fornavn" to "LUGUBER",
+        "fornavn" to "OLA",
         "mellomnavn" to null,
-        "etternavn" to "SKILPADDE",
-        "forkortetNavn" to "SKILPADDE LUGUBER",
-        "barnFødselsdato" to "2019-02-24",
-        "barnIdent" to "24021982330"
+        "etternavn" to "NORDMANN",
+        "forkortetNavn" to "OLA NORDMANN",
+        "fødselsdato" to "2012-02-24"
     )),
     "01010067894" to JSONObject(mapOf(
         "fornavn" to "TALENTFULL",
         "mellomnavn" to "MELLOMROM",
         "etternavn" to "STAUDE",
-        "barnForkortetNavn" to "TALENTFULL MELLOMROM STAUDE",
-        "barnFødselsdato" to "2017-03-18",
-        "barnIdent" to "18031779975"
+        "forkortetNavn" to "TALENTFULL MELLOMROM STAUDE",
+        "fødselsdato" to "2017-03-18"
     )),
     "24021982330" to JSONObject(mapOf(
         "fornavn" to "LUGUBER",
         "mellomnavn" to null,
         "etternavn" to "SKILPADDE",
-        "barnForkortetNavn" to "SKILPADDE LUGUBER",
-        "barnFødselsdato" to "2019-02-24",
-        "barnIdent" to "24021982330"
+        "forkortetNavn" to "SKILPADDE LUGUBER",
+        "fødselsdato" to "2019-02-24"
     )),
 )
 
@@ -67,36 +66,38 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
 }
 
 private fun getResponse(identer: List<String>): String {
-    //language=json
-    return """
-    {
-        "data": {
-          "hentPersonBolk": ${
-        when {
-            identer.isEmpty() -> """[]"""
-            else ->
-                """
-                  ${person(identer)}
-            """.trimIndent()
-        }
-    }
+
+    return JSONObject(mapOf(
+        "data" to JSONObject(mapOf(
+            "hentPersonBolk" to JSONArray(identer.map {
+                val barn = barnMap[it]!!
+                val fornavn = barn.getString("fornavn")
+                val mellomnavn = barn.getStringOrNull("mellomnavn")
+                val etternavn = barn.getString("etternavn")
+                val fortkortetNavn = barn.getString("forkortetNavn")
+                val fødselsdato = barn.getString("fødselsdato")
+
+                JSONObject(mapOf(
+                    "ident" to it,
+                    "person" to JSONObject(mapOf(
+                        "navn" to JSONArray(listOf(mapOf(
+                            "fornavn" to fornavn,
+                            "mellomnavn" to mellomnavn,
+                            "etternavn" to etternavn,
+                            "fortkortetNavn" to fortkortetNavn
+                        ))),
+                        "foedsel" to JSONArray(listOf(JSONObject(mapOf(
+                            "foedselsdato" to fødselsdato
+                        )))),
+                        "doedsfall" to JSONArray()
+                    )),
+                    "code" to "ok"
+                ))
+            })
+        ))
+    )).toString()
 }
-    """.trimIndent()
-}
 
-fun person(identer: List<String>): List<String> = identer.map {
-    val barn = barnMap[it]!!
-    val fornavn = barn.getString("fornavn")
-    val mellomnavn = barn.getString("mellomnavn")
-    val etternavn = barn.getString("etternavn")
-    val fortkortetNavn = barn.getString("barnForkortetNavn")
-    val ident = barn.getString("barnIdent")
-
-    barn.toString()
-
-    //language=json
-
-}
 
 /*"""
           {
