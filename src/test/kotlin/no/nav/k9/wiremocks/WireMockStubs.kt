@@ -23,7 +23,6 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(PDLHentPersonBolkResponseTransformer())
         .extensions(PDLPersonResponseTransformer())
         .extensions(TpsProxyResponseTransformer())
-        .extensions(TpsProxyBarnResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
