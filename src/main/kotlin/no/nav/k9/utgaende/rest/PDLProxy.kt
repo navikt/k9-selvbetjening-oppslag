@@ -15,7 +15,6 @@ import no.nav.k9.clients.pdl.generated.HentPersonBolk
 import no.nav.k9.clients.pdl.generated.ID
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.objectMapper
-import no.nav.k9.utils.Cache
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -34,7 +33,6 @@ class PDLProxy(
     }
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-    private val cache = Cache<String>(10_000)
 
     @KtorExperimentalAPI
     private val client = GraphQLKtorClient(
