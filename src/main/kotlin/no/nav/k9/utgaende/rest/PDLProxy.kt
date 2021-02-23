@@ -129,14 +129,14 @@ class PDLProxy(
         val token = coroutineContext.idToken().value
 
         return Retry.retry(
-            operation = "hente-person",
+            operation = "hent-ident",
             initialDelay = Duration.ofMillis(200),
             factor = 2.0,
             logger = logger
         ) {
             val result = Operation.monitored(
                 app = "k9-selvbetjening-oppslag",
-                operation = "hente-ident",
+                operation = "hent-ident",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
                 HentIdent(client).execute(HentIdent.Variables(ident, listOf(HentIdent.IdentGruppe.AKTORID)))  {
@@ -149,8 +149,8 @@ class PDLProxy(
             when {
                 !result.errors.isNullOrEmpty() -> {
                     val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.errors)
-                    logger.info("Feil ved henting av person. Årsak: {}", errorSomJson)
-                    throw IllegalStateException("Feil ved henting av person.")
+                    logger.info("Feil ved henting av ident. Årsak: {}", errorSomJson)
+                    throw IllegalStateException("Feil ved henting av ident.")
                 }
                 !result.data!!.hentIdenter!!.identer.isNullOrEmpty() -> result.data!!.hentIdenter!!.identer
                 else -> {
