@@ -77,11 +77,10 @@ class PDLProxy(
                 result.data!!.hentPerson != null -> result.data!!.hentPerson!!
                 !result.errors.isNullOrEmpty() -> {
                     val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.errors)
-                    logger.info("Feil ved henting av person. Årsak: {}", errorSomJson)
+                    logger.error("Feil ved henting av person. Årsak: {}", errorSomJson)
                     throw IllegalStateException("Feil ved henting av person.")
                 }
                 else -> {
-                    logger.error("Hva skjer her?? {}", result) // TODO: 19/02/2021 Fjern før prodsetting
                     throw IllegalStateException("Feil ved henting av person.")
                 }
             }
@@ -113,12 +112,11 @@ class PDLProxy(
                 result.data!!.hentPersonBolk.isNotEmpty() -> result.data!!.hentPersonBolk
                 !result.errors.isNullOrEmpty() -> {
                     val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.errors)
-                    logger.info("Feil ved henting av person-bolk. Årsak: {}", errorSomJson)
+                    logger.error("Feil ved henting av person-bolk. Årsak: {}", errorSomJson)
                     throw IllegalStateException("Feil ved henting av person-bolk.")
                 }
                 else -> {
-                    logger.error("Hva skjer her?? {}", result) // TODO: 19/02/2021 Fjern før prodsetting
-                    throw IllegalStateException("Feil ved henting av person.")
+                    throw IllegalStateException("Feil ved henting av person-bolk.")
                 }
             }
         }
@@ -149,13 +147,12 @@ class PDLProxy(
             when {
                 !result.errors.isNullOrEmpty() -> {
                     val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result.errors)
-                    logger.info("Feil ved henting av ident. Årsak: {}", errorSomJson)
+                    logger.error("Feil ved henting av ident. Årsak: {}", errorSomJson)
                     throw IllegalStateException("Feil ved henting av ident.")
                 }
                 !result.data!!.hentIdenter!!.identer.isNullOrEmpty() -> result.data!!.hentIdenter!!.identer
                 else -> {
-                    logger.error("Hva skjer her?? {}", result) // TODO: 19/02/2021 Fjern før prodsetting
-                    throw IllegalStateException("Feil ved henting av person.")
+                    throw IllegalStateException("Feil ved henting av ident.")
                 }
             }
         }
