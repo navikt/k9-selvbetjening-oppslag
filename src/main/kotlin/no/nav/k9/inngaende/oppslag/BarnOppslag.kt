@@ -22,7 +22,7 @@ internal class BarnOppslag(
             barnasIdenter.isEmpty() -> null
             else -> {
 
-                val pdlBarn = pdlProxyV1Gateway.personBolk(barnasIdenter) ?: return null
+                val pdlBarn = pdlProxyV1Gateway.personBolk(barnasIdenter)
 
                 pdlBarn.filter { it.person != null }
                     .filter { it.person!!.doedsfall.isNullOrEmpty() }
@@ -63,7 +63,6 @@ private fun HentPersonBolk.HentPersonBolkResult.tilPdlBarn(): PdlBarn {
 }
 
 internal data class Barn(
-    @JsonProperty(value = "tpsBarn") // TODO: 19/02/2021 Lur måte å migrere dette navnet på?
     internal val pdlBarn: PdlBarn?,
     internal val aktørId: Ident?,
 )
