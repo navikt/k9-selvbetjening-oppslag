@@ -139,7 +139,7 @@ class PDLProxy(
                 operation = "hent-ident",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                HentIdent(client).execute(HentIdent.Variables(ident, listOf(HentIdent.IdentGruppe.AKTORID)))  {
+                HentIdent(client).execute(HentIdent.Variables(ident, listOf(HentIdent.IdentGruppe.AKTORID), false))  {
                     headers {
                         header(HttpHeaders.Authorization, "Bearer $token")
                     }
