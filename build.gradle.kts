@@ -12,7 +12,7 @@ val junitJupiterVersion = "5.7.0"
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.31"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
