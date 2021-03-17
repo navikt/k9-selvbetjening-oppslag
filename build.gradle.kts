@@ -5,7 +5,7 @@ val dusseldorfKtorVersion = "1.5.0.ae98b7c"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 
-val mockkVersion = "1.10.5"
+val mockkVersion = "1.11.0"
 val jsonassertVersion = "1.5.0"
 val junitJupiterVersion = "5.7.0"
 
