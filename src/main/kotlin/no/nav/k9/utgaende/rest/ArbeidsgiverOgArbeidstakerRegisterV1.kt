@@ -64,7 +64,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
                 NavHeaders.PersonIdent to ident.value
             )
 
-        logger.restKall(url)
+        logger.restKall(url, true)
 
         val json = Retry.retry(
             operation = "hente-arbeidsforhold-per-arbeidstaker",

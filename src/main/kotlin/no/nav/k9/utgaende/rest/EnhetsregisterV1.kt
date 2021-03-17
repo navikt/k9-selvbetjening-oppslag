@@ -40,7 +40,7 @@ internal class EnhetsregisterV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(url)
+        logger.restKall(url, true)
 
         val json = Retry.retry(
             operation = Operation_HenteOrganisasjonNøkkelinfo,

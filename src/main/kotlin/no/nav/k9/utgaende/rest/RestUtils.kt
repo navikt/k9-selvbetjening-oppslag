@@ -1,5 +1,6 @@
 package no.nav.k9.utgaende.rest
 
+import no.nav.helse.dusseldorf.ktor.core.toUrlTemplate
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.simple.parser.JSONParser
@@ -9,7 +10,7 @@ private object RestUtils {
     internal val parser = JSONParser()
 }
 
-internal fun Logger.restKall(url: String) = info("Utgående kall til $url")
+internal fun Logger.restKall(url: String, urlTemplate: Boolean = false) = info("Utgående kall til ${if (urlTemplate) url.toUrlTemplate() else url}")
 internal fun Logger.logResponse(response: Any) = debug("Response = '$response'")
 internal fun JSONObject.getJsonObjectOrNull(key: String) = if (has(key) && !isNull(key)) getJSONObject(key) else null
 internal fun JSONObject.getJsonArrayOrEmpty(key: String) = if (has(key) && !isNull(key)) getJSONArray(key) else JSONArray()

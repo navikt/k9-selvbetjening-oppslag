@@ -53,7 +53,7 @@ internal class AktoerregisterV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(aktoerIdUrl)
+        logger.restKall(aktoerIdUrl, true)
 
         val json = Retry.retry(
             operation = "hente-aktoer-id",

@@ -29,7 +29,7 @@ internal class NaisStsAccessTokenClient(
     )).toString()
 
     override fun getAccessToken(scopes: Set<String>): AccessTokenResponse {
-        logger.restKall(url)
+        logger.restKall(url, true)
 
         val (request, _, result) = url.httpGet()
             .header(

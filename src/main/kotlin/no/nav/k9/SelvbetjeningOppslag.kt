@@ -121,11 +121,11 @@ fun Application.SelvbetjeningOppslag() {
     }
 
     intercept(ApplicationCallPipeline.Monitoring) {
-        call.request.log()
+        call.request.log(urlTemplate = true)
     }
 
     install(CallLogging) {
         correlationIdAndRequestIdInMdc()
-        logRequests()
+        logRequests(urlTemplate = true)
     }
 }

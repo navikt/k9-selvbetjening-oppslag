@@ -50,7 +50,7 @@ internal class BrregProxyV1(
                 NavHeaders.PersonIdent to ident.value
             )
 
-        logger.restKall(hentePersonRolleoversiktUrl)
+        logger.restKall(hentePersonRolleoversiktUrl, true)
 
         val json = Retry.retry(
             operation = OperationHentePersonRolleoversikt,
