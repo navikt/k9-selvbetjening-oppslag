@@ -53,7 +53,7 @@ internal class TpsProxyV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(personUrl)
+        logger.restKall(personUrl, true)
 
         val json: JSONObject = Retry.retry(
             operation = "hente-person",
