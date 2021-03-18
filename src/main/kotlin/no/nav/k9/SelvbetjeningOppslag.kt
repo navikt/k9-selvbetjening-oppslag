@@ -1,9 +1,6 @@
 package no.nav.k9
 
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.call
-import io.ktor.application.install
+import io.ktor.application.*
 import io.ktor.auth.Authentication
 import io.ktor.auth.authenticate
 import io.ktor.features.CallId
@@ -14,6 +11,7 @@ import io.ktor.http.ContentType
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.routing.Routing
 import io.ktor.util.KtorExperimentalAPI
+import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.dusseldorf.ktor.auth.*
 import no.nav.helse.dusseldorf.ktor.core.*
@@ -43,6 +41,10 @@ fun Application.SelvbetjeningOppslag() {
 
     val requestContextService = RequestContextService()
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
+
+    environment.monitor.subscribe(ApplicationStopping) {
+        CollectorRegistry.defaultRegistry.clear()
+    }
 
     install(Authentication) {
         multipleJwtIssuers(issuers)

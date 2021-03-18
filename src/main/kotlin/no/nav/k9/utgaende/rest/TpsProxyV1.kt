@@ -62,7 +62,7 @@ internal class TpsProxyV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(personUrl)
+        logger.restKall(personUrl, true)
 
         val json = Retry.retry(
             operation = "hente-person",
@@ -114,7 +114,7 @@ internal class TpsProxyV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(barnUrl)
+        logger.restKall(barnUrl, true)
 
         val json = Retry.retry(
             operation = "hente-barn",
@@ -180,7 +180,7 @@ internal class TpsProxyV1(
                 NavHeaders.CallId to coroutineContext.correlationId().value
             )
 
-        logger.restKall(navnUrl)
+        logger.restKall(navnUrl, true)
 
         val json = Retry.retry(
             operation = "hente-navn",

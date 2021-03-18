@@ -33,6 +33,7 @@ internal class PersonligeForetakOppslagTest {
 
     @BeforeAll
     internal fun beforeAll() {
+        CollectorRegistry.defaultRegistry.clear()
         personligeForetakOppslag = PersonligeForetakOppslag(
             enhetsregisterV1Gateway = enhetsregisterV1Gateway,
             brregProxyV1Gateway = brregProxyV1Gateway
