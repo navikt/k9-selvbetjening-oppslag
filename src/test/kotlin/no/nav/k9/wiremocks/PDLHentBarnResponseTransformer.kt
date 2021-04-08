@@ -108,28 +108,3 @@ private fun getResponse(identer: List<String>): String {
         ))
     )).toString()
 }
-
-
-/*"""
-          {
-               "ident": "$ident",
-               "person": {
-                   "navn": [
-                       {
-                           "fornavn": "$fornavn",
-                           "mellomnavn": "$mellomnavn",
-                           "etternavn": "$etternavn",
-                           "forkortetNavn": "$fortkortetNavn"
-                       }
-                   ],
-                   "foedsel": [
-                       {
-                           "foedselsdato": ""
-                       }
-                   ],
-                   "doedsfall": []
-               },
-               "code": "ok"
-           },
-                 """.trimIndent()
-   }*/
