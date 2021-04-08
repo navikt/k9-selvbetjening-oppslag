@@ -37,12 +37,12 @@ internal class MegOppslag(
     }
 
     private fun HentPerson.Person.tilPdlPerson(): PdlPerson {
-        val navn1 = this.navn[0]
+        val navn = this.navn[0]
         return PdlPerson(
-            fornavn = navn1.fornavn,
-            mellomnavn = navn1.mellomnavn,
-            etternavn = navn1.etternavn,
-            forkortetNavn = navn1.forkortetNavn,
+            fornavn = navn.fornavn,
+            mellomnavn = navn.mellomnavn,
+            etternavn = navn.etternavn,
+            forkortetNavn = navn.forkortetNavn,
             fødselsdato = LocalDate.parse(foedsel.first().foedselsdato),
             barnIdenter = this.barnIdenter()
         )
