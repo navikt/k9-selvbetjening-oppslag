@@ -86,7 +86,7 @@ class PDLProxy(
     }
 
     @KtorExperimentalAPI
-    suspend fun personBolk(identer: List<ID>): List<HentBarn.HentPersonBolkResult> {
+    suspend fun barn(identer: List<ID>): List<HentBarn.HentPersonBolkResult> {
 
         return Retry.retry(
             operation = "hent-person-bolk",

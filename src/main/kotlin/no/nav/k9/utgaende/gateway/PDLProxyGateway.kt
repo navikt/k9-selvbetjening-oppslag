@@ -21,7 +21,7 @@ class PDLProxyGateway(
     @KtorExperimentalAPI
     internal suspend fun barn(
         identer: List<Ident>,
-    ): List<HentBarn.HentPersonBolkResult> = pdlProxy.personBolk(identer.map { it.value })
+    ): List<HentBarn.HentPersonBolkResult> = pdlProxy.barn(identer.map { it.value })
 
     @KtorExperimentalAPI
     internal suspend fun aktørId(
