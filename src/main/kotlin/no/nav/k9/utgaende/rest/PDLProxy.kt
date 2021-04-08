@@ -11,7 +11,7 @@ import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.clients.pdl.generated.HentIdent
 import no.nav.k9.clients.pdl.generated.HentPerson
-import no.nav.k9.clients.pdl.generated.HentPersonBolk
+import no.nav.k9.clients.pdl.generated.HentBarn
 import no.nav.k9.clients.pdl.generated.ID
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.objectMapper
@@ -86,7 +86,7 @@ class PDLProxy(
     }
 
     @KtorExperimentalAPI
-    suspend fun personBolk(identer: List<ID>): List<HentPersonBolk.HentPersonBolkResult> {
+    suspend fun personBolk(identer: List<ID>): List<HentBarn.HentPersonBolkResult> {
 
         return Retry.retry(
             operation = "hent-person-bolk",
@@ -99,7 +99,7 @@ class PDLProxy(
                 operation = "hent-person-bolk",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                HentPersonBolk(client).execute(HentPersonBolk.Variables(identer)) {
+                HentBarn(client).execute(HentBarn.Variables(identer)) {
                     headers {
                         header(HttpHeaders.Authorization, cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                     }

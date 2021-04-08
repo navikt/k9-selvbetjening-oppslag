@@ -60,7 +60,7 @@ internal fun WireMockServer.stubPDLHentPerson() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubPDLHentPersonBolk() : WireMockServer {
+internal fun WireMockServer.stubPDLHentBarn() : WireMockServer {
     WireMock.stubFor(
         WireMock.post(WireMock.urlPathMatching(pdlServerPath))
             .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
@@ -72,7 +72,7 @@ internal fun WireMockServer.stubPDLHentPersonBolk() : WireMockServer {
                 WireMock.aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
-                    .withTransformers("pdl-hent-person-bolk")
+                    .withTransformers("pdl-hent-barn")
             )
     )
     return this

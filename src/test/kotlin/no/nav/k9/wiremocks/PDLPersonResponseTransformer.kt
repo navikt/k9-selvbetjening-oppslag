@@ -77,6 +77,18 @@ private fun getResponse(navIdent: String): String {
             minRolleForPerson = "MOR"
 
         }
+        "05097623424" -> {
+            fornavn = "Ole"
+            mellomnavn = "Med Gradert"
+            etternavn = "Barn"
+            forkortetNavn = "$fornavn $mellomnavn $etternavn"
+            foedselsdato = "1990-01-02"
+
+            relatertPersonsIdent = "27101274832"
+            relatertPersonsRolle = "BARN"
+            minRolleForPerson = "FAR"
+
+        }
         else -> {
             fornavn = "CATO"
             mellomnavn = ""
@@ -114,7 +126,6 @@ private fun getResponse(navIdent: String): String {
                                 "foedselsdato": "$foedselsdato"
                             }
                         ],
-                        "familierelasjoner": [],
                         "forelderBarnRelasjon": []
                     }
                 }
@@ -141,13 +152,6 @@ private fun getResponse(navIdent: String): String {
                         "foedsel": [
                             {
                                 "foedselsdato": "$foedselsdato"
-                            }
-                        ],
-                        "familierelasjoner": [
-                            {
-                                "relatertPersonsIdent": "$relatertPersonsIdent",
-                                "relatertPersonsRolle": "$relatertPersonsRolle",
-                                "minRolleForPerson": "$minRolleForPerson"
                             }
                         ],
                         "forelderBarnRelasjon": [

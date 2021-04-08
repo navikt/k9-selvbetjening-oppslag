@@ -1,46 +1,53 @@
 package no.nav.k9.inngaende.oppslag
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.util.*
-import no.nav.k9.clients.pdl.generated.HentPersonBolk
+import no.nav.k9.clients.pdl.generated.HentBarn
+import no.nav.k9.clients.pdl.generated.HentBarn.AdressebeskyttelseGradering.UGRADERT
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import java.lang.IllegalStateException
 import java.time.LocalDate
 
 internal class BarnOppslag(
-    private val pdlProxyV1Gateway: PDLProxyGateway
+    private val pdlProxyV1Gateway: PDLProxyGateway,
 ) {
 
     @KtorExperimentalAPI
     internal suspend fun barn(
         barnasIdenter: List<Ident>,
-        attributter: Set<Attributt>
-    ) : Set<Barn>? {
+        attributter: Set<Attributt>,
+    ): Set<Barn>? {
         if (!attributter.etterspurtBarn()) return null
 
         return when {
             barnasIdenter.isEmpty() -> null
-            else -> {
-
-                val pdlBarn = pdlProxyV1Gateway.personBolk(barnasIdenter)
-
-                pdlBarn.filter { it.person != null }
-                    .filter { it.person!!.doedsfall.isNullOrEmpty() }
-                    .map {
-                        Barn(
-                            pdlBarn = it.tilPdlBarn(),
-                            aktørId = pdlProxyV1Gateway.aktørId(
-                                ident = Ident(it.ident),
-                                attributter = attributter
-                            )?.tilAktørId()
-                        )
-                    }.toSet()
-            }
+            else -> pdlProxyV1Gateway.barn(barnasIdenter)
+                .filter { it.person != null }
+                .filter { it.person!!.ikkeErBeskyttet() }
+                .filter { it.person!!.erILive() }
+                .map {
+                    Barn(
+                        pdlBarn = it.tilPdlBarn(),
+                        aktørId = pdlProxyV1Gateway.aktørId(
+                            ident = Ident(it.ident),
+                            attributter = attributter
+                        )?.tilAktørId()
+                    )
+                }.toSet()
         }
     }
 }
 
-private fun HentPersonBolk.HentPersonBolkResult.tilPdlBarn(): PdlBarn {
+/**
+ * Adressebeskyttelse er ofte tomt når det er ugradert.
+ *
+ * https://navikt.github.io/pdl/#_adressebeskyttelse
+ */
+private fun HentBarn.Person.ikkeErBeskyttet(): Boolean = adressebeskyttelse.isEmpty() ||
+        adressebeskyttelse.contains(HentBarn.Adressebeskyttelse(UGRADERT))
+
+private fun HentBarn.Person.erILive(): Boolean = doedsfall.isNullOrEmpty()
+
+private fun HentBarn.HentPersonBolkResult.tilPdlBarn(): PdlBarn {
     val barn = person!!
     val navn = barn.navn.first()
     val doedsdato = when {
@@ -74,5 +81,5 @@ data class PdlBarn(
     internal val forkortetNavn: String?,
     internal val fødselsdato: LocalDate,
     internal val dødsdato: LocalDate?,
-    internal val ident: Ident
+    internal val ident: Ident,
 )

@@ -33,7 +33,7 @@ class ApplicationTest {
             .build()
             .stubPDLHentIdent()
             .stubPDLHentPerson()
-            .stubPDLHentPersonBolk()
+            .stubPDLHentBarn()
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
@@ -257,6 +257,26 @@ class ApplicationTest {
                             "etternavn": "NORDMANN"
                         }
                     ]
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `gitt barn med strengt fortrolig adresse, forvent tom liste`() {
+        val idToken: String = LoginService.V1_0.generateJwt("05097623424")
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn": []
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)

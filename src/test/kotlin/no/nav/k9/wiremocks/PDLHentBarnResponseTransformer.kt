@@ -32,6 +32,13 @@ private val barnMap = mapOf(
         "forkortetNavn" to "SKILPADDE LUGUBER",
         "fødselsdato" to "2019-02-24"
     )),
+    "27101274832" to JSONObject(mapOf(
+        "fornavn" to "TVILSOM",
+        "mellomnavn" to "GRADERT",
+        "etternavn" to "VEPS",
+        "forkortetNavn" to "TVILSOM GRADERT VEPS",
+        "fødselsdato" to "2012-10-27"
+    )),
 )
 
 class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
@@ -57,7 +64,7 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
     }
 
     override fun getName(): String {
-        return "pdl-hent-person-bolk"
+        return "pdl-hent-barn"
     }
 
     override fun applyGlobally(): Boolean {
@@ -89,7 +96,11 @@ private fun getResponse(identer: List<String>): String {
                         "foedsel" to JSONArray(listOf(JSONObject(mapOf(
                             "foedselsdato" to fødselsdato
                         )))),
-                        "doedsfall" to JSONArray()
+                        "doedsfall" to JSONArray(),
+                        "adressebeskyttelse" to
+                                if (it == "27101274832") JSONArray(listOf(JSONObject(
+                                    mapOf("gradering" to "STRENGT_FORTROLIG")
+                                ))) else JSONArray()
                     )),
                     "code" to "ok"
                 ))
