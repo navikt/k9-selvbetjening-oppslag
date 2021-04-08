@@ -12,11 +12,6 @@ query($ident: ID!){
         foedsel {
             foedselsdato
         }
-        familierelasjoner {
-            relatertPersonsIdent
-            relatertPersonsRolle
-            minRolleForPerson
-        }
         forelderBarnRelasjon {
             relatertPersonsIdent
             relatertPersonsRolle

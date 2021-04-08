@@ -49,7 +49,7 @@ internal class MegOppslag(
     }
 }
 
-fun HentPerson.Person.barnIdenter(): List<Ident> = familierelasjoner
+fun HentPerson.Person.barnIdenter(): List<Ident> = forelderBarnRelasjon
     .filter { it.relatertPersonsRolle == HentPerson.Familierelasjonsrolle.BARN }
     .map { Ident(it.relatertPersonsIdent) }
 
