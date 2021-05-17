@@ -7,7 +7,7 @@ val kotlinVersion = ext.get("kotlinVersion").toString()
 
 val mockkVersion = "1.10.5"
 val jsonassertVersion = "1.5.0"
-val junitJupiterVersion = "5.7.0"
+val junitJupiterVersion = "5.7.2"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
