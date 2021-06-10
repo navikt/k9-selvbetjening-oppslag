@@ -38,7 +38,7 @@ internal class MegOppslag(
     }
 
     private fun HentPerson.Person.tilPdlPerson(): PdlPerson {
-        println("Navn på person: $navn")
+        println("Navn på person: $navn") // TODO: 10/06/2021 fjern før prodsetting.
         val navn = this.navn.firstOrNull()?: throw IllegalStateException("Det må eksistere navn på person.")
         return PdlPerson(
             fornavn = navn.fornavn,
