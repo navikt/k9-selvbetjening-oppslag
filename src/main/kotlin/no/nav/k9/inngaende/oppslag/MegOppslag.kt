@@ -6,6 +6,7 @@ import no.nav.k9.clients.pdl.generated.HentPerson
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
 import no.nav.k9.utgaende.rest.TpsPerson
+import java.lang.IllegalStateException
 import java.time.LocalDate
 
 internal class MegOppslag(
@@ -37,7 +38,8 @@ internal class MegOppslag(
     }
 
     private fun HentPerson.Person.tilPdlPerson(): PdlPerson {
-        val navn = this.navn[0]
+        println("Navn på person: $navn")
+        val navn = this.navn.firstOrNull()?: throw IllegalStateException("Det må eksistere navn på person.")
         return PdlPerson(
             fornavn = navn.fornavn,
             mellomnavn = navn.mellomnavn,
