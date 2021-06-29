@@ -36,8 +36,6 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  vault:
-    enabled: false
   webproxy: true
   env:
   {{#each env}}
