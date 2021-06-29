@@ -1,9 +1,16 @@
 package no.nav.k9.utgaende.gateway
 
+import io.prometheus.client.CollectorRegistry
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class MetricsFriendlyTest {
+
+    @BeforeEach
+    internal fun setUp() {
+        CollectorRegistry.defaultRegistry.clear()
+    }
 
     @Test
     fun `Roller fra Brønnøysund`() {
