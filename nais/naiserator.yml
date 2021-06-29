@@ -36,8 +36,6 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  vault:
-    enabled: true
   webproxy: true
   env:
   {{#each env}}
@@ -46,3 +44,4 @@ spec:
   {{/each}}
   envFrom:
     - configmap: loginservice-idporten
+    - secret: {{app}}
