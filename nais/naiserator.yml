@@ -37,7 +37,7 @@ spec:
     enabled: true
     path: /metrics
   vault:
-    enabled: true
+    enabled: false
   webproxy: true
   env:
   {{#each env}}
@@ -46,3 +46,4 @@ spec:
   {{/each}}
   envFrom:
     - configmap: loginservice-idporten
+    - secret: {{app}}
