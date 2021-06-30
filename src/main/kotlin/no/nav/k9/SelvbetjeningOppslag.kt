@@ -16,7 +16,6 @@ import io.ktor.features.StatusPages
 import io.ktor.http.ContentType
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.routing.Routing
-import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.dusseldorf.ktor.auth.*
@@ -40,7 +39,6 @@ import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 
 fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
 
-@KtorExperimentalAPI
 fun Application.SelvbetjeningOppslag() {
     val appId = environment.config.id()
     logProxyProperties()

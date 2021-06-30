@@ -1,18 +1,25 @@
 package no.nav.k9.utgaende.rest
 
+import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
+import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.util.*
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
+import no.nav.k9.clients.pdl.generated.HentBarn
 import no.nav.k9.clients.pdl.generated.HentIdent
 import no.nav.k9.clients.pdl.generated.HentPerson
-import no.nav.k9.clients.pdl.generated.HentBarn
 import no.nav.k9.clients.pdl.generated.ID
+import no.nav.k9.clients.pdl.generated.enums.IdentGruppe
+import no.nav.k9.clients.pdl.generated.hentbarn.HentPersonBolkResult
+import no.nav.k9.clients.pdl.generated.hentident.IdentInformasjon
+import no.nav.k9.clients.pdl.generated.hentperson.Person
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.objectMapper
 import org.slf4j.Logger
@@ -34,23 +41,22 @@ class PDLProxy(
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
 
-    @KtorExperimentalAPI
     private val client = GraphQLKtorClient(
         url = baseUrl.toURL(),
-        mapper = objectMapper(),
-        config = {
+        httpClient = HttpClient(OkHttp) {
             defaultRequest {
                 headers {
                     header(NavHeaders.Tema, "OMS")
                     header(NavHeaders.CallId, UUID.randomUUID().toString())
-                    header(NavHeaders.ConsumerToken, cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
+                    header(NavHeaders.ConsumerToken,
+                        cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                 }
             }
-        }
+        },
+        serializer = GraphQLClientJacksonSerializer(objectMapper())
     )
 
-    @KtorExperimentalAPI
-    suspend fun person(ident: String): HentPerson.Person {
+    suspend fun person(ident: String): Person {
         val token = coroutineContext.idToken().value
 
         return Retry.retry(
@@ -64,7 +70,7 @@ class PDLProxy(
                 operation = "hent-person",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                HentPerson(client).execute(HentPerson.Variables(ident)) {
+                client.execute(HentPerson(HentPerson.Variables(ident))) {
                     headers {
                         header(HttpHeaders.Authorization, "Bearer $token")
                     }
@@ -85,8 +91,7 @@ class PDLProxy(
         }
     }
 
-    @KtorExperimentalAPI
-    suspend fun barn(identer: List<ID>): List<HentBarn.HentPersonBolkResult> {
+    suspend fun barn(identer: List<ID>): List<HentPersonBolkResult> {
 
         return Retry.retry(
             operation = "hent-person-bolk",
@@ -99,9 +104,10 @@ class PDLProxy(
                 operation = "hent-person-bolk",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                HentBarn(client).execute(HentBarn.Variables(identer)) {
+                client.execute(HentBarn(HentBarn.Variables(identer))) {
                     headers {
-                        header(HttpHeaders.Authorization, cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
+                        header(HttpHeaders.Authorization,
+                            cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                     }
                 }
             }
@@ -120,8 +126,7 @@ class PDLProxy(
         }
     }
 
-    @KtorExperimentalAPI
-    suspend fun aktørId(ident: String): List<HentIdent.IdentInformasjon> {
+    suspend fun aktørId(ident: String): List<IdentInformasjon> {
         val token = coroutineContext.idToken().value
 
         return Retry.retry(
@@ -135,7 +140,7 @@ class PDLProxy(
                 operation = "hent-ident",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                HentIdent(client).execute(HentIdent.Variables(ident, listOf(HentIdent.IdentGruppe.AKTORID), false))  {
+                client.execute(HentIdent(HentIdent.Variables(ident, listOf(IdentGruppe.AKTORID), false))) {
                     headers {
                         header(HttpHeaders.Authorization, "Bearer $token")
                     }

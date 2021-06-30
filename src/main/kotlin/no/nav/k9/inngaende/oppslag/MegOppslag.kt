@@ -1,8 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
-import io.ktor.util.*
-import no.nav.k9.clients.pdl.generated.HentIdent
-import no.nav.k9.clients.pdl.generated.HentPerson
+import no.nav.k9.clients.pdl.generated.enums.ForelderBarnRelasjonRolle
+import no.nav.k9.clients.pdl.generated.hentident.IdentInformasjon
+import no.nav.k9.clients.pdl.generated.hentperson.Person
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
 import no.nav.k9.utgaende.rest.TpsPerson
@@ -14,7 +14,6 @@ internal class MegOppslag(
     private val pdlProxyGateway: PDLProxyGateway,
 ) {
 
-    @KtorExperimentalAPI
     internal suspend fun meg(
         ident: Ident,
         attributter: Set<Attributt>,
@@ -33,11 +32,11 @@ internal class MegOppslag(
                 ident = ident,
                 attributter = attributter
             )?.tilAktørId(),
-            pdlPerson = pdlPerson?.tilPdlPerson()
+            pdlPerson = pdlPerson.tilPdlPerson()
         )
     }
 
-    private fun HentPerson.Person.tilPdlPerson(): PdlPerson {
+    private fun Person.tilPdlPerson(): PdlPerson {
         println("Navn på person: $navn") // TODO: 10/06/2021 fjern før prodsetting.
         val navn = this.navn.firstOrNull()?: throw IllegalStateException("Det må eksistere navn på person.")
         return PdlPerson(
@@ -51,11 +50,11 @@ internal class MegOppslag(
     }
 }
 
-fun HentPerson.Person.barnIdenter(): List<Ident> = forelderBarnRelasjon
-    .filter { it.relatertPersonsRolle == HentPerson.Familierelasjonsrolle.BARN }
+fun Person.barnIdenter(): List<Ident> = forelderBarnRelasjon
+    .filter { it.relatertPersonsRolle == ForelderBarnRelasjonRolle.BARN }
     .map { Ident(it.relatertPersonsIdent) }
 
-fun List<HentIdent.IdentInformasjon>.tilAktørId(): Ident = Ident(first().ident)
+fun List<IdentInformasjon>.tilAktørId(): Ident = Ident(first().ident)
 
 data class PdlPerson(
     internal val fornavn: String,

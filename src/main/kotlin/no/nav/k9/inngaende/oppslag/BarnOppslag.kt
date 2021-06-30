@@ -2,16 +2,18 @@ package no.nav.k9.inngaende.oppslag
 
 import io.ktor.util.*
 import no.nav.k9.clients.pdl.generated.HentBarn
-import no.nav.k9.clients.pdl.generated.HentBarn.AdressebeskyttelseGradering.UGRADERT
+import no.nav.k9.clients.pdl.generated.enums.AdressebeskyttelseGradering
+import no.nav.k9.clients.pdl.generated.hentbarn.Adressebeskyttelse
+import no.nav.k9.clients.pdl.generated.hentbarn.HentPersonBolkResult
+import no.nav.k9.clients.pdl.generated.hentbarn.Person
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
-import java.lang.IllegalStateException
 import java.time.LocalDate
 
 internal class BarnOppslag(
     private val pdlProxyV1Gateway: PDLProxyGateway,
 ) {
 
-    @KtorExperimentalAPI
+
     internal suspend fun barn(
         barnasIdenter: List<Ident>,
         attributter: Set<Attributt>,
@@ -42,12 +44,12 @@ internal class BarnOppslag(
  *
  * https://navikt.github.io/pdl/#_adressebeskyttelse
  */
-private fun HentBarn.Person.ikkeErBeskyttet(): Boolean = adressebeskyttelse.isEmpty() ||
-        adressebeskyttelse.contains(HentBarn.Adressebeskyttelse(UGRADERT))
+private fun Person.ikkeErBeskyttet(): Boolean = adressebeskyttelse.isEmpty() ||
+        adressebeskyttelse.contains(Adressebeskyttelse(AdressebeskyttelseGradering.UGRADERT))
 
-private fun HentBarn.Person.erILive(): Boolean = doedsfall.isNullOrEmpty()
+private fun Person.erILive(): Boolean = doedsfall.isNullOrEmpty()
 
-private fun HentBarn.HentPersonBolkResult.tilPdlBarn(): PdlBarn {
+private fun HentPersonBolkResult.tilPdlBarn(): PdlBarn {
     val barn = person!!
     val navn = barn.navn.first()
     val doedsdato = when {

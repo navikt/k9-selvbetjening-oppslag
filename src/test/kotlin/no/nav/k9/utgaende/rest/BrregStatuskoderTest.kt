@@ -4,7 +4,6 @@ import org.json.JSONObject
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.time.LocalDate
-import kotlin.test.assertEquals
 
 internal class BrregStatuskoderTest {
     @Test
@@ -32,7 +31,7 @@ internal class BrregStatuskoderTest {
             hovedstatus = 1,
             understaus = 181
         ))
-        assertEquals(emptySet(), filtrert)
+        assertEquals(emptySet<Any>(), filtrert)
     }
 
     @Test
@@ -53,7 +52,7 @@ internal class BrregStatuskoderTest {
                 to = Pair(100, "Enhet 993 aldri opprettet.")
             )
         )
-        assertEquals(emptySet(), filtrert)
+        assertEquals(emptySet<Any>(), filtrert)
     }
 
     @Test
