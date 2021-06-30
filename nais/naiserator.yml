@@ -37,6 +37,14 @@ spec:
     enabled: true
     path: /metrics
   webproxy: true
+  tokenx:
+    enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: sif-innsyn-api
+          namespace: dusseldorf #Droppes fordi det er likt namespace?
+          cluster: dev-gcp
   env:
   {{#each env}}
      - name: {{@key}}
