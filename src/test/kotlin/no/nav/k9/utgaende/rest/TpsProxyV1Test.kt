@@ -1,9 +1,6 @@
 import no.nav.k9.utgaende.rest.ForkortetNavn
+import org.junit.Assert.*
 import org.junit.jupiter.api.Test
-
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class TpsProxyV1Test {
 

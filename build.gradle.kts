@@ -40,7 +40,6 @@ dependencies {
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
 }
