@@ -12,6 +12,9 @@ internal data class IdToken(
     )
 )
 
+fun subject(value: String): String =
+    JWT.decode(value).subject ?: JWT.decode(value).getClaim("pid").asString() ?: throw IllegalStateException("Token mangler 'sub'/'pid' claim.")
+
 internal fun ApplicationCall.idToken() : IdToken {
     val jwt = request.parseAuthorizationHeader()?.render() ?: throw IllegalStateException("Token ikke satt")
     return IdToken(jwt.substringAfter("Bearer "))
