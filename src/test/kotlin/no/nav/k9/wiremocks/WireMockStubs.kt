@@ -2,38 +2,30 @@ package no.nav.k9.wiremocks
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.matching.AnythingPattern
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.ktor.http.HttpHeaders
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.utgaende.rest.NavHeaders
 
 private const val aktoerRegisterServerPath = "/aktoer-register-mock"
 private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val tpsProxyServerPath = "/tps-proxy-mock"
+private const val pdlServerPath = "/graphql"
 private const val brregProxyV1ServerPath = "/brreg-proxy-v1-mock"
 
 internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
-        .extensions(AktoerRegisterResponseTransformer())
+        .extensions(PdlAktoerIdResponseTransformer())
+        .extensions(PDLHentPersonBolkResponseTransformer())
+        .extensions(PDLPersonResponseTransformer())
         .extensions(TpsProxyResponseTransformer())
-        .extensions(TpsProxyBarnResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
-}
-
-internal fun WireMockServer.stubAktoerRegisterGetAktoerId() : WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$aktoerRegisterServerPath/.*"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("aktoer-register")
-            )
-    )
-    return this
 }
 
 internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
@@ -45,6 +37,60 @@ internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
                     .withTransformers("tps-proxy-person")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubPDLHentPerson() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
+            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .withHeader(NavHeaders.CallId, AnythingPattern())
+            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
+            .withRequestBody(matchingJsonPath("$.query", containing("hentPerson")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("pdl-hent-person")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubPDLHentBarn() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
+            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .withHeader(NavHeaders.CallId, AnythingPattern())
+            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
+            .withRequestBody(matchingJsonPath("$.query", containing("hentPersonBolk")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("pdl-hent-barn")
+            )
+    )
+    return this
+}
+
+internal fun WireMockServer.stubPDLHentIdent() : WireMockServer {
+    WireMock.stubFor(
+        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
+            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .withHeader(NavHeaders.CallId, AnythingPattern())
+            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
+            .withRequestBody(matchingJsonPath("$.query", containing("hentIdenter")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("pdl-hent-ident")
             )
     )
     return this
@@ -130,4 +176,5 @@ internal fun WireMockServer.getAktoerRegisterUrl() = baseUrl() + aktoerRegisterS
 internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() = baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
 internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
 internal fun WireMockServer.getTpsProxyUrl() = baseUrl() + tpsProxyServerPath
+internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath
 internal fun WireMockServer.getBrregProxyV1BaseUrl() = baseUrl() + brregProxyV1ServerPath

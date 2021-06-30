@@ -6,6 +6,7 @@ internal object NavHeaders {
     internal const val PersonIdenter = "Nav-Personidenter"
     internal const val ConsumerToken = "Nav-Consumer-Token"
     internal const val ConsumerId = "Nav-Consumer-Id"
+    internal const val Tema = "Tema"
 }
 
 internal object NavHeaderValues {

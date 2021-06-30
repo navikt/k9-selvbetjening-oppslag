@@ -5,7 +5,6 @@ import no.nav.helse.dusseldorf.testsupport.asArguments
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
-import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
 import no.nav.k9.wiremocks.stubEnhetsRegister
 import no.nav.k9.wiremocks.stubTpsProxyGetBarn
@@ -28,7 +27,6 @@ class ApplicationWithMocks {
                 .withLoginServiceSupport()
                 .k9SelvbetjeningOppslagConfig()
                 .build()
-                .stubAktoerRegisterGetAktoerId()
                 .stubTpsProxyGetPerson()
                 .stubTpsProxyGetBarn()
                 .stubArbeidsgiverOgArbeidstakerRegister()

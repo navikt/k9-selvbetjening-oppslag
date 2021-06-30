@@ -9,10 +9,10 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     // Meg
     if (attributter.etterspurtMeg()) {
         if (attributter.contains(Attributt.aktørId)) json.put("aktør_id", meg!!.aktørId!!.value)
-        if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.tpsPerson!!.fornavn)
-        if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.tpsPerson!!.mellomnavn)
-        if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.tpsPerson!!.etternavn)
-        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.tpsPerson!!.fødselsdato.toString())
+        if (attributter.contains(Attributt.fornavn)) json.put("fornavn", meg!!.pdlPerson!!.fornavn)
+        if (attributter.contains(Attributt.mellomnavn)) json.put("mellomnavn", meg!!.pdlPerson!!.mellomnavn)
+        if (attributter.contains(Attributt.etternavn)) json.put("etternavn", meg!!.pdlPerson!!.etternavn)
+        if (attributter.contains(Attributt.fødselsdato)) json.put("fødselsdato", meg!!.pdlPerson!!.fødselsdato.toString())
         if (attributter.contains(Attributt.kontonummer)) json.put("kontonummer", meg!!.tpsPerson!!.kontonummer)
     }
 
@@ -22,12 +22,11 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
         barn?.forEach {
             barnJsonArray.put(JSONObject().apply {
                 if (attributter.contains(Attributt.barnAktørId)) put("aktør_id", it.aktørId!!.value)
-                if (attributter.contains(Attributt.barnIdentitetsnummer)) put("identitetsnummer", it.tpsBarn!!.ident.value)
-                if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.tpsBarn!!.fornavn)
-                if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.tpsBarn!!.mellomnavn)
-                if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.tpsBarn!!.etternavn)
-                if (attributter.contains(Attributt.barnHarSammeAdresse)) put("har_samme_adresse", it.tpsBarn!!.harSammeAdresse)
-                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.tpsBarn!!.fødselsdato)
+                if (attributter.contains(Attributt.barnIdentitetsnummer)) put("identitetsnummer", it.pdlBarn!!.ident.value)
+                if (attributter.contains(Attributt.barnFornavn)) put("fornavn", it.pdlBarn!!.fornavn)
+                if (attributter.contains(Attributt.barnMellomnavn)) put("mellomnavn", it.pdlBarn!!.mellomnavn)
+                if (attributter.contains(Attributt.barnEtternavn)) put("etternavn", it.pdlBarn!!.etternavn)
+                if (attributter.contains(Attributt.barnFødselsdato)) put("fødselsdato", it.pdlBarn!!.fødselsdato)
             })
 
         }
