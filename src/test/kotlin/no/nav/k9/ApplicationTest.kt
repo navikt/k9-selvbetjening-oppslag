@@ -1,27 +1,13 @@
 package no.nav.k9
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.config.ApplicationConfig
-import io.ktor.config.HoconApplicationConfig
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.contentType
-import io.ktor.server.testing.createTestEnvironment
-import io.ktor.server.testing.handleRequest
-import io.ktor.util.KtorExperimentalAPI
-import io.prometheus.client.CollectorRegistry
+import io.ktor.config.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
-import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
-import no.nav.k9.wiremocks.stubAktoerRegisterGetAktoerId
-import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
-import no.nav.k9.wiremocks.stubEnhetsRegister
-import no.nav.k9.wiremocks.stubTpsProxyGetBarn
-import no.nav.k9.wiremocks.stubTpsProxyGetPerson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -31,7 +17,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-@KtorExperimentalAPI
 class ApplicationTest {
 
     private companion object {
