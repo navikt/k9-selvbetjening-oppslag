@@ -4,7 +4,6 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import io.ktor.util.*
 import io.prometheus.client.CollectorRegistry
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder

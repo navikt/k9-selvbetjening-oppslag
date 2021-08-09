@@ -78,7 +78,7 @@ private enum class PersonligForetakOrganisasjonsform {
     IkkePersonligForetak;
 
     internal companion object {
-        internal fun fraEnhetstype(enhetstype: String?) = when (enhetstype?.trim()?.toUpperCase()) {
+        internal fun fraEnhetstype(enhetstype: String?) = when (enhetstype?.trim()?.uppercase()) {
             ENK.name -> ENK
             ANS.name -> ANS
             DA.name -> DA
@@ -87,18 +87,19 @@ private enum class PersonligForetakOrganisasjonsform {
     }
 }
 private enum class PersonligForetakRoller (internal val rolle: String) {
-    Innehaver("Innehaver".toUpperCase()),
-    DeltAnsvar("Deltaker med delt ansvar".toUpperCase()),
-    FulltAnsvar("Deltaker med fullt ansvar".toUpperCase()),
+    Innehaver("Innehaver".uppercase()),
+    DeltAnsvar("Deltaker med delt ansvar".uppercase()),
+    FulltAnsvar("Deltaker med fullt ansvar".uppercase()),
     IkkePersonligForetakRolle("N/A");
 
     internal companion object {
-        internal fun fraRolleBeskrivelse(rolleBeskrivelse: String?) = when (rolleBeskrivelse?.trim()?.toUpperCase()) {
-            Innehaver.rolle -> Innehaver
-            DeltAnsvar.rolle -> DeltAnsvar
-            FulltAnsvar.rolle -> FulltAnsvar
-            else -> IkkePersonligForetakRolle
-        }
+        internal fun fraRolleBeskrivelse(rolleBeskrivelse: String?) =
+            when (rolleBeskrivelse?.trim()?.uppercase()) {
+                Innehaver.rolle -> Innehaver
+                DeltAnsvar.rolle -> DeltAnsvar
+                FulltAnsvar.rolle -> FulltAnsvar
+                else -> IkkePersonligForetakRolle
+            }
     }
 }
 

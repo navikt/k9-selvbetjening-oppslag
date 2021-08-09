@@ -1,26 +1,25 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "2.1.6.0-ef0acb6"
+val dusseldorfKtorVersion = "2.1.6.2-6ce5eaa"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "4.1.1"
 
-val mockkVersion = "1.11.0"
+val mockkVersion = "1.12.0"
 val jsonassertVersion = "1.5.0"
-val junitJupiterVersion = "5.7.2"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.5.21"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.expediagroup.graphql") version "4.1.1"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/ef0acb6425e85073932e8d021e33849110f58159/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/6ce5eaa4666595bb6b550fca5ca8bbdc242961a0/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -44,11 +43,9 @@ dependencies {
     testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
-        exclude("org.jetbrains.kotlin", "kotlin-test-junit") // https://github.com/gradle/gradle/issues/17137
     }
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     implementation(kotlin("stdlib-jdk8"))
 }
@@ -123,5 +120,5 @@ tasks.withType<com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClien
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.1"
+    gradleVersion = "7.1.1"
 }

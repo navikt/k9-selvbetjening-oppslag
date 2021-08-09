@@ -59,7 +59,7 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
 
     val etterspurteAttributter = (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
         ?.filter { it.isNotBlank() }
-        ?.map { it.toLowerCase() }
+        ?.map { it.lowercase() }
         ?.toSet()) ?: emptySet()
 
     logger.info("Etterspurte Attributter = [${etterspurteAttributter.joinToString(", ")}]")
