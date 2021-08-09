@@ -1,12 +1,13 @@
 package no.nav.k9.inngaende.oppslag
 
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
+import io.ktor.application.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import kotlinx.coroutines.withContext
-import no.nav.helse.dusseldorf.ktor.core.*
+import no.nav.helse.dusseldorf.ktor.core.ParameterType
+import no.nav.helse.dusseldorf.ktor.core.Throwblem
+import no.nav.helse.dusseldorf.ktor.core.ValidationProblemDetails
+import no.nav.helse.dusseldorf.ktor.core.Violation
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
@@ -58,7 +59,7 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
 
     val etterspurteAttributter = (request.queryParameters.getAll(ATTRIBUTT_QUERY_NAVN)
         ?.filter { it.isNotBlank() }
-        ?.map { it.toLowerCase() }
+        ?.map { it.lowercase() }
         ?.toSet()) ?: emptySet()
 
     logger.info("Etterspurte Attributter = [${etterspurteAttributter.joinToString(", ")}]")
