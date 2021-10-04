@@ -5,6 +5,7 @@ import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
 import java.time.LocalDate
 
+
 internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
     enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
