@@ -23,9 +23,6 @@ internal class BarnOppslag(
         return when {
             barnasIdenter.isEmpty() -> null
             else -> pdlProxyV1Gateway.barn(barnasIdenter)
-                .filter { it.person != null }
-                .filter { it.person!!.ikkeErBeskyttet() }
-                .filter { it.person!!.erILive() }
                 .map {
                     Barn(
                         pdlBarn = it.tilPdlBarn(),

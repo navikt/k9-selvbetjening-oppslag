@@ -5,39 +5,70 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
-import no.nav.k9.utgaende.rest.getStringOrNull
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
+import no.nav.k9.BarnFødselsnummer.DØD_BARN_TIL_PERSON_4
+import no.nav.k9.BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3
+import no.nav.k9.clients.pdl.generated.hentperson.Navn
+import no.nav.siftilgangskontroll.pdl.generated.enums.AdressebeskyttelseGradering
+import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Folkeregisteridentifikator
+import no.nav.siftilgangskontroll.pdl.generated.hentperson.Doedsfall
+import no.nav.siftilgangskontroll.pdl.generated.hentperson.Foedsel
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
 private val barnMap = mapOf(
-    "11129998665" to JSONObject(mapOf(
-        "fornavn" to "OLA",
-        "mellomnavn" to null,
-        "etternavn" to "NORDMANN",
-        "forkortetNavn" to "OLA NORDMANN",
-        "fødselsdato" to "2012-02-24"
+    BARN_TIL_PERSON_1 to JSONObject(mapOf(
+        "navn" to listOf(Navn(
+            fornavn = "OLA",
+            mellomnavn = null,
+            etternavn = "NORDMANN",
+            forkortetNavn = "OLA NORDMANN",
+        )).navnSomJsonArray(),
+        "fødselsdato" to listOf(Foedsel("2012-02-24")).fødselSomJsonArray(),
+        "folkeregisteridentifikator" to listOf(Folkeregisteridentifikator(BARN_TIL_PERSON_1)).folkeregisteridentifikatorSomJsonArray(),
+        "adressebeskyttelse" to listOf<AdressebeskyttelseGradering>().adressebeskyttelseGraderingJsonArray(),
+        "doedsfall" to listOf<Doedsfall>().dødsfallSomJsonArray()
     )),
-    "01010067894" to JSONObject(mapOf(
-        "fornavn" to "TALENTFULL",
-        "mellomnavn" to "MELLOMROM",
-        "etternavn" to "STAUDE",
-        "forkortetNavn" to "TALENTFULL MELLOMROM STAUDE",
-        "fødselsdato" to "2017-03-18"
+
+    BARN_TIL_PERSON_2 to JSONObject(mapOf(
+        "navn" to listOf(Navn(
+            fornavn = "TALENTFULL",
+            mellomnavn = "MELLOMROM",
+            etternavn = "STAUDE",
+            forkortetNavn = "TALENTFULL MELLOMROM STAUDE",
+        )).navnSomJsonArray(),
+        "fødselsdato" to listOf(Foedsel("2017-03-18")).fødselSomJsonArray(),
+        "folkeregisteridentifikator" to listOf(Folkeregisteridentifikator(BARN_TIL_PERSON_2)).folkeregisteridentifikatorSomJsonArray(),
+        "adressebeskyttelse" to listOf<AdressebeskyttelseGradering>().adressebeskyttelseGraderingJsonArray(),
+        "doedsfall" to listOf<Doedsfall>().dødsfallSomJsonArray()
     )),
-    "24021982330" to JSONObject(mapOf(
-        "fornavn" to "LUGUBER",
-        "mellomnavn" to null,
-        "etternavn" to "SKILPADDE",
-        "forkortetNavn" to "SKILPADDE LUGUBER",
-        "fødselsdato" to "2019-02-24"
+
+    SKJERMET_BARN_TIL_PERSON_3 to JSONObject(mapOf(
+        "navn" to listOf(Navn(
+            fornavn = "TVILSOM",
+            mellomnavn = "GRADERT",
+            etternavn = "VEPS",
+            forkortetNavn = "TVILSOM GRADERT VEPS",
+        )).navnSomJsonArray(),
+        "fødselsdato" to listOf(Foedsel("2012-10-27")).fødselSomJsonArray(),
+        "folkeregisteridentifikator" to listOf(Folkeregisteridentifikator(SKJERMET_BARN_TIL_PERSON_3)).folkeregisteridentifikatorSomJsonArray(),
+        "adressebeskyttelse" to listOf(AdressebeskyttelseGradering.STRENGT_FORTROLIG).adressebeskyttelseGraderingJsonArray(),
+        "doedsfall" to listOf<Doedsfall>().dødsfallSomJsonArray()
     )),
-    "27101274832" to JSONObject(mapOf(
-        "fornavn" to "TVILSOM",
-        "mellomnavn" to "GRADERT",
-        "etternavn" to "VEPS",
-        "forkortetNavn" to "TVILSOM GRADERT VEPS",
-        "fødselsdato" to "2012-10-27"
+
+    DØD_BARN_TIL_PERSON_4 to JSONObject(mapOf(
+        "navn" to listOf(Navn(
+            fornavn = "Død",
+            mellomnavn = "",
+            etternavn = "BARN",
+            forkortetNavn = "Død Barn",
+        )).navnSomJsonArray(),
+        "fødselsdato" to listOf(Foedsel("2012-10-27")).fødselSomJsonArray(),
+        "folkeregisteridentifikator" to listOf(Folkeregisteridentifikator(DØD_BARN_TIL_PERSON_4)).folkeregisteridentifikatorSomJsonArray(),
+        "adressebeskyttelse" to listOf<AdressebeskyttelseGradering>().adressebeskyttelseGraderingJsonArray(),
+        "doedsfall" to listOf(Doedsfall("2020-06-01")).dødsfallSomJsonArray()
     )),
 )
 
@@ -56,7 +87,7 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
         val identer: List<String> = requestBody.getJSONObject("variables").getJSONArray("identer").map {
             it as String
         }
-        logger.info("Hentet ident fra request: {}", identer)
+        logger.info("Hentet barnIdenter fra request: {}", identer)
 
         return Response.Builder.like(response)
             .body(getResponse(identer))
@@ -74,37 +105,29 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
 
 private fun getResponse(identer: List<String>): String {
 
-    return JSONObject(mapOf(
+    val x = JSONObject(mapOf(
         "data" to JSONObject(mapOf(
             "hentPersonBolk" to JSONArray(identer.map {
                 val barn = barnMap[it]!!
-                val fornavn = barn.getString("fornavn")
-                val mellomnavn = barn.getStringOrNull("mellomnavn")
-                val etternavn = barn.getString("etternavn")
-                val fortkortetNavn = barn.getString("forkortetNavn")
-                val fødselsdato = barn.getString("fødselsdato")
+                val navn = barn.getJSONArray("navn")
+                val fødselsdato = barn.getJSONArray("fødselsdato")
+                val folkeregisteridentifikator: JSONArray = barn.getJSONArray("folkeregisteridentifikator")
+                val adressebeskyttelse: JSONArray = barn.getJSONArray("adressebeskyttelse")
+                val dødsfall: JSONArray = barn.getJSONArray("doedsfall")
 
                 JSONObject(mapOf(
                     "ident" to it,
                     "person" to JSONObject(mapOf(
-                        "navn" to JSONArray(listOf(mapOf(
-                            "fornavn" to fornavn,
-                            "mellomnavn" to mellomnavn,
-                            "etternavn" to etternavn,
-                            "fortkortetNavn" to fortkortetNavn
-                        ))),
-                        "foedsel" to JSONArray(listOf(JSONObject(mapOf(
-                            "foedselsdato" to fødselsdato
-                        )))),
-                        "doedsfall" to JSONArray(),
-                        "adressebeskyttelse" to
-                                if (it == "27101274832") JSONArray(listOf(JSONObject(
-                                    mapOf("gradering" to "STRENGT_FORTROLIG")
-                                ))) else JSONArray()
+                        "folkeregisteridentifikator" to folkeregisteridentifikator,
+                        "navn" to navn,
+                        "foedsel" to fødselsdato,
+                        "doedsfall" to dødsfall,
+                        "adressebeskyttelse" to adressebeskyttelse
                     )),
                     "code" to "ok"
                 ))
             })
         ))
-    )).toString()
+    ))
+    return x.toString()
 }

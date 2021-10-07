@@ -9,6 +9,9 @@ query($ident: ID!){
         folkeregisteridentifikator(historikk: false){
             identifikasjonsnummer
         }
+        adressebeskyttelse {
+            gradering
+        }
         foedsel {
             foedselsdato
         }

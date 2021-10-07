@@ -1,11 +1,6 @@
 package no.nav.k9.utgaende.rest
 
-import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.helse.dusseldorf.ktor.core.Retry
@@ -24,13 +19,11 @@ import no.nav.k9.inngaende.idToken
 import no.nav.k9.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URI
 import java.time.Duration
-import java.util.*
 import kotlin.coroutines.coroutineContext
 
 class PDLProxy(
-    val baseUrl: URI,
+    private val client: GraphQLKtorClient,
     val accessTokenClient: AccessTokenClient,
     private val henteNavnScopes: Set<String> = setOf("openid"),
 ) {
@@ -40,21 +33,6 @@ class PDLProxy(
     }
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-
-    private val client = GraphQLKtorClient(
-        url = baseUrl.toURL(),
-        httpClient = HttpClient(OkHttp) {
-            defaultRequest {
-                headers {
-                    header(NavHeaders.Tema, "OMS")
-                    header(NavHeaders.CallId, UUID.randomUUID().toString())
-                    header(NavHeaders.ConsumerToken,
-                        cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
-                }
-            }
-        },
-        serializer = GraphQLClientJacksonSerializer(objectMapper())
-    )
 
     suspend fun person(ident: String): Person {
         val token = coroutineContext.idToken().value
@@ -74,6 +52,8 @@ class PDLProxy(
                     headers {
                         header(HttpHeaders.Authorization, "Bearer $token")
                     }
+                    header(NavHeaders.ConsumerToken,
+                        cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                 }
             }
 
@@ -108,6 +88,8 @@ class PDLProxy(
                     headers {
                         header(HttpHeaders.Authorization,
                             cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
+                        header(NavHeaders.ConsumerToken,
+                            cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                     }
                 }
             }
@@ -120,6 +102,8 @@ class PDLProxy(
                     throw IllegalStateException("Feil ved henting av person-bolk.")
                 }
                 else -> {
+                    val errorSomJson = objectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result)
+                    logger.error("Feil ved henting av person-bolk. Årsak: {}", errorSomJson)
                     throw IllegalStateException("Feil ved henting av person-bolk.")
                 }
             }
