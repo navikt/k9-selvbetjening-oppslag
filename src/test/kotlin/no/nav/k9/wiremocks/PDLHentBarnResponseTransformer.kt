@@ -105,7 +105,7 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
 
 private fun getResponse(identer: List<String>): String {
 
-    val x = JSONObject(mapOf(
+    return JSONObject(mapOf(
         "data" to JSONObject(mapOf(
             "hentPersonBolk" to JSONArray(identer.map {
                 val barn = barnMap[it]!!
@@ -128,6 +128,5 @@ private fun getResponse(identer: List<String>): String {
                 ))
             })
         ))
-    ))
-    return x.toString()
+    )).toString()
 }
