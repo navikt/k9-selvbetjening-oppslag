@@ -37,6 +37,8 @@ spec:
     enabled: true
     path: /metrics
   webproxy: true
+  tokenx:
+    enabled: true
   env:
   {{#each env}}
      - name: {{@key}}
