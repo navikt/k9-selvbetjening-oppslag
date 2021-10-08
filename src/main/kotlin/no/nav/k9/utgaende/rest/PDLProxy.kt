@@ -5,7 +5,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
-import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.clients.pdl.generated.HentBarn
 import no.nav.k9.clients.pdl.generated.HentIdent
@@ -23,19 +22,20 @@ import java.time.Duration
 import kotlin.coroutines.coroutineContext
 
 class PDLProxy(
-    private val client: GraphQLKtorClient,
-    val accessTokenClient: AccessTokenClient,
-    private val henteNavnScopes: Set<String> = setOf("openid"),
+    private val pdlClient: GraphQLKtorClient,
+    private val cachedAccessTokenClient: CachedAccessTokenClient,
+    private val pdlApiTokenxAudience: String,
+    private val cachedSystemTokenClient: CachedAccessTokenClient,
 ) {
 
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(PDLProxy::class.java)
     }
 
-    private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-
     suspend fun person(ident: String): Person {
-        val token = coroutineContext.idToken().value
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(pdlApiTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value)
 
         return Retry.retry(
             operation = "hent-person",
@@ -48,12 +48,12 @@ class PDLProxy(
                 operation = "hent-person",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                client.execute(HentPerson(HentPerson.Variables(ident))) {
+                pdlClient.execute(HentPerson(HentPerson.Variables(ident))) {
                     headers {
-                        header(HttpHeaders.Authorization, "Bearer $token")
+                        header(
+                            key = HttpHeaders.Authorization,
+                            value = exchangeToken.asAuthoriationHeader())
                     }
-                    header(NavHeaders.ConsumerToken,
-                        cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
                 }
             }
 
@@ -73,6 +73,8 @@ class PDLProxy(
 
     suspend fun barn(identer: List<ID>): List<HentPersonBolkResult> {
 
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf("openid"))
+
         return Retry.retry(
             operation = "hent-person-bolk",
             initialDelay = Duration.ofMillis(200),
@@ -84,12 +86,12 @@ class PDLProxy(
                 operation = "hent-person-bolk",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                client.execute(HentBarn(HentBarn.Variables(identer))) {
+                pdlClient.execute(HentBarn(HentBarn.Variables(identer))) {
                     headers {
-                        header(HttpHeaders.Authorization,
-                            cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
-                        header(NavHeaders.ConsumerToken,
-                            cachedAccessTokenClient.getAccessToken(henteNavnScopes).asAuthoriationHeader())
+                        header(
+                            key = HttpHeaders.Authorization,
+                            value = systemToken.asAuthoriationHeader()
+                        )
                     }
                 }
             }
@@ -111,7 +113,9 @@ class PDLProxy(
     }
 
     suspend fun aktørId(ident: String): List<IdentInformasjon> {
-        val token = coroutineContext.idToken().value
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(pdlApiTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value)
 
         return Retry.retry(
             operation = "hent-ident",
@@ -124,9 +128,9 @@ class PDLProxy(
                 operation = "hent-ident",
                 resultResolver = { it.errors.isNullOrEmpty() }
             ) {
-                client.execute(HentIdent(HentIdent.Variables(ident, listOf(IdentGruppe.AKTORID), false))) {
+                pdlClient.execute(HentIdent(HentIdent.Variables(ident, listOf(IdentGruppe.AKTORID), false))) {
                     headers {
-                        header(HttpHeaders.Authorization, "Bearer $token")
+                        header(HttpHeaders.Authorization, exchangeToken.asAuthoriationHeader())
                     }
                 }
             }

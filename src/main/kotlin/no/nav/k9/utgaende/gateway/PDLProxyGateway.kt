@@ -17,22 +17,25 @@ import org.slf4j.LoggerFactory
 import kotlin.coroutines.coroutineContext
 
 class PDLProxyGateway(
-    val pdlProxy: PDLProxy,
-    val tilgangService: TilgangService,
-    val accessTokenClient: AccessTokenClient,
-    private val henteNavnScopes: Set<String> = setOf("openid"),
+    private val pdlProxy: PDLProxy,
+    private val tilgangService: TilgangService,
+    private val cachedAccessTokenClient: CachedAccessTokenClient,
+    private val cachedSystemTokenClient: CachedAccessTokenClient,
+    private val pdlApiTokenxAudience: String,
 ) {
     private companion object {
         private val logger = LoggerFactory.getLogger(PDLProxyGateway::class.java)
     }
 
-    private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-
     @Throws(TilgangNektetException::class)
     internal suspend fun person(
         ident: Ident,
     ): Person {
-        val tilgangResponse = tilgangService.hentPerson(coroutineContext.idToken().value)
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(pdlApiTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value)
+
+        val tilgangResponse = tilgangService.hentPerson(exchangeToken.token)
         return when (tilgangResponse.policyEvaluation.decision) {
             PolicyDecision.PERMIT -> pdlProxy.person(ident.value)
             else -> {
@@ -46,11 +49,10 @@ class PDLProxyGateway(
         identer: List<Ident>,
     ): List<HentPersonBolkResult> {
         val identListe = identer.map { it.value }
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf("openid"))
         val tilgangResponse =
             tilgangService.hentBarn(
-                BarnTilgangForespørsel(identListe),
-                coroutineContext.idToken().value,
-                cachedAccessTokenClient.getAccessToken(henteNavnScopes).token
+                BarnTilgangForespørsel(identListe), coroutineContext.idToken().value, systemToken.token
             )
 
         val tillatteIdenter = tilgangResponse

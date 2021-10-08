@@ -22,10 +22,12 @@ import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.ktor.metrics.MetricsRoute
 import no.nav.helse.dusseldorf.ktor.metrics.init
+import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
 import no.nav.siftilgangskontroll.core.pdl.PdlService
@@ -42,6 +44,7 @@ fun Application.SelvbetjeningOppslag() {
 
     val requestContextService = RequestContextService()
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
+    val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
         multipleJwtIssuers(issuers)
@@ -67,6 +70,9 @@ fun Application.SelvbetjeningOppslag() {
         clientId = environment.config.clientId(),
         clientSecret = environment.config.clientSecret()
     )
+
+    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxPdlApiExchangeTokenClient())
+    val cachedSystemTokenClient = CachedAccessTokenClient(naisStsAccessTokenClient) // TODO: 08/10/2021 Migrere over til azure client for systemkall.
 
 
     val pdlClient = GraphQLKtorClient(
@@ -101,11 +107,15 @@ fun Application.SelvbetjeningOppslag() {
                         ),
                         pdlProxyGateway = PDLProxyGateway(
                             pdlProxy = PDLProxy(
-                                accessTokenClient = naisStsAccessTokenClient,
-                                client = pdlClient
+                                cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                                pdlClient = pdlClient,
+                                pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+                                cachedSystemTokenClient = cachedSystemTokenClient
                             ),
                             tilgangService = tilgangService,
-                            accessTokenClient = naisStsAccessTokenClient
+                            cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                            pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+                            cachedSystemTokenClient = cachedSystemTokenClient
                         ),
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(

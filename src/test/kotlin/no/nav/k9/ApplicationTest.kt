@@ -34,6 +34,7 @@ class ApplicationTest {
         val wireMockServer = WireMockBuilder()
             .withNaisStsSupport()
             .withLoginServiceSupport()
+            .withTokendingsSupport()
             .k9SelvbetjeningOppslagConfig()
             .build()
             .stubPDLHentIdent()
