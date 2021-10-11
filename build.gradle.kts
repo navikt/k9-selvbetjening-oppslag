@@ -5,6 +5,7 @@ val dusseldorfKtorVersion = "3.1.6.4-482b35f"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "4.1.1"
+val sifTilgangskontrollVersion = "1-847f253"
 
 val mockkVersion = "1.12.0"
 val jsonassertVersion = "1.5.0"
@@ -34,8 +35,8 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
 
-    implementation("no.nav.sif.tilgangskontroll:spesification:1-847f25")
-    implementation("no.nav.sif.tilgangskontroll:core:1-847f25") {
+    implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")
+    implementation("no.nav.sif.tilgangskontroll:core:$sifTilgangskontrollVersion") {
         exclude(group = "io.projectreactor.netty")
     }
 
