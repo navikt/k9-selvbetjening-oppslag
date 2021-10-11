@@ -5,7 +5,7 @@ val dusseldorfKtorVersion = "3.1.6.4-482b35f"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "4.1.1"
-val sifTilgangskontrollVersion = "1-847f253"
+val sifTilgangskontrollVersion = "1-329ccc1"
 
 val mockkVersion = "1.12.0"
 val jsonassertVersion = "1.5.0"
