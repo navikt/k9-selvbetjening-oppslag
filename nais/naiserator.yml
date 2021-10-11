@@ -42,6 +42,10 @@ spec:
      - name: {{@key}}
        value: "{{this}}"
   {{/each}}
+  azure:
+    application:
+      enabled: true
+      tenant: {{azureTenant}}
   envFrom:
     - configmap: loginservice-idporten
     - secret: {{app}}
