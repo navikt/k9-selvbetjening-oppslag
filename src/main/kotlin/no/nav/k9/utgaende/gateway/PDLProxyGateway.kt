@@ -49,10 +49,16 @@ class PDLProxyGateway(
         identer: List<Ident>,
     ): List<HentPersonBolkResult> {
         val identListe = identer.map { it.value }
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(pdlApiTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value)
+
         val systemToken = cachedSystemTokenClient.getAccessToken(setOf("openid"))
         val tilgangResponse =
             tilgangService.hentBarn(
-                BarnTilgangForespørsel(identListe), coroutineContext.idToken().value, systemToken.token
+                BarnTilgangForespørsel(identListe),
+                exchangeToken.token,
+                systemToken.token
             )
 
         val tillatteIdenter = tilgangResponse
