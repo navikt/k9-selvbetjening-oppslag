@@ -34,8 +34,8 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
 
-    implementation("no.nav.sif.tilgangskontroll:spesification:1-83a6c14")
-    implementation("no.nav.sif.tilgangskontroll:core:1-83a6c14") {
+    implementation("no.nav.sif.tilgangskontroll:spesification:1-847f25")
+    implementation("no.nav.sif.tilgangskontroll:core:1-847f25") {
         exclude(group = "io.projectreactor.netty")
     }
 
