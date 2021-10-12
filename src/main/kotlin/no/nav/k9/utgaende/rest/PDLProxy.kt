@@ -24,8 +24,9 @@ import kotlin.coroutines.coroutineContext
 class PDLProxy(
     private val pdlClient: GraphQLKtorClient,
     private val cachedAccessTokenClient: CachedAccessTokenClient,
-    private val pdlApiTokenxAudience: String,
     private val cachedSystemTokenClient: CachedAccessTokenClient,
+    private val pdlApiTokenxAudience: String,
+    private val pdlApiAzureAudience: String
 ) {
 
     private companion object {
@@ -73,7 +74,7 @@ class PDLProxy(
 
     suspend fun barn(identer: List<ID>): List<HentPersonBolkResult> {
 
-        val systemToken = cachedSystemTokenClient.getAccessToken(setOf("openid"))
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
 
         return Retry.retry(
             operation = "hent-person-bolk",

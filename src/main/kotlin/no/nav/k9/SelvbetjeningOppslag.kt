@@ -64,15 +64,14 @@ fun Application.SelvbetjeningOppslag() {
 
     install(CallIdRequired)
 
-
     val naisStsAccessTokenClient = NaisStsAccessTokenClient(
         tokenEndpoint = environment.config.restTokenUrl(),
         clientId = environment.config.clientId(),
         clientSecret = environment.config.clientSecret()
     )
 
-    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxPdlApiExchangeTokenClient())
-    val cachedSystemTokenClient = CachedAccessTokenClient(naisStsAccessTokenClient) // TODO: 08/10/2021 Migrere over til azure client for systemkall.
+    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxPdlApiExchangeTokenClient)
+    val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azurePdlApiSystemTokenClient)
 
 
     val pdlClient = GraphQLKtorClient(
@@ -110,12 +109,14 @@ fun Application.SelvbetjeningOppslag() {
                                 cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
                                 pdlClient = pdlClient,
                                 pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
-                                cachedSystemTokenClient = cachedSystemTokenClient
+                                pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+                                cachedSystemTokenClient = cachedAzureSystemTokenClient
                             ),
                             tilgangService = tilgangService,
                             cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
                             pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
-                            cachedSystemTokenClient = cachedSystemTokenClient
+                            pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+                            cachedSystemTokenClient = cachedAzureSystemTokenClient
                         ),
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(

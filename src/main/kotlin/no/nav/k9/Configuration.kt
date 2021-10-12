@@ -9,6 +9,7 @@ internal fun ApplicationConfig.tpsProxyV1Url() = URI(getRequiredString("nav.regi
 
 internal fun ApplicationConfig.pdlUrl() = URI(getRequiredString("nav.register_urls.pdl_url", secret = false))
 internal fun ApplicationConfig.pdlApiTokenxAudience() = getRequiredString("nav.auth.pdl_api_tokenx_audience", secret = false)
+internal fun ApplicationConfig.pdlApiAzureAudience() = getRequiredString("nav.auth.pdl_api_azure_audience", secret = false)
 
 internal fun ApplicationConfig.arbeidsgiverOgArbeidstakerV1Url() = URI(getRequiredString("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", secret = false))
 

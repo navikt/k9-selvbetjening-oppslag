@@ -1,6 +1,5 @@
 package no.nav.k9.utgaende.gateway
 
-import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.clients.pdl.generated.hentbarn.HentPersonBolkResult
 import no.nav.k9.clients.pdl.generated.hentperson.Person
@@ -22,6 +21,7 @@ class PDLProxyGateway(
     private val cachedAccessTokenClient: CachedAccessTokenClient,
     private val cachedSystemTokenClient: CachedAccessTokenClient,
     private val pdlApiTokenxAudience: String,
+    private val pdlApiAzureAudience: String
 ) {
     private companion object {
         private val logger = LoggerFactory.getLogger(PDLProxyGateway::class.java)
@@ -53,7 +53,7 @@ class PDLProxyGateway(
             scopes = setOf(pdlApiTokenxAudience),
             onBehalfOf = coroutineContext.idToken().value)
 
-        val systemToken = cachedSystemTokenClient.getAccessToken(setOf("openid"))
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
         val tilgangResponse =
             tilgangService.hentBarn(
                 BarnTilgangForespørsel(identListe),

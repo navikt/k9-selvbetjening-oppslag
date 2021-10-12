@@ -35,6 +35,7 @@ class ApplicationTest {
             .withNaisStsSupport()
             .withLoginServiceSupport()
             .withTokendingsSupport()
+            .withAzureSupport()
             .k9SelvbetjeningOppslagConfig()
             .build()
             .stubPDLHentIdent()
