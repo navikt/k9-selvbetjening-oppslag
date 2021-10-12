@@ -1,43 +1,41 @@
 package no.nav.k9
 
+import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
+import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.ktor.application.Application
-import io.ktor.application.ApplicationStopping
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.authenticate
-import io.ktor.features.CallId
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
-import io.ktor.http.ContentType
-import io.ktor.metrics.micrometer.MicrometerMetrics
-import io.ktor.routing.Routing
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.metrics.micrometer.*
+import io.ktor.routing.*
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.helse.dusseldorf.ktor.auth.*
 import no.nav.helse.dusseldorf.ktor.core.*
+import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.ktor.metrics.MetricsRoute
 import no.nav.helse.dusseldorf.ktor.metrics.init
+import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.rest.*
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
-import no.nav.k9.utgaende.rest.BrregProxyV1
-import no.nav.k9.utgaende.rest.EnhetsregisterV1
-import no.nav.k9.utgaende.rest.NaisStsAccessTokenClient
-import no.nav.k9.utgaende.rest.TpsProxyV1
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
+import no.nav.siftilgangskontroll.core.pdl.PdlService
+import no.nav.siftilgangskontroll.core.tilgang.TilgangService
+import no.nav.siftilgangskontroll.core.tilgang.TilgangsAttributter
+import java.util.*
 
-fun main(args: Array<String>): Unit  = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.SelvbetjeningOppslag() {
     val appId = environment.config.id()
@@ -46,6 +44,7 @@ fun Application.SelvbetjeningOppslag() {
 
     val requestContextService = RequestContextService()
     val issuers = environment.config.issuers().withoutAdditionalClaimRules()
+    val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
         multipleJwtIssuers(issuers)
@@ -65,15 +64,37 @@ fun Application.SelvbetjeningOppslag() {
 
     install(CallIdRequired)
 
-
     val naisStsAccessTokenClient = NaisStsAccessTokenClient(
         tokenEndpoint = environment.config.restTokenUrl(),
         clientId = environment.config.clientId(),
         clientSecret = environment.config.clientSecret()
     )
 
+    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxPdlApiExchangeTokenClient)
+    val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azurePdlApiSystemTokenClient)
+
+
+    val pdlClient = GraphQLKtorClient(
+        url = environment.config.pdlUrl().toURL(),
+        httpClient = HttpClient(OkHttp) {
+            defaultRequest {
+                headers {
+                    header(NavHeaders.Tema, "OMS")
+                    header(NavHeaders.CallId, UUID.randomUUID().toString())
+                }
+            }
+        },
+        serializer = GraphQLClientJacksonSerializer(objectMapper())
+    )
+
+    val tilgangService = TilgangService(
+        tilgangsAttributter = TilgangsAttributter(
+            pdlService = PdlService(graphQLClient = pdlClient)
+        )
+    )
+
     install(Routing) {
-        authenticate (*issuers.allIssuers()) {
+        authenticate(*issuers.allIssuers()) {
             requiresCallId {
                 OppslagRoute(
                     requestContextService = requestContextService,
@@ -85,9 +106,17 @@ fun Application.SelvbetjeningOppslag() {
                         ),
                         pdlProxyGateway = PDLProxyGateway(
                             pdlProxy = PDLProxy(
-                                environment.config.pdlUrl(),
-                                accessTokenClient = naisStsAccessTokenClient
-                            )
+                                cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                                pdlClient = pdlClient,
+                                pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+                                pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+                                cachedSystemTokenClient = cachedAzureSystemTokenClient
+                            ),
+                            tilgangService = tilgangService,
+                            cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                            pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+                            pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+                            cachedSystemTokenClient = cachedAzureSystemTokenClient
                         ),
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(

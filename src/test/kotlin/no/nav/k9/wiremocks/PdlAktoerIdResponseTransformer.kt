@@ -5,15 +5,17 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
+
 private val identMap = mapOf(
     "01019012345" to "12345",
     "25037139184" to "23456",
     "10047025546" to "34567",
-    "11129998665" to "54321", // barn av 01019012345
-    "01010067894" to "65432", // barn av 25037139184
+    BARN_TIL_PERSON_1 to "54321", // barn av 01019012345
+    BARN_TIL_PERSON_2 to "65432", // barn av 25037139184
 )
 
 
