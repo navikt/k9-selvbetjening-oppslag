@@ -1,13 +1,12 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.clients.pdl.generated.hentbarn.HentPersonBolkResult
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
+import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person
 import java.time.LocalDate
 
 internal class BarnOppslag(
     private val pdlProxyV1Gateway: PDLProxyGateway,
 ) {
-
 
     internal suspend fun barn(
         barnasIdenter: List<Ident>,
@@ -19,10 +18,11 @@ internal class BarnOppslag(
             barnasIdenter.isEmpty() -> null
             else -> pdlProxyV1Gateway.barn(barnasIdenter)
                 .map {
+                    val pdlBarn = it.tilPdlBarn()
                     Barn(
-                        pdlBarn = it.tilPdlBarn(),
+                        pdlBarn = pdlBarn,
                         aktørId = pdlProxyV1Gateway.aktørId(
-                            ident = Ident(it.ident),
+                            ident = Ident(pdlBarn.ident.value),
                             attributter = attributter
                         )?.tilAktørId()
                     )
@@ -31,8 +31,8 @@ internal class BarnOppslag(
     }
 }
 
-private fun HentPersonBolkResult.tilPdlBarn(): PdlBarn {
-    val barn = person!!
+private fun Person.tilPdlBarn(): PdlBarn {
+    val barn = this
     val navn = barn.navn.first()
     val doedsdato = when {
         barn.doedsfall.isEmpty() -> null
@@ -42,6 +42,7 @@ private fun HentPersonBolkResult.tilPdlBarn(): PdlBarn {
         barn.foedsel.first().foedselsdato.isNullOrBlank() -> throw IllegalStateException("Barnets fødselsnummer var tom eller null.")
         else -> LocalDate.parse(barn.foedsel.first().foedselsdato!!)
     }
+    val ident = barn.folkeregisteridentifikator.first().identifikasjonsnummer
     return PdlBarn(
         fornavn = navn.fornavn,
         mellomnavn = navn.mellomnavn,

@@ -15,13 +15,9 @@ import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
-import no.nav.k9.clients.pdl.generated.hentperson.Navn
-import no.nav.siftilgangskontroll.pdl.generated.enums.AdressebeskyttelseGradering
+import no.nav.siftilgangskontroll.core.pdl.utils.*
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
-import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Folkeregisteridentifikator
-import no.nav.siftilgangskontroll.pdl.generated.hentperson.Doedsfall
-import no.nav.siftilgangskontroll.pdl.generated.hentperson.Foedsel
-import no.nav.siftilgangskontroll.pdl.generated.hentperson.ForelderBarnRelasjon
+import no.nav.siftilgangskontroll.pdl.generated.hentperson.*
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
@@ -55,139 +51,138 @@ class PDLPersonResponseTransformer : ResponseTransformer() {
 }
 
 private fun getResponse(
-    navIdent: String,
-    adressebeskyttelseGraderinger: List<AdressebeskyttelseGradering> = listOf(),
+    navIdent: String
 ): String {
-    // søker
-    val folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent))
-    var fødselsdato: List<Foedsel>
-    var navn: List<Navn>
-    var dødsfall: List<Doedsfall> = listOf()
-
-    // barn
-    var forelderBarnRelasjon: List<ForelderBarnRelasjon> = listOf()
-
-    when (navIdent) {
+    val person: Person = when (navIdent) {
         PERSON_1_MED_BARN -> {
-            navn = listOf(Navn(
-                fornavn = "STOR-KAR",
-                mellomnavn = "LANGEMANN",
-                etternavn = "TEST",
-                forkortetNavn = "STOR-KAR LANGEMANN TEST"
-            ))
-
-            fødselsdato = listOf(Foedsel("1985-07-27"))
-
-            forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
-                relatertPersonsIdent = BARN_TIL_PERSON_1,
-                relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
-                minRolleForPerson = ForelderBarnRelasjonRolle.MOR
-            ))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "STOR-KAR",
+                    mellomnavn = "LANGEMANN",
+                    etternavn = "TEST",
+                    forkortetNavn = "STOR-KAR LANGEMANN TEST"
+                )),
+                foedsel = listOf(Foedsel("1985-07-27")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = BARN_TIL_PERSON_1,
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.MOR
+                ))
+            )
         }
 
         PERSON_2_MED_BARN -> {
-            navn = listOf(Navn(
-                fornavn = "ARNE",
-                mellomnavn = "BJARNE",
-                etternavn = "CARLSEN",
-                forkortetNavn = "ARNE BJARNE CARLSEN"
-            ))
-
-            fødselsdato = listOf(Foedsel("1990-01-02"))
-
-
-            forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
-                relatertPersonsIdent = BARN_TIL_PERSON_2,
-                relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
-                minRolleForPerson = ForelderBarnRelasjonRolle.MOR
-            ))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "ARNE",
+                    mellomnavn = "BJARNE",
+                    etternavn = "CARLSEN",
+                    forkortetNavn = "ARNE BJARNE CARLSEN"
+                )),
+                foedsel = listOf(Foedsel("1990-01-02")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = BARN_TIL_PERSON_2,
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.MOR
+                ))
+            )
         }
 
         PERSON_3_MED_SKJERMET_BARN -> {
-            navn = listOf(Navn(
-                fornavn = "Ole",
-                mellomnavn = "Med Gradert",
-                etternavn = "Barn",
-                forkortetNavn = "Ole Med Gradert Barn"
-            ))
-
-            fødselsdato = listOf(Foedsel("1990-01-02"))
-
-            forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
-                relatertPersonsIdent = SKJERMET_BARN_TIL_PERSON_3,
-                relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
-                minRolleForPerson = ForelderBarnRelasjonRolle.FAR
-            ))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "Ole",
+                    mellomnavn = "Med Gradert",
+                    etternavn = "Barn",
+                    forkortetNavn = "Ole Med Gradert Barn"
+                )),
+                foedsel = listOf(Foedsel("1990-01-02")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = SKJERMET_BARN_TIL_PERSON_3,
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.FAR
+                ))
+            )
         }
 
         PERSON_4_MED_DØD_BARN -> {
-            navn = listOf(Navn(
-                fornavn = "Bjarne",
-                mellomnavn = "Med Død",
-                etternavn = "Barn",
-                forkortetNavn = "Bjarne Med Død Barn"
-            ))
-
-            fødselsdato = listOf(Foedsel("1990-01-02"))
-
-            forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
-                relatertPersonsIdent = DØD_BARN_TIL_PERSON_4,
-                relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
-                minRolleForPerson = ForelderBarnRelasjonRolle.FAR
-            ))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "Bjarne",
+                    mellomnavn = "Med Død",
+                    etternavn = "Barn",
+                    forkortetNavn = "Bjarne Med Død Barn"
+                )),
+                foedsel = listOf(Foedsel("1990-01-02")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = DØD_BARN_TIL_PERSON_4,
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.FAR
+                ))
+            )
         }
 
         DØD_PERSON -> {
-            navn = listOf(Navn(
-                fornavn = "Død",
-                mellomnavn = "",
-                etternavn = "Person",
-                forkortetNavn = "Død Person"
-            ))
-
-            fødselsdato = listOf(Foedsel("1990-01-02"))
-
-            dødsfall = listOf(Doedsfall("2021-01-01"))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "Død",
+                    mellomnavn = "",
+                    etternavn = "Person",
+                    forkortetNavn = "Død Person"
+                )),
+                foedsel = listOf(Foedsel("1990-01-02")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(Doedsfall("2021-01-01")),
+                forelderBarnRelasjon = listOf())
         }
 
         PERSON_UNDER_MYNDIGHETS_ALDER -> {
-            navn = listOf(Navn(
-                fornavn = "Person",
-                mellomnavn = "Under",
-                etternavn = "Myndighetsalder",
-                forkortetNavn = "Person Under Myndighetsalder"
-            ))
-
-            fødselsdato = listOf(Foedsel("2006-01-01"))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "Person",
+                    mellomnavn = "Under",
+                    etternavn = "Myndighetsalder",
+                    forkortetNavn = "Person Under Myndighetsalder"
+                )),
+                foedsel = listOf(Foedsel("2006-01-01")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(),
+            )
         }
 
         else -> {
-            navn = listOf(Navn(
-                fornavn = "CATO",
-                mellomnavn = "",
-                etternavn = "NILSEN",
-                forkortetNavn = "Cato Nilsen"
-            ))
-
-            fødselsdato = listOf(Foedsel("1980-05-20"))
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "CATO",
+                    mellomnavn = "",
+                    etternavn = "NILSEN",
+                    forkortetNavn = "Cato Nilsen"
+                )),
+                foedsel = listOf(Foedsel("1980-05-20")),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(),
+            )
         }
     }
 
-    //language=json
-    return """
-            {
-                "data": {
-                    "hentPerson": {
-                        "navn": ${navn.navnSomJsonArray()},
-                        "folkeregisteridentifikator": ${folkeregisteridentifikator.folkeregisteridentifikatorSomJsonArray()},
-                        "adressebeskyttelse": ${adressebeskyttelseGraderinger.adressebeskyttelseGraderingJsonArray()},
-                        "foedsel": ${fødselsdato.fødselSomJsonArray()},
-                        "doedsfall": ${dødsfall.dødsfallSomJsonArray()},
-                        "forelderBarnRelasjon": ${forelderBarnRelasjon.forelderBarnRelasjonSomJsonArray()}
-                    }
-                }
-            }
-    """.trimIndent()
+    return pdlHentPersonResponse(person)
 }
 
 

@@ -1,11 +1,11 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.clients.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.k9.clients.pdl.generated.hentident.IdentInformasjon
-import no.nav.k9.clients.pdl.generated.hentperson.Person
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
 import no.nav.k9.utgaende.rest.TpsPerson
+import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
+import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person
 import java.lang.IllegalStateException
 import java.time.LocalDate
 
@@ -18,9 +18,7 @@ internal class MegOppslag(
         ident: Ident,
         attributter: Set<Attributt>,
     ): Meg {
-        val pdlPerson = pdlProxyGateway.person(
-            ident = ident
-        )
+        val pdlPerson = pdlProxyGateway.person()
 
         val tpsPerson = tpsProxyV1Gateway.person(
             ident = ident,
@@ -37,7 +35,6 @@ internal class MegOppslag(
     }
 
     private fun Person.tilPdlPerson(): PdlPerson {
-        println("Navn på person: $navn") // TODO: 10/06/2021 fjern før prodsetting.
         val navn = this.navn.firstOrNull()?: throw IllegalStateException("Det må eksistere navn på person.")
         return PdlPerson(
             fornavn = navn.fornavn,

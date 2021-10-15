@@ -16,6 +16,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
+import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -39,8 +40,8 @@ class ApplicationTest {
             .k9SelvbetjeningOppslagConfig()
             .build()
             .stubPDLHentIdent()
-            .stubPDLHentPerson()
-            .stubPDLHentBarn()
+            .stubPDLRequest(PdlOperasjon.HENT_PERSON)
+            .stubPDLRequest(PdlOperasjon.HENT_PERSON_BOLK)
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()

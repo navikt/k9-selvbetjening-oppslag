@@ -32,7 +32,6 @@ import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
-import no.nav.siftilgangskontroll.core.tilgang.TilgangsAttributter
 import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -88,9 +87,7 @@ fun Application.SelvbetjeningOppslag() {
     )
 
     val tilgangService = TilgangService(
-        tilgangsAttributter = TilgangsAttributter(
-            pdlService = PdlService(graphQLClient = pdlClient)
-        )
+        pdlService = PdlService(graphQLClient = pdlClient)
     )
 
     install(Routing) {
@@ -108,9 +105,7 @@ fun Application.SelvbetjeningOppslag() {
                             pdlProxy = PDLProxy(
                                 cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
                                 pdlClient = pdlClient,
-                                pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
-                                pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
-                                cachedSystemTokenClient = cachedAzureSystemTokenClient
+                                pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience()
                             ),
                             tilgangService = tilgangService,
                             cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,

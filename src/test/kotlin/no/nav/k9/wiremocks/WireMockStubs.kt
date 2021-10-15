@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import io.ktor.http.HttpHeaders
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 
 private const val aktoerRegisterServerPath = "/aktoer-register-mock"
 private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
@@ -28,7 +29,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(BrregProxyV1ResponseTransformer())
 }
 
-internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
+internal fun WireMockServer.stubTpsProxyGetPerson(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/innsyn/person*"))
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
@@ -42,43 +43,28 @@ internal fun WireMockServer.stubTpsProxyGetPerson() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubPDLHentPerson() : WireMockServer {
+internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMockServer {
     WireMock.stubFor(
         WireMock.post(WireMock.urlPathMatching(pdlServerPath))
             .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
             .withHeader(NavHeaders.CallId, AnythingPattern())
             .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
-            .withRequestBody(matchingJsonPath("$.query", containing("hentPerson")))
+            .withRequestBody(matchingJsonPath("$.query", containing(pdlOperasjon.navn)))
             .willReturn(
                 WireMock.aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(200)
-                    .withTransformers("pdl-hent-person")
+                    .withTransformers(when (pdlOperasjon) {
+                        PdlOperasjon.HENT_PERSON -> "pdl-hent-person"
+                        PdlOperasjon.HENT_PERSON_BOLK -> "pdl-hent-barn"
+                    })
             )
     )
     return this
 }
 
-internal fun WireMockServer.stubPDLHentBarn() : WireMockServer {
-    WireMock.stubFor(
-        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
-            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .withHeader(NavHeaders.CallId, AnythingPattern())
-            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
-            .withRequestBody(matchingJsonPath("$.query", containing("hentPersonBolk")))
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("pdl-hent-barn")
-            )
-    )
-    return this
-}
-
-internal fun WireMockServer.stubPDLHentIdent() : WireMockServer {
+internal fun WireMockServer.stubPDLHentIdent(): WireMockServer {
     WireMock.stubFor(
         WireMock.post(WireMock.urlPathMatching(pdlServerPath))
             .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
@@ -96,7 +82,7 @@ internal fun WireMockServer.stubPDLHentIdent() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubTpsProxyGetNavn() : WireMockServer {
+internal fun WireMockServer.stubTpsProxyGetNavn(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/navn"))
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
@@ -118,7 +104,7 @@ internal fun WireMockServer.stubTpsProxyGetNavn() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubTpsProxyGetBarn() : WireMockServer {
+internal fun WireMockServer.stubTpsProxyGetBarn(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/innsyn/barn*"))
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
@@ -132,7 +118,7 @@ internal fun WireMockServer.stubTpsProxyGetBarn() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister() : WireMockServer {
+internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$arbeidsgiverOgArbeidstakerRegisterServerPath/arbeidstaker/arbeidsforhold*"))
             .withHeader(HttpHeaders.Authorization, AnythingPattern())
@@ -146,7 +132,7 @@ internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister() : WireMockS
     return this
 }
 
-internal fun WireMockServer.stubEnhetsRegister() : WireMockServer {
+internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$enhetsRegisterServerPath/organisasjon/([0-9]*)/noekkelinfo")) // organisasjon/{orgnummer}/noekkelinfo
             .willReturn(
@@ -159,7 +145,7 @@ internal fun WireMockServer.stubEnhetsRegister() : WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubBrregProxyV1() : WireMockServer {
+internal fun WireMockServer.stubBrregProxyV1(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$brregProxyV1ServerPath/person/rolleoversikt"))
             .willReturn(
@@ -173,7 +159,9 @@ internal fun WireMockServer.stubBrregProxyV1() : WireMockServer {
 }
 
 internal fun WireMockServer.getAktoerRegisterUrl() = baseUrl() + aktoerRegisterServerPath
-internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() = baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
+internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() =
+    baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
+
 internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
 internal fun WireMockServer.getTpsProxyUrl() = baseUrl() + tpsProxyServerPath
 internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath
