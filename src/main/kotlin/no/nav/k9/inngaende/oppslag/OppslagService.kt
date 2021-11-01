@@ -56,7 +56,6 @@ internal class OppslagService(
         brregProxyV1Gateway = brregProxyV1Gateway
     )
 
-    @KtorExperimentalAPI
     internal suspend fun oppslag(
         ident: Ident,
         attributter: Set<Attributt>,
