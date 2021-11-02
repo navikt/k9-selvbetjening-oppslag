@@ -79,7 +79,6 @@ fun Application.SelvbetjeningOppslag() {
             defaultRequest {
                 headers {
                     header(NavHeaders.Tema, "OMS")
-                    header(NavHeaders.CallId, UUID.randomUUID().toString())
                 }
             }
         },
