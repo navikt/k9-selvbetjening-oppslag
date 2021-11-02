@@ -65,24 +65,6 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
     return this
 }
 
-internal fun WireMockServer.stubPDLHentIdent(): WireMockServer {
-    WireMock.stubFor(
-        WireMock.post(WireMock.urlPathMatching(pdlServerPath))
-            .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .withHeader(NavHeaders.CallId, AnythingPattern())
-            .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
-            .withRequestBody(matchingJsonPath("$.query", containing("hentIdenter")))
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("pdl-hent-ident")
-            )
-    )
-    return this
-}
-
 internal fun WireMockServer.stubTpsProxyGetNavn(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/navn"))
