@@ -16,7 +16,6 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 plugins {
     kotlin("jvm") version "1.5.31"
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("com.expediagroup.graphql") version "4.1.1"
 }
 
 buildscript {
