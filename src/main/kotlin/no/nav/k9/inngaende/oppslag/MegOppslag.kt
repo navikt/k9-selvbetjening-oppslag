@@ -1,6 +1,5 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.clients.pdl.generated.hentident.IdentInformasjon
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
 import no.nav.k9.utgaende.rest.TpsPerson
@@ -24,12 +23,13 @@ internal class MegOppslag(
             ident = ident,
             attributter = attributter
         )
+        val aktørId = pdlProxyGateway.aktørId(
+            ident = ident,
+            attributter = attributter
+        )
         return Meg(
             tpsPerson = tpsPerson,
-            aktørId = pdlProxyGateway.aktørId(
-                ident = ident,
-                attributter = attributter
-            )?.tilAktørId(),
+            aktørId = aktørId?.let { Ident(it.value) },
             pdlPerson = pdlPerson.tilPdlPerson()
         )
     }
@@ -50,8 +50,6 @@ internal class MegOppslag(
 fun Person.barnIdenter(): List<Ident> = forelderBarnRelasjon
     .filter { it.relatertPersonsRolle == ForelderBarnRelasjonRolle.BARN }
     .map { Ident(it.relatertPersonsIdent) }
-
-fun List<IdentInformasjon>.tilAktørId(): Ident = Ident(first().ident)
 
 data class PdlPerson(
     internal val fornavn: String,

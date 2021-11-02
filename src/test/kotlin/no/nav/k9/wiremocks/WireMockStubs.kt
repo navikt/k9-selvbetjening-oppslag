@@ -58,6 +58,7 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
                     .withTransformers(when (pdlOperasjon) {
                         PdlOperasjon.HENT_PERSON -> "pdl-hent-person"
                         PdlOperasjon.HENT_PERSON_BOLK -> "pdl-hent-barn"
+                        PdlOperasjon.HENT_IDENTER -> "pdl-hent-ident"
                     })
             )
     )

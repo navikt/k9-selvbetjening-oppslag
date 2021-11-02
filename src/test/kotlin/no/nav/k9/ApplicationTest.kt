@@ -13,7 +13,12 @@ import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
@@ -340,7 +345,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag ingenBarn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -457,7 +462,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
-        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_ARBEIDSGIVER)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -665,7 +670,7 @@ class ApplicationTest {
     
     @Test
     fun `Hente personlige foretak for en person som har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt("111111111111")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -701,7 +706,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som ikke har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt("111111111112")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -724,7 +729,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som har fler roller i samme foretak`() {
-        val idToken: String = LoginService.V1_0.generateJwt("22222222222")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FLERE_ROLLER_I_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,

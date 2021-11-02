@@ -17,14 +17,15 @@ internal class BarnOppslag(
         return when {
             barnasIdenter.isEmpty() -> null
             else -> pdlProxyV1Gateway.barn(barnasIdenter)
-                .map {
-                    val pdlBarn = it.tilPdlBarn()
+                .map { barn ->
+                    val pdlBarn = barn.tilPdlBarn()
+                    val aktørId = pdlProxyV1Gateway.aktørId(
+                        ident = Ident(pdlBarn.ident.value),
+                        attributter = attributter
+                    )
                     Barn(
                         pdlBarn = pdlBarn,
-                        aktørId = pdlProxyV1Gateway.aktørId(
-                            ident = Ident(pdlBarn.ident.value),
-                            attributter = attributter
-                        )?.tilAktørId()
+                        aktørId = aktørId?.let { Ident(it.value) }
                     )
                 }.toSet()
         }

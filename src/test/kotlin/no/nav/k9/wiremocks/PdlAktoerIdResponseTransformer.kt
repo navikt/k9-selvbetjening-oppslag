@@ -7,15 +7,34 @@ import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
+import no.nav.k9.PersonFødselsnummer
+import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
+import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentIdenterResponse
+import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
+import no.nav.siftilgangskontroll.pdl.generated.hentident.IdentInformasjon
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
 private val identMap = mapOf(
-    "01019012345" to "12345",
-    "25037139184" to "23456",
-    "10047025546" to "34567",
-    BARN_TIL_PERSON_1 to "54321", // barn av 01019012345
-    BARN_TIL_PERSON_2 to "65432", // barn av 25037139184
+    PERSON_1_MED_BARN to IdentInformasjon(ident = "12345", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_2_MED_BARN to IdentInformasjon(ident = "23456", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_UTEN_BARN to IdentInformasjon(ident = "34567", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_3_MED_SKJERMET_BARN to IdentInformasjon(ident = "111111", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_4_MED_DØD_BARN to IdentInformasjon(ident = "222222", gruppe = IdentGruppe.AKTORID, historisk = false),
+    BARN_TIL_PERSON_1 to IdentInformasjon(ident = "54321", gruppe = IdentGruppe.AKTORID, historisk = false),
+    BARN_TIL_PERSON_2 to IdentInformasjon(ident = "65432", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_UTEN_FORETAK to IdentInformasjon(ident = "13579", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_MED_FORETAK to IdentInformasjon(ident = "246801", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_MED_FLERE_ROLLER_I_FORETAK to IdentInformasjon(ident = "573028", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_UTEN_ARBEIDSGIVER to IdentInformasjon(ident = "485028", gruppe = IdentGruppe.AKTORID, historisk = false),
 )
 
 
@@ -36,13 +55,8 @@ class PdlAktoerIdResponseTransformer : ResponseTransformer() {
         val ident = requestVariables.getString("ident")
         logger.info("Hentet ident fra request: {}", ident)
 
-        val identGruppe = requestVariables.getJSONArray("grupper").first() as String
-
         return Response.Builder.like(response)
-            .body(getResponse(
-                personIdent = ident,
-                identGruppe = identGruppe
-            ))
+            .body(getResponse(ident))
             .build()
     }
 
@@ -56,23 +70,4 @@ class PdlAktoerIdResponseTransformer : ResponseTransformer() {
 
 }
 
-private fun getResponse(
-    personIdent: String,
-    identGruppe: String,
-) =
-    //language=json
-    """
-{
-    "data": {
-        "hentIdenter": {
-            "identer": [
-                {
-                    "ident": "${identMap[personIdent]}",
-                    "historisk": false,
-                    "gruppe": ": $identGruppe"
-                }
-            ]
-        }
-    }
-}
-""".trimIndent()
+private fun getResponse(ident: String) = pdlHentIdenterResponse(listOf(identMap[ident]!!))

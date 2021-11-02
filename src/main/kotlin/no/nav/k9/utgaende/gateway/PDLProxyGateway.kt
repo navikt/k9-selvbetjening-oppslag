@@ -1,12 +1,12 @@
 package no.nav.k9.utgaende.gateway
 
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
-import no.nav.k9.clients.pdl.generated.hentident.IdentInformasjon
+import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
-import no.nav.k9.utgaende.rest.PDLProxy
+import no.nav.siftilgangskontroll.core.pdl.AktørId
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
@@ -16,7 +16,6 @@ import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person as PdlBarn
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person as PdlPerson
 
 class PDLProxyGateway(
-    private val pdlProxy: PDLProxy,
     private val tilgangService: TilgangService,
     private val cachedAccessTokenClient: CachedAccessTokenClient,
     private val cachedSystemTokenClient: CachedAccessTokenClient,
@@ -33,9 +32,14 @@ class PDLProxyGateway(
             scopes = setOf(pdlApiTokenxAudience),
             onBehalfOf = coroutineContext.idToken().value)
 
-        val tilgangResponse = tilgangService.hentPerson(exchangeToken.token)
+        val callId = coroutineContext.correlationId().value
+
+        val tilgangResponse = tilgangService.hentPerson(
+            bearerToken = exchangeToken.token,
+            callId = callId
+        )
         return when (tilgangResponse.policyEvaluation.decision) {
-            PolicyDecision.PERMIT -> tilgangResponse.data!!
+            PolicyDecision.PERMIT -> tilgangResponse.person!!
             else -> {
                 logger.error("Tilgang til person nektet. Grunn: {}", tilgangResponse.policyEvaluation)
                 throw TilgangNektetException("Tilgang til person nektet")
@@ -44,31 +48,48 @@ class PDLProxyGateway(
     }
 
     internal suspend fun barn(
-        identer: List<Ident>,
+        identer: List<Ident>
     ): List<PdlBarn> {
         val identListe = identer.map { it.value }
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
             onBehalfOf = coroutineContext.idToken().value)
 
+        val callId = coroutineContext.correlationId().value
+
         val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
         val tilgangResponse =
             tilgangService.hentBarn(
-                BarnTilgangForespørsel(identListe),
-                exchangeToken.token,
-                systemToken.token
+                barnTilgangForespørsel = BarnTilgangForespørsel(identListe),
+                bearerToken = exchangeToken.token,
+                systemToken = systemToken.token,
+                callId = callId
             )
         return tilgangResponse
             .filter { it.policyEvaluation.decision == PolicyDecision.PERMIT }
-            .map { it.data!! }
+            .map { it.barn!! }
     }
 
     internal suspend fun aktørId(
         ident: Ident,
-        attributter: Set<Attributt>,
-    ): List<IdentInformasjon>? = when {
-        attributter.any { it in støttedeAttributter } -> pdlProxy.aktørId(ident.value)
-        else -> null
+        attributter: Set<Attributt>
+    ): AktørId? {
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(pdlApiTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value)
+
+        val callId = coroutineContext.correlationId().value
+
+        val aktørId = tilgangService.hentAktørId(
+            ident = ident.value,
+            borgerToken = exchangeToken.token,
+            callId = callId
+        )
+
+        return when {
+            attributter.any { it in støttedeAttributter } ->  aktørId
+            else -> null
+        }
     }
 }
 

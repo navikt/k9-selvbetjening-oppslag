@@ -5,7 +5,7 @@ val dusseldorfKtorVersion = "3.1.6.4-482b35f"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "4.1.1"
-val sifTilgangskontrollVersion = "1-77b83dc"
+val sifTilgangskontrollVersion = "1-58dcba8"
 
 val mockkVersion = "1.12.0"
 val jsonassertVersion = "1.5.0"
@@ -125,13 +125,6 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
             )
         )
     }
-}
-
-tasks.withType<com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask> {
-    packageName.set("no.nav.k9.clients.pdl.generated")
-    schemaFile.set(file("${project.projectDir}/src/main/resources/pdl/pdl-api-schema.graphql"))
-    queryFileDirectory.set("${project.projectDir}/src/main/resources/pdl")
-    serializer.set(com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer.JACKSON)
 }
 
 tasks.withType<Wrapper> {

@@ -102,11 +102,6 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         ),
                         pdlProxyGateway = PDLProxyGateway(
-                            pdlProxy = PDLProxy(
-                                cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
-                                pdlClient = pdlClient,
-                                pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience()
-                            ),
                             tilgangService = tilgangService,
                             cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
                             pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
