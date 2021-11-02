@@ -4,10 +4,24 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import io.prometheus.client.CollectorRegistry
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
+import no.nav.k9.PersonFødselsnummer.DØD_PERSON
+import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
+import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -26,9 +40,13 @@ class ApplicationTest {
         val wireMockServer = WireMockBuilder()
             .withNaisStsSupport()
             .withLoginServiceSupport()
+            .withTokendingsSupport()
+            .withAzureSupport()
             .k9SelvbetjeningOppslagConfig()
             .build()
-            .stubAktoerRegisterGetAktoerId()
+            .stubPDLRequest(PdlOperasjon.HENT_PERSON)
+            .stubPDLRequest(PdlOperasjon.HENT_PERSON_BOLK)
+            .stubPDLRequest(PdlOperasjon.HENT_IDENTER)
             .stubTpsProxyGetPerson()
             .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
@@ -62,6 +80,7 @@ class ApplicationTest {
         fun tearDown() {
             logger.info("Tearing down")
             wireMockServer.stop()
+            CollectorRegistry.defaultRegistry.clear()
             logger.info("Tear down complete")
         }
     }
@@ -94,7 +113,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktoerId`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -107,13 +126,12 @@ class ApplicationTest {
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
-
         }
     }
 
     @Test
     fun `test megOppslag aktør_id og fornavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -132,7 +150,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktør_id og navn og fødselsdato`() {
-        val idToken: String = LoginService.V1_0.generateJwt("25037139184")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -167,6 +185,7 @@ class ApplicationTest {
                 val expectedResponse = """
                 {
                     "fornavn": "CATO",
+                    "mellomnavn": "",
                     "etternavn": "NILSEN"
                 }
                 """.trimIndent()
@@ -176,8 +195,34 @@ class ApplicationTest {
     }
 
     @Test
+    fun `gitt oppslag av død person, forvent feil`() {
+        val idToken: String = LoginService.V1_0.generateJwt(DØD_PERSON)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+            }.apply {
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `gitt oppslag av person under myndighetsalder (18), forvent feil`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UNDER_MYNDIGHETS_ALDER)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+            }.apply {
+                assertEquals(HttpStatusCode.InternalServerError, response.status())
+            }
+        }
+    }
+
+    @Test
     fun `test barnOppslag aktoerId`() {
-        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -188,7 +233,6 @@ class ApplicationTest {
                 val expectedResponse = """
                 { 
                     "barn":[
-                        {"aktør_id":"54321"}, 
                         {"aktør_id":"65432"}
                     ]
                 }
@@ -204,7 +248,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn og fødselsdato`() {
-        val idToken: String = LoginService.V1_0.generateJwt("10047025546")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -216,19 +260,15 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 // Første barn har totalt navn over > 24 tegn, så gjøres eget oppslag på navnet, den andre unngår oppslag da den er <= 24 tegn
+                //language=json
                 val expectedResponse = """
                 { 
                     "barn":[
                         {
-                            "fornavn": "KLØKTIG",
-                            "mellomnavn": "BLUNKENDE",
-                            "etternavn": "SUPERKONSOLL",
-                            "fødselsdato": "2012-12-11"
-                        },
-                        {
-                            "fornavn": "SLAPP OVERSTRÅLENDE",     
-                            "etternavn": "HEST",
-                            "fødselsdato": "2014-12-24"
+                            "fornavn": "TALENTFULL",
+                            "mellomnavn": "MELLOMROM",
+                            "etternavn": "STAUDE",
+                            "fødselsdato": "2017-03-18"
                         }
                     ]
                 }
@@ -240,7 +280,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn har ikke mellomnavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01010067894")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -252,8 +292,8 @@ class ApplicationTest {
                 { 
                     "barn":[
                         {
-                            "fornavn": "MANGLER",
-                            "etternavn": "MELLOMNAVN"
+                            "fornavn": "OLA",
+                            "etternavn": "NORDMANN"
                         }
                     ]
                 }
@@ -264,8 +304,48 @@ class ApplicationTest {
     }
 
     @Test
+    fun `gitt barn med strengt fortrolig adresse, forvent tom liste`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_3_MED_SKJERMET_BARN)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn": []
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `gitt død barn, forvent tom liste`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_4_MED_DØD_BARN)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { 
+                    "barn": []
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test barnOppslag ingenBarn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -285,7 +365,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -314,7 +394,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr og navn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -348,7 +428,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -382,7 +462,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
-        val idToken: String = LoginService.V1_0.generateJwt("02029212345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_ARBEIDSGIVER)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -407,7 +487,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag alle attributter`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
@@ -430,71 +510,10 @@ class ApplicationTest {
                 "kontonummer": "96850814136",
                 "barn":[
                     {
-                        "fornavn": "PRIPPEN",
-                        "etternavn": "JUMBOJET",
-                        "fødselsdato": "1999-12-11",
-                        "har_samme_adresse": true,
-                        "identitetsnummer": "11129998665"
-                    },
-                    {
-                        "fornavn": "MEGET STILIG",
-                        "etternavn": "PLANKE",
-                        "fødselsdato": "2014-12-24",
-                        "har_samme_adresse": true,
-                        "identitetsnummer": "24121479590"
-                    }
-                ],
-                "arbeidsgivere": {
-                    "organisasjoner": [
-                        {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
-                        {
-                            "organisasjonsnummer": "981585216",
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
-                        }
-                    ]
-                }
-             }
-            """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
-            }
-        }
-    }
-
-    @Test
-    fun `test at oppslag av barn uten har_samme_adresse attributt ikke feiler`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
-                        "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
-                        "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato" +
-                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
-            ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                val expectedResponse = """
-            {
-                "aktør_id": "12345",
-                "fornavn": "STOR-KAR",
-                "mellomnavn": "LANGEMANN",
-                "etternavn": "TEST",
-                "fødselsdato": "1985-07-27",
-                "barn":[
-                    {
-                        "fornavn": "PRIPPEN",
-                        "etternavn": "JUMBOJET",
-                        "fødselsdato": "1999-12-11"
-                    },
-                    {
-                        "fornavn": "MEGET STILIG",
-                        "etternavn": "PLANKE",
-                        "fødselsdato": "2014-12-24"
+                        "fornavn": "OLA",
+                        "etternavn": "NORDMANN",
+                        "fødselsdato": "2012-02-24",
+                        "identitetsnummer": "$BARN_TIL_PERSON_1"
                     }
                 ],
                 "arbeidsgivere": {
@@ -518,7 +537,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag ingen attributter skal returnere tom JSON`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -536,7 +555,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag bare ugyldig attributt - bad request`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=ugyldigAttrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -563,7 +582,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag ugyldige attributt - bad request`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -591,7 +610,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag feil format fom`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -621,7 +640,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag feil format tom`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01019012345")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -651,7 +670,7 @@ class ApplicationTest {
     
     @Test
     fun `Hente personlige foretak for en person som har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt("111111111111")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -687,7 +706,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som ikke har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt("111111111112")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -710,7 +729,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som har fler roller i samme foretak`() {
-        val idToken: String = LoginService.V1_0.generateJwt("22222222222")
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FLERE_ROLLER_I_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
