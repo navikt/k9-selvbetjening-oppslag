@@ -20,19 +20,21 @@ import java.time.ZoneId
 private const val ATTRIBUTT_QUERY_NAVN = "a"
 private const val FRA_OG_MED_QUERY_NAVN = "fom"
 private const val TIL_OG_MED_QUERY_NAVN = "tom"
+private const val ORGANISASJONER = "org"
 private val tomJson = JSONObject()
 
 private val logger: Logger = LoggerFactory.getLogger("OppslagRoute")
 
 internal fun Route.OppslagRoute(
     requestContextService: RequestContextService,
-    oppslagService: OppslagService
+    oppslagService: OppslagService,
 ) {
 
     get("/meg") {
         val attributter = call.hentAttributter()
-        if (attributter.isEmpty()) { call.tomJsonResponse() }
-        else {
+        if (attributter.isEmpty()) {
+            call.tomJsonResponse()
+        } else {
             val idToken = call.idToken()
             val fraOgMedTilOgMed = call.hentFraOgMedTilOgMed()
 
@@ -46,6 +48,28 @@ internal fun Route.OppslagRoute(
                     attributter = attributter,
                     fraOgMed = fraOgMedTilOgMed.first,
                     tilOgMed = fraOgMedTilOgMed.second
+                )
+            }
+            call.respond(oppslagResultat.somJson(attributter))
+        }
+    }
+
+    get("/arbeidsgivere") {
+        val attributter = call.hentAttributter()
+        if (attributter.isEmpty()) {
+            call.tomJsonResponse()
+        } else {
+            val idToken = call.idToken()
+            val etterspurteOrganisasjoner = call.hentOrganisasjoner().toSet()
+
+            val oppslagResultat: OppslagResultat = withContext(requestContextService.getCoroutineContext(
+                context = coroutineContext,
+                correlationId = call.correlationId(),
+                idToken = idToken
+            )) {
+                oppslagService.arbeidsgivere(
+                    attributter = attributter,
+                    organisasjoner = etterspurteOrganisasjoner
                 )
             }
             call.respond(oppslagResultat.somJson(attributter))
@@ -65,8 +89,9 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
     logger.info("Etterspurte Attributter = [${etterspurteAttributter.joinToString(", ")}]")
 
     etterspurteAttributter.forEach {
-        try { støttedeAttributter.add(Attributt.fraApi(it)) }
-        catch (cause: Throwable) {
+        try {
+            støttedeAttributter.add(Attributt.fraApi(it))
+        } catch (cause: Throwable) {
             ikkeStøttedeAttributter.add(Violation(
                 parameterType = ParameterType.QUERY,
                 parameterName = ATTRIBUTT_QUERY_NAVN,
@@ -76,10 +101,12 @@ private fun ApplicationCall.hentAttributter(): Set<Attributt> {
         }
     }
 
-    return if (ikkeStøttedeAttributter.isEmpty()) { støttedeAttributter }
-    else throw Throwblem(ValidationProblemDetails(ikkeStøttedeAttributter))
+    return if (ikkeStøttedeAttributter.isEmpty()) {
+        støttedeAttributter
+    } else throw Throwblem(ValidationProblemDetails(ikkeStøttedeAttributter))
 }
-private fun ApplicationCall.hentFraOgMedTilOgMed() : Pair<LocalDate, LocalDate> {
+
+private fun ApplicationCall.hentFraOgMedTilOgMed(): Pair<LocalDate, LocalDate> {
     val fomQuery = request.queryParameters[FRA_OG_MED_QUERY_NAVN]
     val tomQuery = request.queryParameters[TIL_OG_MED_QUERY_NAVN]
     return Pair(
@@ -87,14 +114,22 @@ private fun ApplicationCall.hentFraOgMedTilOgMed() : Pair<LocalDate, LocalDate> 
         second = if (tomQuery == null) iDag() else tomQuery.somLocalDate(TIL_OG_MED_QUERY_NAVN)
     )
 }
+
+private fun ApplicationCall.hentOrganisasjoner(): Set<String> {
+    return (request.queryParameters.getAll(ORGANISASJONER)
+        ?.filter { it.isNotBlank() }
+        ?.map { it.lowercase() }
+        ?.toSet()) ?: emptySet()
+}
+
 private fun String.somLocalDate(queryParameterName: String) = try {
     LocalDate.parse(this)
 } catch (cause: Throwable) {
     throw Throwblem(ValidationProblemDetails(setOf(Violation(
-            parameterType = ParameterType.QUERY,
-            parameterName = queryParameterName,
-            invalidValue = this,
-            reason = "Må være på format yyyy-mm-dd."
+        parameterType = ParameterType.QUERY,
+        parameterName = queryParameterName,
+        invalidValue = this,
+        reason = "Må være på format yyyy-mm-dd."
     ))))
 }
 

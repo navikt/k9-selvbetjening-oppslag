@@ -57,8 +57,8 @@ private val megAttributter = setOf(
 internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
 
 internal data class OppslagResultat(
-    internal val meg: Meg?,
-    internal val barn: Set<Barn>?,
-    internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>?,
-    internal val personligeForetak: Set<PersonligForetak<String>>?
+    internal val meg: Meg? = null,
+    internal val barn: Set<Barn>? = null,
+    internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>? = null,
+    internal val personligeForetak: Set<PersonligForetak<String>>? = null
 )

@@ -427,6 +427,102 @@ class ApplicationTest {
     }
 
     @Test
+    fun `Forvent organiasjon uten navn, gitt at navn ikke er funnet`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=11111111"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "11111111"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Forvent 1 organisasjon med navn, gitt organisasjonsnummer`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Forvent 2 organisasjoner med navn, gitt organisasjonsnummer`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216&org=67564534"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        },
+                        {
+                            "organisasjonsnummer": "67564534",
+                            "navn": "SELSKAP, MED, VELDIG, MANGE, NAVNELINJER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {

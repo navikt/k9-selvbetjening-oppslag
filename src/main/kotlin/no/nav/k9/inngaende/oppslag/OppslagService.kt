@@ -1,14 +1,14 @@
 package no.nav.k9.inngaende.oppslag
 
-import io.ktor.util.*
 import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
+import no.nav.k9.utgaende.rest.Arbeidsforhold
+import no.nav.k9.utgaende.rest.OrganisasjonArbeidsforhold
 import java.time.LocalDate
 
 
 internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
-    enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
+    private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
     tpsProxyV1Gateway: TpsProxyV1Gateway,
     brregProxyV1Gateway: BrregProxyV1Gateway,
     pdlProxyGateway: PDLProxyGateway,
@@ -88,6 +88,25 @@ internal class OppslagService(
             personligeForetak = personligeForetakOppslag.personligeForetak(
                 ident = ident,
                 attributter = attributter
+            )
+        )
+    }
+
+    internal suspend fun arbeidsgivere(
+        attributter: Set<Attributt>,
+        organisasjoner: Set<String>,
+    ): OppslagResultat {
+
+        val arbeidsforhold = Arbeidsforhold(
+            organisasjoner = organisasjoner
+                .map { OrganisasjonArbeidsforhold(it) }
+                .toSet()
+        )
+
+        return OppslagResultat(
+            arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
+                attributter = attributter,
+                arbeidsforhold = arbeidsforhold
             )
         )
     }
