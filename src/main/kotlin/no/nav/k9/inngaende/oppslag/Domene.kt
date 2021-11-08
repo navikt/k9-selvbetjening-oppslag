@@ -20,6 +20,7 @@ internal enum class Attributt(internal val api: String) {
 
     arbeidsgivereOrganisasjonerNavn("arbeidsgivere[].organisasjoner[].navn"),
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer"),
+    arbeidsgivereOrganisasjonerAnsettelsesperiode("arbeidsgivere[].organisasjoner[].ansettelsesperiode"),
 
     personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
     personligForetakNavn("personlige_foretak[].navn"),

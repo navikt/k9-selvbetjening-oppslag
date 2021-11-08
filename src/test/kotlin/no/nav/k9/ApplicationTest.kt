@@ -528,29 +528,33 @@ class ApplicationTest {
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
                 val expectedResponse = """
-            {
-                "arbeidsgivere": {
-                    "organisasjoner": [
-                        {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
-                        {
-                            "organisasjonsnummer": "981585216",
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
-                        }
-                    ]
-                }
-             }
-            """.trimIndent()
+                {
+                    "arbeidsgivere": {
+                        "organisasjoner": [
+                            {
+                                "organisasjonsnummer": "123456789",
+                                "navn": "DNB, FORSIKRING",
+                                "ansattFom": "2014-07-01",
+                                "ansattTom": "2015-12-31"
+                            },
+                            {
+                                "organisasjonsnummer": "981585216",
+                                "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
+                                "ansattFom": "2000-04-24"
+                            }
+                        ]
+                    }
+                 }
+                """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
