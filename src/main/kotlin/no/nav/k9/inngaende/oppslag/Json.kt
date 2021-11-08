@@ -42,8 +42,8 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
                 if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsnummer)
                 if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerNavn)) put("navn", it.navn)
                 if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerAnsettelsesperiode)) {
-                    put("ansattFom", it.ansattFom)
-                    put("ansattTom", it.ansattTom)
+                    put("ansatt_fom", it.ansattFom)
+                    put("ansatt_tom", it.ansattTom)
                 }
             })
         }

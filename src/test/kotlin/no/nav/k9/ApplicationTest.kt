@@ -543,13 +543,13 @@ class ApplicationTest {
                             {
                                 "organisasjonsnummer": "123456789",
                                 "navn": "DNB, FORSIKRING",
-                                "ansattFom": "2014-07-01",
-                                "ansattTom": "2015-12-31"
+                                "ansatt_fom": "2014-07-01",
+                                "ansatt_tom": "2015-12-31"
                             },
                             {
                                 "organisasjonsnummer": "981585216",
                                 "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
-                                "ansattFom": "2000-04-24"
+                                "ansatt_fom": "2000-04-24"
                             }
                         ]
                     }
