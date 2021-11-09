@@ -709,14 +709,14 @@ class ApplicationTest {
     }
 
     @Test
-    fun `gitt oppslag av søker under myndighetsalder, forvent forbidden access (403)`() {
+    fun `gitt oppslag av søker under myndighetsalder, forvent 451 Unavailable For Legal Reasons`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_UNDER_MYNDIGHETS_ALDER)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
             }.apply {
-                assertEquals(HttpStatusCode.Forbidden, response.status())
+                assertEquals(451, response.status()!!.value)
                 assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
                 //language=json
                 val expectedResponse = """
@@ -725,7 +725,7 @@ class ApplicationTest {
                     "instance": "/meg",
                     "type": "/problem-details/tilgangskontroll-feil",
                     "title": "tilgangskontroll-feil",
-                    "status": 403
+                    "status": 451
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
