@@ -57,7 +57,7 @@ internal fun Route.OppslagRoute(
                         logger = logger,
                         problemDetails = DefaultProblemDetails(
                             title = "tilgangskontroll-feil",
-                            status = 403,
+                            status = 451,
                             instance = URI(call.request.path()),
                             detail = "Policy decision: ${e.policyException.decision} - Reason: ${e.policyException.reason}"
                         )
