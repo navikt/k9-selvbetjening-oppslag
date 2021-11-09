@@ -609,6 +609,31 @@ class ApplicationTest {
     }
 
     @Test
+    fun `gitt oppslag av søker under myndighetsalder, forvent forbidden access (403)`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UNDER_MYNDIGHETS_ALDER)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+            }.apply {
+                assertEquals(HttpStatusCode.Forbidden, response.status())
+                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+                {
+                    "detail": "Policy decision: DENY - Reason: (NAV-bruker er i live AND NAV-bruker er ikke myndig)",
+                    "instance": "/meg",
+                    "type": "/problem-details/tilgangskontroll-feil",
+                    "title": "tilgangskontroll-feil",
+                    "status": 403
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test arbeidsgiverOppslag feil format fom`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {

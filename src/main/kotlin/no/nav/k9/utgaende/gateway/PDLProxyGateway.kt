@@ -10,6 +10,7 @@ import no.nav.siftilgangskontroll.core.pdl.AktørId
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
+import no.nav.siftilgangskontroll.policy.spesification.PolicyEvaluation
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.coroutineContext
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person as PdlBarn
@@ -42,7 +43,7 @@ class PDLProxyGateway(
             PolicyDecision.PERMIT -> tilgangResponse.person!!
             else -> {
                 logger.error("Tilgang til person nektet. Grunn: {}", tilgangResponse.policyEvaluation)
-                throw TilgangNektetException("Tilgang til person nektet")
+                throw TilgangNektetException("Tilgang til person nektet", tilgangResponse.policyEvaluation)
             }
         }
     }
@@ -93,4 +94,4 @@ class PDLProxyGateway(
     }
 }
 
-data class TilgangNektetException(override val message: String) : RuntimeException(message)
+data class TilgangNektetException(override val message: String, val policyException: PolicyEvaluation) : RuntimeException(message)

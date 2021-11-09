@@ -1,19 +1,19 @@
 package no.nav.k9.inngaende.oppslag
 
 import io.ktor.application.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.withContext
-import no.nav.helse.dusseldorf.ktor.core.ParameterType
-import no.nav.helse.dusseldorf.ktor.core.Throwblem
-import no.nav.helse.dusseldorf.ktor.core.ValidationProblemDetails
-import no.nav.helse.dusseldorf.ktor.core.Violation
+import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
+import no.nav.k9.utgaende.gateway.TilgangNektetException
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.URI
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -36,19 +36,35 @@ internal fun Route.OppslagRoute(
             val idToken = call.idToken()
             val fraOgMedTilOgMed = call.hentFraOgMedTilOgMed()
 
-            val oppslagResultat: OppslagResultat = withContext(requestContextService.getCoroutineContext(
-                context = coroutineContext,
-                correlationId = call.correlationId(),
-                idToken = idToken
-            )) {
-                oppslagService.oppslag(
-                    ident = idToken.ident,
-                    attributter = attributter,
-                    fraOgMed = fraOgMedTilOgMed.first,
-                    tilOgMed = fraOgMedTilOgMed.second
-                )
+            try {
+                val oppslagResultat: OppslagResultat = withContext(requestContextService.getCoroutineContext(
+                    context = coroutineContext,
+                    correlationId = call.correlationId(),
+                    idToken = idToken
+                )) {
+                    oppslagService.oppslag(
+                        ident = idToken.ident,
+                        attributter = attributter,
+                        fraOgMed = fraOgMedTilOgMed.first,
+                        tilOgMed = fraOgMedTilOgMed.second
+                    )
+                }
+                call.respond(oppslagResultat.somJson(attributter))
+
+            } catch (e: Exception) {
+                when (e) {
+                    is TilgangNektetException -> call.respondProblemDetails(
+                        logger = logger,
+                        problemDetails = DefaultProblemDetails(
+                            title = "tilgangskontroll-feil",
+                            status = 403,
+                            instance = URI(call.request.path()),
+                            detail = "Policy decision: ${e.policyException.decision} - Reason: ${e.policyException.reason}"
+                        )
+                    )
+                    else -> throw e
+                }
             }
-            call.respond(oppslagResultat.somJson(attributter))
         }
     }
 }
