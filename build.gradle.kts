@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "3.1.6.4-482b35f"
+val dusseldorfKtorVersion = "3.1.6.4-e07c5ec"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
-val graphqlKotlinClientVersion = "4.1.1"
+val graphqlKotlinClientVersion = "5.2.0"
 val sifTilgangskontrollVersion = "1-58dcba8"
 
 val mockkVersion = "1.12.0"
@@ -15,11 +15,11 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
     kotlin("jvm") version "1.5.31"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/482b35f677f3504bc5f44841a2b3b5cd212ca522/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/e07c5ecf831928eb250c946e753aff2a3b798295/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -116,7 +116,7 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
     configurations = mutableListOf(
         project.configurations.runtimeClasspath.get(),
         project.configurations.testRuntimeClasspath.get()
-    )
+    ) as List<FileCollection>?
     manifest {
         attributes(
             mapOf(
@@ -127,5 +127,5 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.1.1"
+    gradleVersion = "7.2"
 }
