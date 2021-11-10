@@ -30,6 +30,7 @@ class EnhetsregResponseTransformer : ResponseTransformer() {
 }
 
 private fun getResponse(organisasjonsnummer: String) : String {
+    //language=json
     return when (organisasjonsnummer) {
         "981585216" -> """
         {
@@ -145,7 +146,47 @@ private fun getResponse(organisasjonsnummer: String) : String {
             "redigertnavn": "TEIT SELSKAP"
           },
           "opphoersdato": "2017-12-31",
-          "organisasjonsnummer": "123456789"
+          "organisasjonsnummer": "67564534"
+        }
+        """.trimIndent()
+        "11111111" -> """
+        {
+          "adresse": {
+            "adresselinje1": "",
+            "adresselinje2": "",
+            "adresselinje3": "",
+            "bruksperiode": {
+              "fom": "2016-01-06T21:44:04.748",
+              "tom": "2016-12-06T19:45:04"
+            },
+            "gyldighetsperiode": {
+              "fom": "2015-07-01",
+              "tom": "2016-12-31"
+            },
+            "kommunenummer": "0301",
+            "landkode": "NOR",
+            "postnummer": "0557",
+            "poststed": "string"
+          },
+          "enhetstype": "BEDR",
+          "navn": {
+            "bruksperiode": {
+              "fom": "2016-01-06T21:44:04.748",
+              "tom": "2016-12-06T19:45:04"
+            },
+            "gyldighetsperiode": {
+              "fom": "2015-07-01",
+              "tom": "2016-12-31"
+            },
+            "navnelinje1": null,
+            "navnelinje2": null,
+            "navnelinje3": null,
+            "navnelinje4": null,
+            "navnelinje5": null,
+            "redigertnavn": null
+          },
+          "opphoersdato": "2017-12-31",
+          "organisasjonsnummer": "11111111"
         }
         """.trimIndent()
         "1" -> minimalResponse("1", "ENK")

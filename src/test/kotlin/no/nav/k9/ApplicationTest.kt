@@ -427,26 +427,53 @@ class ApplicationTest {
     }
 
     @Test
-    fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
+    fun `Forvent organiasjon uten navn, gitt at navn ikke er funnet`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=11111111"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
                 val expectedResponse = """
             {
                 "arbeidsgivere": {
                     "organisasjoner": [
                         {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
+                            "organisasjonsnummer": "11111111"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Forvent 1 organisasjon med navn, gitt organisasjonsnummer`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
                         {
                             "organisasjonsnummer": "981585216",
                             "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
@@ -455,6 +482,79 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Forvent 2 organisasjoner med navn, gitt organisasjonsnummer`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216&org=67564534"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+            {
+                "arbeidsgivere": {
+                    "organisasjoner": [
+                        {
+                            "organisasjonsnummer": "981585216",
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        },
+                        {
+                            "organisasjonsnummer": "67564534",
+                            "navn": "SELSKAP, MED, VELDIG, MANGE, NAVNELINJER"
+                        }
+                    ]
+                }
+             }
+            """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                //language=json
+                val expectedResponse = """
+                {
+                    "arbeidsgivere": {
+                        "organisasjoner": [
+                            {
+                                "organisasjonsnummer": "123456789",
+                                "navn": "DNB, FORSIKRING",
+                                "ansatt_fom": "2014-07-01",
+                                "ansatt_tom": "2015-12-31"
+                            },
+                            {
+                                "organisasjonsnummer": "981585216",
+                                "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
+                                "ansatt_fom": "2000-04-24"
+                            }
+                        ]
+                    }
+                 }
+                """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }

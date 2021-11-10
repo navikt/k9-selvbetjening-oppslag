@@ -15,7 +15,6 @@ object TestConfiguration {
     fun asMap(
         wireMockServer: WireMockServer? = null,
         port : Int = 8080,
-        aktoerRegisterBaseUrl : String? = wireMockServer?.getAktoerRegisterUrl(),
         arbeidsgiverOgArbeidstakerRegisterBaseUrl : String? = wireMockServer?.getArbeidsgiverOgArbeidstakerRegisterUrl(),
         enhetsRegisterBaseUrl : String? = wireMockServer?.getEnhetsregisterUrl(),
         brregProxyV1BaseUrl : String? = wireMockServer?.getBrregProxyV1BaseUrl(),
@@ -28,7 +27,6 @@ object TestConfiguration {
             Pair("ktor.deployment.port","$port"),
 
             Pair("nav.register_urls.tps_proxy_v1", "$tpsProxyBaseUrl"),
-            Pair("nav.register_urls.aktoer_v1", "$aktoerRegisterBaseUrl"),
             Pair("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", "$arbeidsgiverOgArbeidstakerRegisterBaseUrl"),
             Pair("nav.register_urls.enhetsregister_v1", "$enhetsRegisterBaseUrl"),
             Pair("nav.register_urls.brreg_proxy_v1", "$brregProxyV1BaseUrl"),

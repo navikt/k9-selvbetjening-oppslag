@@ -100,8 +100,16 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
             .map { it as JSONObject }
             .filter { it.has("arbeidsgiver") }
             .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
-            .map { OrganisasjonArbeidsforhold(
-                organisasjonsnummer = it.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
+            .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
+            .map { ansettelsesforhold ->
+                val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
+                val ansettelsesperiode = ansettelsesforhold.getJSONObject("ansettelsesperiode").getJSONObject("periode")
+                val ansattFom = ansettelsesperiode.getString("fom")
+                val ansattTom = ansettelsesperiode.getStringOrNull("tom")
+                OrganisasjonArbeidsforhold(
+                organisasjonsnummer = organisasjonsnummer,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )}
             .toSet()
 
@@ -112,7 +120,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 }
 
 internal data class OrganisasjonArbeidsforhold(
-    internal val organisasjonsnummer: String
+    internal val organisasjonsnummer: String,
+    internal val ansattFom: LocalDate? = null,
+    internal val ansattTom: LocalDate? = null
 )
 internal data class Arbeidsforhold(
     internal val organisasjoner: Set<OrganisasjonArbeidsforhold>

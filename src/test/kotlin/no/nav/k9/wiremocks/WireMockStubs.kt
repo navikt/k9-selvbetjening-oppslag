@@ -11,7 +11,6 @@ import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 
-private const val aktoerRegisterServerPath = "/aktoer-register-mock"
 private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val tpsProxyServerPath = "/tps-proxy-mock"
@@ -141,7 +140,6 @@ internal fun WireMockServer.stubBrregProxyV1(): WireMockServer {
     return this
 }
 
-internal fun WireMockServer.getAktoerRegisterUrl() = baseUrl() + aktoerRegisterServerPath
 internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() =
     baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
 
