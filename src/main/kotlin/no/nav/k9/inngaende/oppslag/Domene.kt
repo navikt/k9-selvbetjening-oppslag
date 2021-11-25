@@ -1,5 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
+
 data class Ident(internal val value: String)
 
 internal enum class Attributt(internal val api: String) {
@@ -22,6 +24,9 @@ internal enum class Attributt(internal val api: String) {
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer"),
     arbeidsgivereOrganisasjonerAnsettelsesperiode("arbeidsgivere[].organisasjoner[].ansettelsesperiode"),
 
+    privateArbeidsgivereAnsettelseperiode("arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"),
+    privateArbeidsgivereOffentligIdent("arbeidsgivere[].private_arbeidsgivere[].offentlig_ident"),
+
     personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
     personligForetakNavn("personlige_foretak[].navn"),
     personligForetakOrganisasjonsform("personlige_foretak[].organisasjonsform"),
@@ -41,8 +46,11 @@ internal enum class Attributt(internal val api: String) {
 internal fun Set<Attributt>.etterspurtBarn() =
     any { it.api.startsWith("barn[].") }
 
-internal fun Set<Attributt>.etterspurtArbeidsgibereOrganaisasjoner() =
+internal fun Set<Attributt>.etterspurtArbeidsgivereOrganisasjoner() =
     any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
+
+internal fun Set<Attributt>.etterspurtPrivateArbeidsgivere() =
+    any { it.api.startsWith("arbeidsgivere[].private_arbeidsgivere[]") }
 
 internal fun Set<Attributt>.etterspurtPersonligForetak() =
     any { it.api.startsWith("personlige_foretak[]") }
@@ -61,5 +69,6 @@ internal data class OppslagResultat(
     internal val meg: Meg? = null,
     internal val barn: Set<Barn>? = null,
     internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>? = null,
+    internal val privateArbeidsgivere: Set<PrivatArbeidsgiver>? = null,
     internal val personligeForetak: Set<PersonligForetak<String>>? = null
 )

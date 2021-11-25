@@ -34,20 +34,40 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     }
 
     // Arbeidsgivere
-    if (attributter.etterspurtArbeidsgibereOrganaisasjoner()) {
+    if (attributter.etterspurtArbeidsgivereOrganisasjoner() || attributter.etterspurtPrivateArbeidsgivere()) {
         val arbeidsgivereJson = JSONObject()
         val organisasjonerJson = JSONArray()
-        arbeidsgivereOrganisasjoner?.forEach {
-            organisasjonerJson.put(JSONObject().apply {
-                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsnummer)
-                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerNavn)) put("navn", it.navn)
-                if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerAnsettelsesperiode)) {
-                    put("ansatt_fom", it.ansattFom)
-                    put("ansatt_tom", it.ansattTom)
-                }
-            })
+        val privateArbeidsgivereJson = JSONArray()
+
+        if(attributter.etterspurtArbeidsgivereOrganisasjoner()){
+            arbeidsgivereOrganisasjoner?.forEach {
+                organisasjonerJson.put(JSONObject().apply {
+                    if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer)) put("organisasjonsnummer", it.organisasjonsnummer)
+                    if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerNavn)) put("navn", it.navn)
+                    if (attributter.contains(Attributt.arbeidsgivereOrganisasjonerAnsettelsesperiode)) {
+                        put("ansatt_fom", it.ansattFom)
+                        put("ansatt_tom", it.ansattTom)
+                    }
+                })
+            }
+            arbeidsgivereJson.put("organisasjoner", organisasjonerJson)
         }
-        arbeidsgivereJson.put("organisasjoner", organisasjonerJson)
+
+        if(attributter.etterspurtPrivateArbeidsgivere()){
+            privateArbeidsgivere?.forEach {
+                privateArbeidsgivereJson.put(
+                    JSONObject().apply {
+                        if(attributter.contains(Attributt.privateArbeidsgivereOffentligIdent)) put("offentligIdent", it.offentligIdent)
+                        if (attributter.contains(Attributt.privateArbeidsgivereAnsettelseperiode)) {
+                            put("ansatt_fom", it.ansattFom)
+                            put("ansatt_tom", it.ansattTom)
+                        }
+                    }
+                )
+            }
+            arbeidsgivereJson.put("privateArbeidsgivere", privateArbeidsgivereJson)
+        }
+
         json.put("arbeidsgivere", arbeidsgivereJson)
     }
 

@@ -85,6 +85,7 @@ internal class OppslagService(
                 attributter = attributter,
                 arbeidsforhold = arbeidsforhold
             ),
+            privateArbeidsgivere = arbeidsforhold?.privateArbeidsgivere,
             personligeForetak = personligeForetakOppslag.personligeForetak(
                 ident = ident,
                 attributter = attributter

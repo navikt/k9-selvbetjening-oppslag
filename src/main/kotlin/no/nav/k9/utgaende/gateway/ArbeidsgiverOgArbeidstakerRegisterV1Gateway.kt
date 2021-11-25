@@ -12,7 +12,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
     internal companion object {
         private val støttedeAttributter = setOf(
             Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer,
-            Attributt.arbeidsgivereOrganisasjonerNavn
+            Attributt.arbeidsgivereOrganisasjonerNavn,
+            Attributt.privateArbeidsgivereAnsettelseperiode,
+            Attributt.privateArbeidsgivereOffentligIdent
         )
     }
 

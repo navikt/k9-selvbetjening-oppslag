@@ -561,12 +561,13 @@ class ApplicationTest {
     }
 
     @Test
-    fun `test arbeidsgiverOppslag ingenArbeidsgiver`() {
+    fun `test arbeidsgiverOppslag med ingen arbeidsgivere`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_ARBEIDSGIVER)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
+                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
+                        "&a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
@@ -576,10 +577,42 @@ class ApplicationTest {
                 val expectedResponse = """
             {
                 "arbeidsgivere":{
-                    "organisasjoner":[]
+                    "organisasjoner":[],
+                    "privateArbeidsgivere":[]
                 }
             }
             """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `tester oppslag av private arbeidsgivere`(){
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-private-arbeidsgivere")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                    {
+                      "arbeidsgivere": {
+                        "privateArbeidsgivere": [
+                          {
+                            "offentligIdent": "10047206508",
+                            "ansatt_fom": "2014-07-01",
+                             "ansatt_tom": "2015-12-31"
+                          }
+                        ]
+                      }
+                    }
+                    """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
@@ -593,7 +626,8 @@ class ApplicationTest {
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
-                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer"
+                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer" +
+                        "&a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
@@ -626,6 +660,13 @@ class ApplicationTest {
                             "organisasjonsnummer": "981585216",
                             "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
                         }
+                    ],
+                    "privateArbeidsgivere": [
+                      {
+                        "offentligIdent": "10047206508",
+                        "ansatt_fom": "2014-07-01",
+                         "ansatt_tom": "2015-12-31"
+                      }
                     ]
                 }
              }
