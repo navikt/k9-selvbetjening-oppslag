@@ -578,7 +578,7 @@ class ApplicationTest {
             {
                 "arbeidsgivere":{
                     "organisasjoner":[],
-                    "privateArbeidsgivere":[]
+                    "private_arbeidsgivere":[]
                 }
             }
             """.trimIndent()
@@ -603,9 +603,9 @@ class ApplicationTest {
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
-                        "privateArbeidsgivere": [
+                        "private_arbeidsgivere": [
                           {
-                            "offentligIdent": "10047206508",
+                            "offentlig_ident": "10047206508",
                             "ansatt_fom": "2014-07-01",
                              "ansatt_tom": "2015-12-31"
                           }
@@ -661,9 +661,9 @@ class ApplicationTest {
                             "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
                         }
                     ],
-                    "privateArbeidsgivere": [
+                    "private_arbeidsgivere": [
                       {
-                        "offentligIdent": "10047206508",
+                        "offentlig_ident": "10047206508",
                         "ansatt_fom": "2014-07-01",
                          "ansatt_tom": "2015-12-31"
                       }

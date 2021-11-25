@@ -57,7 +57,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
             privateArbeidsgivere?.forEach {
                 privateArbeidsgivereJson.put(
                     JSONObject().apply {
-                        if(attributter.contains(Attributt.privateArbeidsgivereOffentligIdent)) put("offentligIdent", it.offentligIdent)
+                        if(attributter.contains(Attributt.privateArbeidsgivereOffentligIdent)) put("offentlig_ident", it.offentligIdent)
                         if (attributter.contains(Attributt.privateArbeidsgivereAnsettelseperiode)) {
                             put("ansatt_fom", it.ansattFom)
                             put("ansatt_tom", it.ansattTom)
@@ -65,7 +65,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
                     }
                 )
             }
-            arbeidsgivereJson.put("privateArbeidsgivere", privateArbeidsgivereJson)
+            arbeidsgivereJson.put("private_arbeidsgivere", privateArbeidsgivereJson)
         }
 
         json.put("arbeidsgivere", arbeidsgivereJson)
