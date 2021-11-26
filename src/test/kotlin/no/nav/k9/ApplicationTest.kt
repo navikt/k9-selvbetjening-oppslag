@@ -567,7 +567,7 @@ class ApplicationTest {
             handleRequest(
                 HttpMethod.Get,
                 "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
-                        "&a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
+                        "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
@@ -593,7 +593,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
+                "/meg?a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-private-arbeidsgivere")
@@ -627,7 +627,7 @@ class ApplicationTest {
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
                         "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer" +
-                        "&a=arbeidsgivere[].private_arbeidsgivere[].offentlig_ident&a=arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"
+                        "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")

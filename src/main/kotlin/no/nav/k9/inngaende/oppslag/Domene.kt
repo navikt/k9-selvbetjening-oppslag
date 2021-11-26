@@ -24,8 +24,8 @@ internal enum class Attributt(internal val api: String) {
     arbeidsgivereOrganisasjonerOrganisasjonsnummer("arbeidsgivere[].organisasjoner[].organisasjonsnummer"),
     arbeidsgivereOrganisasjonerAnsettelsesperiode("arbeidsgivere[].organisasjoner[].ansettelsesperiode"),
 
-    privateArbeidsgivereAnsettelseperiode("arbeidsgivere[].private_arbeidsgivere[].ansettelsesperiode"),
-    privateArbeidsgivereOffentligIdent("arbeidsgivere[].private_arbeidsgivere[].offentlig_ident"),
+    privateArbeidsgivereAnsettelseperiode("private_arbeidsgivere[].ansettelsesperiode"),
+    privateArbeidsgivereOffentligIdent("private_arbeidsgivere[].offentlig_ident"),
 
     personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
     personligForetakNavn("personlige_foretak[].navn"),
@@ -50,7 +50,7 @@ internal fun Set<Attributt>.etterspurtArbeidsgivereOrganisasjoner() =
     any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
 internal fun Set<Attributt>.etterspurtPrivateArbeidsgivere() =
-    any { it.api.startsWith("arbeidsgivere[].private_arbeidsgivere[]") }
+    any { it.api.startsWith("private_arbeidsgivere[]") }
 
 internal fun Set<Attributt>.etterspurtPersonligForetak() =
     any { it.api.startsWith("personlige_foretak[]") }
