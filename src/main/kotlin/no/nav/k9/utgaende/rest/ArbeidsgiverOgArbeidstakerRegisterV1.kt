@@ -110,16 +110,12 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 
 private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsforhold>{
     return this
-        .asSequence()
-        .map { it as JSONObject }
-        .filter { it.has("arbeidsgiver") }
+        .hentArbeidsgivereMedAnsettelseperiode()
         .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
-        .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
         .map { ansettelsesforhold ->
             val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
-            val ansettelsesperiode = ansettelsesforhold.getJSONObject("ansettelsesperiode").getJSONObject("periode")
-            val ansattFom = ansettelsesperiode.getString("fom")
-            val ansattTom = ansettelsesperiode.getStringOrNull("tom")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+
             OrganisasjonArbeidsforhold(
                 organisasjonsnummer = organisasjonsnummer,
                 ansattFom = LocalDate.parse(ansattFom),
@@ -131,16 +127,11 @@ private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsforhold>{
 
 private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
     return this
-        .asSequence()
-        .map { it as JSONObject }
-        .filter { it.has("arbeidsgiver") }
+        .hentArbeidsgivereMedAnsettelseperiode()
         .filter { it.getJSONObject("arbeidsgiver").has("offentligIdent") }
-        .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
         .map { ansettelsesforhold ->
             val offentligIdent = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("offentligIdent")
-            val ansettelsesperiode = ansettelsesforhold.getJSONObject("ansettelsesperiode").getJSONObject("periode")
-            val ansattFom = ansettelsesperiode.getString("fom")
-            val ansattTom = ansettelsesperiode.getStringOrNull("tom")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
 
             PrivatArbeidsgiver(
                 offentligIdent = offentligIdent,
@@ -149,6 +140,19 @@ private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
             )
         }
         .toSet()
+}
+
+private fun JSONArray.hentArbeidsgivereMedAnsettelseperiode(): Sequence<JSONObject> = this
+    .asSequence()
+    .map { it as JSONObject }
+    .filter { it.has("arbeidsgiver") }
+    .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
+
+private fun JSONObject.hentFomTomFraAnsettelseperiode(): Pair<String, String?> {
+    val ansettelsesperiode = this.getJSONObject("ansettelsesperiode").getJSONObject("periode")
+    val ansattFom = ansettelsesperiode.getString("fom")
+    val ansattTom = ansettelsesperiode.getStringOrNull("tom")
+    return Pair(ansattFom, ansattTom)
 }
 
 internal data class OrganisasjonArbeidsforhold(
@@ -167,4 +171,3 @@ internal data class Arbeidsforhold(
     internal val organisasjoner: Set<OrganisasjonArbeidsforhold>,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet()
 )
-
