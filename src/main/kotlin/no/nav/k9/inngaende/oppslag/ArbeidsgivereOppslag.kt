@@ -13,7 +13,7 @@ internal class ArbeidsgivereOppslag(
         arbeidsforhold: Arbeidsforhold?,
     ): Set<ArbeidsgiverOrganisasjon>? {
 
-        if (!attributter.etterspurtArbeidsgibereOrganaisasjoner()) return null
+        if (!attributter.etterspurtArbeidsgivereOrganisasjoner()) return null
 
         return arbeidsforhold!!.organisasjoner.map {
             ArbeidsgiverOrganisasjon(

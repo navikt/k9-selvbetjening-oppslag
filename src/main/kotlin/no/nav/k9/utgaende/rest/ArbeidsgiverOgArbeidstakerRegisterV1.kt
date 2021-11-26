@@ -12,6 +12,7 @@ import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
+import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,31 +93,66 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 
 
         if (json.isEmpty) return Arbeidsforhold(
-            organisasjoner = emptySet()
+            organisasjoner = emptySet(),
+            privateArbeidsgivere = emptySet()
         )
 
-        val organisasjoner = json
-            .asSequence()
-            .map { it as JSONObject }
-            .filter { it.has("arbeidsgiver") }
-            .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
-            .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
-            .map { ansettelsesforhold ->
-                val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
-                val ansettelsesperiode = ansettelsesforhold.getJSONObject("ansettelsesperiode").getJSONObject("periode")
-                val ansattFom = ansettelsesperiode.getString("fom")
-                val ansattTom = ansettelsesperiode.getStringOrNull("tom")
-                OrganisasjonArbeidsforhold(
+        val organisasjoner = json.hentOrganisasjoner()
+
+        val privateArbeidsgivere = json.hentPrivateArbeidsgivere()
+
+        return Arbeidsforhold(
+            organisasjoner = organisasjoner,
+            privateArbeidsgivere = privateArbeidsgivere
+        )
+    }
+}
+
+private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsforhold>{
+    return this
+        .hentArbeidsgivereMedAnsettelseperiode()
+        .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
+        .map { ansettelsesforhold ->
+            val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+
+            OrganisasjonArbeidsforhold(
                 organisasjonsnummer = organisasjonsnummer,
                 ansattFom = LocalDate.parse(ansattFom),
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
-            )}
-            .toSet()
+            )
+        }
+        .toSet()
+}
 
-        return Arbeidsforhold(
-            organisasjoner = organisasjoner
-        )
-    }
+private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
+    return this
+        .hentArbeidsgivereMedAnsettelseperiode()
+        .filter { it.getJSONObject("arbeidsgiver").has("offentligIdent") }
+        .map { ansettelsesforhold ->
+            val offentligIdent = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("offentligIdent")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+
+            PrivatArbeidsgiver(
+                offentligIdent = offentligIdent,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .toSet()
+}
+
+private fun JSONArray.hentArbeidsgivereMedAnsettelseperiode(): Sequence<JSONObject> = this
+    .asSequence()
+    .map { it as JSONObject }
+    .filter { it.has("arbeidsgiver") }
+    .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("periode") }
+
+private fun JSONObject.hentFomTomFraAnsettelseperiode(): Pair<String, String?> {
+    val ansettelsesperiode = this.getJSONObject("ansettelsesperiode").getJSONObject("periode")
+    val ansattFom = ansettelsesperiode.getString("fom")
+    val ansattTom = ansettelsesperiode.getStringOrNull("tom")
+    return Pair(ansattFom, ansattTom)
 }
 
 internal data class OrganisasjonArbeidsforhold(
@@ -124,7 +160,14 @@ internal data class OrganisasjonArbeidsforhold(
     internal val ansattFom: LocalDate? = null,
     internal val ansattTom: LocalDate? = null
 )
-internal data class Arbeidsforhold(
-    internal val organisasjoner: Set<OrganisasjonArbeidsforhold>
+
+internal data class PrivatArbeidsgiver (
+    internal val offentligIdent: String,
+    internal val ansattFom: LocalDate? = null,
+    internal val ansattTom: LocalDate? = null
 )
 
+internal data class Arbeidsforhold(
+    internal val organisasjoner: Set<OrganisasjonArbeidsforhold>,
+    internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet()
+)
