@@ -22,24 +22,9 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(PdlAktoerIdResponseTransformer())
         .extensions(PDLHentPersonBolkResponseTransformer())
         .extensions(PDLPersonResponseTransformer())
-        .extensions(TpsProxyResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
-}
-
-internal fun WireMockServer.stubTpsProxyGetPerson(): WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/innsyn/person*"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("tps-proxy-person")
-            )
-    )
-    return this
 }
 
 internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMockServer {
@@ -59,42 +44,6 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
                         PdlOperasjon.HENT_PERSON_BOLK -> "pdl-hent-barn"
                         PdlOperasjon.HENT_IDENTER -> "pdl-hent-ident"
                     })
-            )
-    )
-    return this
-}
-
-internal fun WireMockServer.stubTpsProxyGetNavn(): WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/navn"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withBody(
-                        """  
-                            {
-                                "fornavn": "KLØKTIG",
-                                "mellomnavn": "BLUNKENDE",
-                                "etternavn": "SUPERKONSOLL"
-                            }
-                        """.trimIndent()
-                    )
-            )
-    )
-    return this
-}
-
-internal fun WireMockServer.stubTpsProxyGetBarn(): WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$tpsProxyServerPath/innsyn/barn*"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("tps-proxy-barn")
             )
     )
     return this

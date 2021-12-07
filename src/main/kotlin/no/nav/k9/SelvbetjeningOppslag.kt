@@ -95,11 +95,6 @@ fun Application.SelvbetjeningOppslag() {
                 OppslagRoute(
                     requestContextService = requestContextService,
                     oppslagService = OppslagService(
-                        tpsProxyV1Gateway = TpsProxyV1Gateway(
-                            tpsProxyV1 = TpsProxyV1(
-                                baseUrl = environment.config.tpsProxyV1Url()
-                            )
-                        ),
                         pdlProxyGateway = PDLProxyGateway(
                             tilgangService = tilgangService,
                             cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,

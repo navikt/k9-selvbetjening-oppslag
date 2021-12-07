@@ -47,11 +47,8 @@ class ApplicationTest {
             .stubPDLRequest(PdlOperasjon.HENT_PERSON)
             .stubPDLRequest(PdlOperasjon.HENT_PERSON_BOLK)
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER)
-            .stubTpsProxyGetPerson()
-            .stubTpsProxyGetBarn()
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
-            .stubTpsProxyGetNavn()
             .stubBrregProxyV1()
 
         fun getConfig(): ApplicationConfig {
@@ -626,7 +623,7 @@ class ApplicationTest {
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
-                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=kontonummer" +
+                        "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
                         "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -641,7 +638,6 @@ class ApplicationTest {
                 "mellomnavn": "LANGEMANN",
                 "etternavn": "TEST",
                 "fødselsdato": "1985-07-27",
-                "kontonummer": "96850814136",
                 "barn":[
                     {
                         "fornavn": "OLA",
