@@ -10,7 +10,6 @@ internal enum class Attributt(internal val api: String) {
     mellomnavn("mellomnavn"),
     etternavn("etternavn"),
     fødselsdato("fødselsdato"),
-    kontonummer("kontonummer"),
 
     barnAktørId("barn[].aktør_id"),
     barnIdentitetsnummer("barn[].identitetsnummer"),
@@ -60,8 +59,7 @@ private val megAttributter = setOf(
     Attributt.fornavn,
     Attributt.mellomnavn,
     Attributt.etternavn,
-    Attributt.fødselsdato,
-    Attributt.kontonummer
+    Attributt.fødselsdato
 )
 internal fun Set<Attributt>.etterspurtMeg() = any { it in megAttributter }
 

@@ -1,15 +1,12 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
-import no.nav.k9.utgaende.gateway.TpsProxyV1Gateway
-import no.nav.k9.utgaende.rest.TpsPerson
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person
 import java.lang.IllegalStateException
 import java.time.LocalDate
 
 internal class MegOppslag(
-    private val tpsProxyV1Gateway: TpsProxyV1Gateway,
     private val pdlProxyGateway: PDLProxyGateway,
 ) {
 
@@ -19,16 +16,12 @@ internal class MegOppslag(
     ): Meg {
         val pdlPerson = pdlProxyGateway.person()
 
-        val tpsPerson = tpsProxyV1Gateway.person(
-            ident = ident,
-            attributter = attributter
-        )
         val aktørId = pdlProxyGateway.aktørId(
             ident = ident,
             attributter = attributter
         )
+
         return Meg(
-            tpsPerson = tpsPerson,
             aktørId = aktørId?.let { Ident(it.value) },
             pdlPerson = pdlPerson.tilPdlPerson()
         )
@@ -61,7 +54,6 @@ data class PdlPerson(
 )
 
 internal data class Meg(
-    internal val tpsPerson: TpsPerson?,
     internal val pdlPerson: PdlPerson?,
-    internal val aktørId: Ident?,
+    internal val aktørId: Ident?
 )

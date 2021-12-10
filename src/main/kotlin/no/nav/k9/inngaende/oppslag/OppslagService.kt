@@ -9,7 +9,6 @@ import java.time.LocalDate
 internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
     private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
-    tpsProxyV1Gateway: TpsProxyV1Gateway,
     brregProxyV1Gateway: BrregProxyV1Gateway,
     pdlProxyGateway: PDLProxyGateway,
 ) {
@@ -23,8 +22,7 @@ internal class OppslagService(
             Attributt.fornavn,
             Attributt.mellomnavn,
             Attributt.etternavn,
-            Attributt.fødselsdato,
-            Attributt.kontonummer
+            Attributt.fødselsdato
         )
 
         val barnAttributter = setOf(
@@ -39,7 +37,6 @@ internal class OppslagService(
     }
 
     private val megOppslag = MegOppslag(
-        tpsProxyV1Gateway = tpsProxyV1Gateway,
         pdlProxyGateway = pdlProxyGateway
     )
 
