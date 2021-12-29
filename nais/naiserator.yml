@@ -39,15 +39,17 @@ spec:
   webproxy: true
   tokenx:
     enabled: true
+  idporten:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      tenant: {{azureTenant}}
   env:
   {{#each env}}
      - name: {{@key}}
        value: "{{this}}"
   {{/each}}
-  azure:
-    application:
-      enabled: true
-      tenant: {{azureTenant}}
   envFrom:
     - configmap: loginservice-idporten
     - secret: {{app}}
