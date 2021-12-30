@@ -1,6 +1,7 @@
 package no.nav.k9.inngaende
 
 import kotlinx.coroutines.asContextElement
+import no.nav.helse.dusseldorf.ktor.auth.IdToken
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 

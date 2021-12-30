@@ -5,6 +5,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.withContext
+import no.nav.helse.dusseldorf.ktor.auth.idToken
 import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
@@ -45,7 +46,7 @@ internal fun Route.OppslagRoute(
                     idToken = idToken
                 )) {
                     oppslagService.oppslag(
-                        ident = idToken.ident,
+                        ident = Ident(idToken.getNorskIdentifikasjonsnummer()),
                         attributter = attributter,
                         fraOgMed = fraOgMedTilOgMed.first,
                         tilOgMed = fraOgMedTilOgMed.second
