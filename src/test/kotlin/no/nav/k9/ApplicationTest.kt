@@ -5,6 +5,7 @@ import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
+import no.nav.helse.dusseldorf.testsupport.jws.IDPorten
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
@@ -40,6 +41,7 @@ class ApplicationTest {
         val wireMockServer = WireMockBuilder()
             .withNaisStsSupport()
             .withLoginServiceSupport()
+            .withIDPortenSupport()
             .withTokendingsSupport()
             .withAzureSupport()
             .k9SelvbetjeningOppslagConfig()
@@ -111,6 +113,24 @@ class ApplicationTest {
     @Test
     fun `test megOppslag aktoerId`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { "aktør_id": "12345" }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test megOppslag aktoerId med idporten token`() {
+        val idToken: String = IDPorten.generateIdToken(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")

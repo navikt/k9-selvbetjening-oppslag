@@ -3,10 +3,7 @@ package no.nav.k9
 import com.github.kittinunf.fuel.httpGet
 import com.github.tomakehurst.wiremock.WireMockServer
 import no.nav.helse.dusseldorf.testsupport.jws.ClientCredentials
-import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2WellKnownUrl
-import no.nav.helse.dusseldorf.testsupport.wiremock.getLoginServiceV1WellKnownUrl
-import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsWellKnownUrl
-import no.nav.helse.dusseldorf.testsupport.wiremock.getTokendingsWellKnownUrl
+import no.nav.helse.dusseldorf.testsupport.wiremock.*
 import no.nav.k9.wiremocks.*
 import org.json.JSONObject
 
@@ -42,7 +39,7 @@ object TestConfiguration {
             Pair("nav.auth.issuers.0.discovery_endpoint", wireMockServer!!.getLoginServiceV1WellKnownUrl()),
 
             Pair("nav.auth.issuers.1.alias", "id-porten"),
-            Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getLoginServiceV1WellKnownUrl()),
+            Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getIdPortenWellKnownUrl()),
 
             // Clients
             Pair("nav.auth.clients.0.alias", "tokenx-pdl-api"),
