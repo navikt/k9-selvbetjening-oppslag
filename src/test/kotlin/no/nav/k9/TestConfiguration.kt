@@ -38,8 +38,8 @@ object TestConfiguration {
             Pair("nav.auth.issuers.0.alias", "login-service-v1"),
             Pair("nav.auth.issuers.0.discovery_endpoint", wireMockServer!!.getLoginServiceV1WellKnownUrl()),
 
-            Pair("nav.auth.issuers.1.alias", "id-porten"),
-            Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getIdPortenWellKnownUrl()),
+            Pair("nav.auth.issuers.1.alias", "tokenx"),
+            Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getTokendingsWellKnownUrl()),
 
             // Clients
             Pair("nav.auth.clients.0.alias", "tokenx-pdl-api"),

@@ -7,6 +7,8 @@ import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
 import no.nav.helse.dusseldorf.testsupport.jws.IDPorten
 import no.nav.helse.dusseldorf.testsupport.jws.LoginService
+import no.nav.helse.dusseldorf.testsupport.jws.Tokendings
+import no.nav.helse.dusseldorf.testsupport.jws.toDate
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 class ApplicationTest {
@@ -66,6 +69,17 @@ class ApplicationTest {
         val engine = TestApplicationEngine(createTestEnvironment {
             config = getConfig()
         })
+
+        private val assertionJwt = Tokendings.generateAssertionJwt(mapOf(
+            "client_id" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            "iss" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            "aud" to Tokendings.getAudience(),
+            "sub" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            "iat" to LocalDateTime.now().toDate(),
+            "nbf" to LocalDateTime.now().toDate(),
+            "exp" to LocalDateTime.now().plusSeconds(200).toDate(),
+            "jti" to UUID.randomUUID().toString(),
+        ))
 
 
         @BeforeAll
@@ -129,8 +143,38 @@ class ApplicationTest {
     }
 
     @Test
-    fun `test megOppslag aktoerId med idporten token`() {
-        val idToken: String = IDPorten.generateIdToken(PERSON_1_MED_BARN)
+    fun `test megOppslag aktoerId med tokenx token med subjectToken fra loginservice`() {
+        val idToken: String = Tokendings.generateJwt(
+            urlDecodedBody = Tokendings.generateUrlDecodedBody(
+                subjectToken = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN),
+                clientAssertion = assertionJwt
+            )
+        )
+
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                { "aktør_id": "12345" }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `test megOppslag aktoerId med tokenx token med subjectToken fra IDPorten`() {
+        val idToken: String = Tokendings.generateJwt(
+            urlDecodedBody = Tokendings.generateUrlDecodedBody(
+                subjectToken = IDPorten.generateIdToken(PERSON_1_MED_BARN),
+                clientAssertion = assertionJwt
+            )
+        )
+
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -605,7 +649,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun `tester oppslag av private arbeidsgivere`(){
+    fun `tester oppslag av private arbeidsgivere`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
@@ -849,7 +893,7 @@ class ApplicationTest {
             }
         }
     }
-    
+
     @Test
     fun `Hente personlige foretak for en person som har det`() {
         val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FORETAK)
