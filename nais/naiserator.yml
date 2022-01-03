@@ -39,8 +39,6 @@ spec:
   webproxy: true
   tokenx:
     enabled: true
-  idporten:
-    enabled: true
   azure:
     application:
       enabled: true
