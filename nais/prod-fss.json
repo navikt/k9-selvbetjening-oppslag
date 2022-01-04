@@ -1,6 +1,7 @@
 {
   "app": "k9-selvbetjening-oppslag",
   "cluster": "prod-fss",
+  "environment": "prod",
   "namespace": "dusseldorf",
   "team": "dusseldorf",
   "minReplicas": "2",

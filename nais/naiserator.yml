@@ -43,6 +43,12 @@ spec:
     application:
       enabled: true
       tenant: {{azureTenant}}
+  accessPolicy:
+    inbound:
+      rules:
+        - application: k9-ettersending-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
