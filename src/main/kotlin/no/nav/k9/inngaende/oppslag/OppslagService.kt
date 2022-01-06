@@ -1,8 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.rest.Arbeidsforhold
-import no.nav.k9.utgaende.rest.OrganisasjonArbeidsforhold
+import no.nav.k9.utgaende.rest.Arbeidsgivere
+import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
 import java.time.LocalDate
 
 
@@ -60,7 +60,7 @@ internal class OppslagService(
         tilOgMed: LocalDate,
     ): OppslagResultat {
 
-        val arbeidsforhold = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsforhold(
+        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
             ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed,
@@ -80,9 +80,9 @@ internal class OppslagService(
             ),
             arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
                 attributter = attributter,
-                arbeidsforhold = arbeidsforhold
+                arbeidsgivere = arbeidsgivere
             ),
-            privateArbeidsgivere = arbeidsforhold?.privateArbeidsgivere,
+            privateArbeidsgivere = arbeidsgivere?.privateArbeidsgivere,
             personligeForetak = personligeForetakOppslag.personligeForetak(
                 ident = ident,
                 attributter = attributter
@@ -95,16 +95,16 @@ internal class OppslagService(
         organisasjoner: Set<String>,
     ): OppslagResultat {
 
-        val arbeidsforhold = Arbeidsforhold(
+        val arbeidsgivere = Arbeidsgivere(
             organisasjoner = organisasjoner
-                .map { OrganisasjonArbeidsforhold(it) }
+                .map { OrganisasjonArbeidsgivere(it) }
                 .toSet()
         )
 
         return OppslagResultat(
             arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
                 attributter = attributter,
-                arbeidsforhold = arbeidsforhold
+                arbeidsgivere = arbeidsgivere
             )
         )
     }

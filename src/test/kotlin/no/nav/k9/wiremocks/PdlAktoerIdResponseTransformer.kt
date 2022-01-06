@@ -12,6 +12,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
@@ -35,6 +36,7 @@ private val identMap = mapOf(
     PERSON_MED_FORETAK to IdentInformasjon(ident = "246801", gruppe = IdentGruppe.AKTORID, historisk = false),
     PERSON_MED_FLERE_ROLLER_I_FORETAK to IdentInformasjon(ident = "573028", gruppe = IdentGruppe.AKTORID, historisk = false),
     PERSON_UTEN_ARBEIDSGIVER to IdentInformasjon(ident = "485028", gruppe = IdentGruppe.AKTORID, historisk = false),
+    PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER to IdentInformasjon(ident = "485030", gruppe = IdentGruppe.AKTORID, historisk = false)
 )
 
 

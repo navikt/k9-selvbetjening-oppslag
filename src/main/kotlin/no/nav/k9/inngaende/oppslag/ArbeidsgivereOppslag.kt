@@ -1,7 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
-import no.nav.k9.utgaende.rest.Arbeidsforhold
+import no.nav.k9.utgaende.rest.Arbeidsgivere
 import java.time.LocalDate
 
 internal class ArbeidsgivereOppslag(
@@ -10,12 +10,12 @@ internal class ArbeidsgivereOppslag(
 
     internal suspend fun organisasjoner(
         attributter: Set<Attributt>,
-        arbeidsforhold: Arbeidsforhold?,
+        arbeidsgivere: Arbeidsgivere?,
     ): Set<ArbeidsgiverOrganisasjon>? {
 
         if (!attributter.etterspurtArbeidsgivereOrganisasjoner()) return null
 
-        return arbeidsforhold!!.organisasjoner.map {
+        return arbeidsgivere!!.organisasjoner.map {
             ArbeidsgiverOrganisasjon(
                 organisasjonsnummer = it.organisasjonsnummer,
                 navn = hentNavn(
