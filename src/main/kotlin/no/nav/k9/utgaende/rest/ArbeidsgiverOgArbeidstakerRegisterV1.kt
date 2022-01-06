@@ -45,11 +45,11 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         )
     ).toString()
 
-    internal suspend fun arbeidsforhold(
+    internal suspend fun arbeidsgivere(
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate
-    ) : Arbeidsforhold {
+    ) : Arbeidsgivere {
         val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(henteArbeidsforholdPerArbeidstakerScopes).asAuthoriationHeader()
         val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
         val url = urlMedFraOgMedTilOgMed(arbeidsforholdPerArbeidstakerUrl, fraOgMed, tilOgMed)
@@ -92,7 +92,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         logger.logResponse(json)
 
 
-        if (json.isEmpty) return Arbeidsforhold(
+        if (json.isEmpty) return Arbeidsgivere(
             organisasjoner = emptySet(),
             privateArbeidsgivere = emptySet()
         )
@@ -101,14 +101,14 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 
         val privateArbeidsgivere = json.hentPrivateArbeidsgivere()
 
-        return Arbeidsforhold(
+        return Arbeidsgivere(
             organisasjoner = organisasjoner,
             privateArbeidsgivere = privateArbeidsgivere
         )
     }
 }
 
-private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsforhold>{
+private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
     return this
         .hentArbeidsgivereMedAnsettelseperiode()
         .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
@@ -116,12 +116,13 @@ private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsforhold>{
             val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
             val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
 
-            OrganisasjonArbeidsforhold(
+            OrganisasjonArbeidsgivere(
                 organisasjonsnummer = organisasjonsnummer,
                 ansattFom = LocalDate.parse(ansattFom),
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )
         }
+        .distinctBy { it.organisasjonsnummer }
         .toSet()
 }
 
@@ -139,6 +140,7 @@ private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )
         }
+        .distinctBy { it.offentligIdent }
         .toSet()
 }
 
@@ -155,7 +157,7 @@ private fun JSONObject.hentFomTomFraAnsettelseperiode(): Pair<String, String?> {
     return Pair(ansattFom, ansattTom)
 }
 
-internal data class OrganisasjonArbeidsforhold(
+internal data class OrganisasjonArbeidsgivere(
     internal val organisasjonsnummer: String,
     internal val ansattFom: LocalDate? = null,
     internal val ansattTom: LocalDate? = null
@@ -167,7 +169,7 @@ internal data class PrivatArbeidsgiver (
     internal val ansattTom: LocalDate? = null
 )
 
-internal data class Arbeidsforhold(
-    internal val organisasjoner: Set<OrganisasjonArbeidsforhold>,
+internal data class Arbeidsgivere(
+    internal val organisasjoner: Set<OrganisasjonArbeidsgivere>,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet()
 )

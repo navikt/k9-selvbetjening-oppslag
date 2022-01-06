@@ -12,6 +12,8 @@ object PersonFødselsnummer {
     const val PERSON_UTEN_FORETAK = "111111111112"
     const val PERSON_MED_FLERE_ROLLER_I_FORETAK = "22222222222"
     const val PERSON_UTEN_ARBEIDSGIVER = "02029212345"
+    const val PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER = "04047316486"
+
 }
 
 object BarnFødselsnummer {

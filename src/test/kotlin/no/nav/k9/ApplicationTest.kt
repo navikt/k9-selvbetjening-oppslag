@@ -16,6 +16,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
@@ -674,6 +675,45 @@ class ApplicationTest {
                       }
                     }
                     """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Forventer å kun få unike arbeidsgivere selvom man har flere arbeidsforhold hos en arbeidsgiver`(){
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
+                        "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                    {
+                      "arbeidsgivere": {
+                        "private_arbeidsgivere": [
+                          {
+                            "ansatt_fom": "2014-07-01",
+                            "offentlig_ident": "10047206508",
+                            "ansatt_tom": "2015-12-31"
+                          }
+                        ],
+                        "organisasjoner": [
+                          {
+                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
+                            "organisasjonsnummer": "981585216"
+                          }
+                        ]
+                      }
+                    }
+                    """.trimIndent()
+                println("HER ${response.content!!}")
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }

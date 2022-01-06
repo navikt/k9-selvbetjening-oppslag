@@ -2,7 +2,7 @@ package no.nav.k9.utgaende.gateway
 
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
-import no.nav.k9.utgaende.rest.Arbeidsforhold
+import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import java.time.LocalDate
 
@@ -18,14 +18,14 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
         )
     }
 
-    suspend internal fun arbeidsforhold(
+    suspend internal fun arbeidsgivere(
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         attributter: Set<Attributt>
-    ) : Arbeidsforhold? {
+    ) : Arbeidsgivere? {
         if (!attributter.any { it in støttedeAttributter }) return null
-        return arbeidstakerOgArbeidstakerRegisterV1.arbeidsforhold(
+        return arbeidstakerOgArbeidstakerRegisterV1.arbeidsgivere(
             ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed

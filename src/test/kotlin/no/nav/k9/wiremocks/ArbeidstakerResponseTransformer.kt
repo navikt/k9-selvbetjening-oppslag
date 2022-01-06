@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
+import no.nav.k9.PersonFødselsnummer
 import no.nav.k9.utgaende.rest.NavHeaders
 
 class ArbeidstakerResponseTransformer : ResponseTransformer() {
@@ -32,6 +33,71 @@ class ArbeidstakerResponseTransformer : ResponseTransformer() {
 
 private fun getResponse(navIdent: String) : String {
     when (navIdent) {
+        PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER -> {
+            //language=json
+            return """
+                [
+                  {
+                    "arbeidsforholdId":"1",
+                    "type":"ordinaertArbeidsforhold",
+                    "ansettelsesperiode":{
+                      "periode":{
+                        "fom": "2014-07-01",
+                        "tom": "2015-12-31"
+                      }
+                    },
+                    "arbeidsgiver": {
+                      "organisasjonsnummer": "981585216",
+                      "type": "Organisasjon"
+                    }
+                  },
+                  {
+                    "arbeidsforholdId":"2",
+                    "type":"ordinaertArbeidsforhold",
+                    "ansettelsesperiode":{
+                      "periode":{
+                        "fom": "2014-07-02",
+                        "tom": "2015-12-31"
+                      }
+                    },
+                    "arbeidsgiver": {
+                      "organisasjonsnummer": "981585216",
+                      "type": "Organisasjon"
+                    }
+                  },
+                  {
+                    "arbeidsforholdId":"1",
+                    "type":"ordinaertArbeidsforhold",
+                    "ansettelsesperiode":{
+                      "periode":{
+                        "fom": "2014-07-01",
+                        "tom": "2015-12-31"
+                      }
+                    },
+                    "arbeidsgiver":{
+                       "offentligIdent":"10047206508",
+                       "aktoerId":"2142740417741",
+                       "type":"Person"
+                    }
+                  },
+                  {
+                    "arbeidsforholdId":"2",
+                    "type":"ordinaertArbeidsforhold",
+                    "ansettelsesperiode":{
+                      "periode":{
+                        "fom": "2014-07-02",
+                        "tom": "2015-12-31"
+                      }
+                    },
+                    "arbeidsgiver":{
+                       "offentligIdent":"10047206508",
+                       "aktoerId":"2142740417741",
+                       "type":"Person"
+                    }
+                  }
+                ]
+            """.trimIndent()
+        }
         "01019012345" -> {
             //language=json
         return """
