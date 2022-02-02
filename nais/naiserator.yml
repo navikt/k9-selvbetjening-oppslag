@@ -49,6 +49,9 @@ spec:
         - application: k9-ettersending-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: omsorgspenger-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
