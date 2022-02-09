@@ -52,6 +52,9 @@ spec:
         - application: omsorgspenger-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: omsorgspenger-midlertidig-alene-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
