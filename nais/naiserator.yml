@@ -55,6 +55,18 @@ spec:
         - application: omsorgspenger-midlertidig-alene-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: omsorgspengerutbetaling-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
+        - application: omsorgspengerutbetalingsoknad-arbeidstaker-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
+        - application: pleiepengesoknad-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
+        - application: pleiepenger-livets-sluttfase-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
