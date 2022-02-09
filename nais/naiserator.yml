@@ -67,6 +67,12 @@ spec:
         - application: pleiepenger-livets-sluttfase-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: omsorgsdager-melding-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
+        - application: omsorgsdager-aleneomsorg-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
