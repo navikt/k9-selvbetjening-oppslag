@@ -90,6 +90,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         }
 
         logger.logResponse(json)
+        logger.info("Respons: $json") // TODO: 11/02/2022 SKAL IKKE I PROD
 
 
         if (json.isEmpty) return Arbeidsgivere(
