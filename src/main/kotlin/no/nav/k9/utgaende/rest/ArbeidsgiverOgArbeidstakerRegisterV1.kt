@@ -22,7 +22,7 @@ import java.time.LocalDate
 import kotlin.coroutines.coroutineContext
 
 /**
- * @see <a href="https://modapp-q1.adeo.no/aareg-services/api/swagger-ui/index.html#/">Aareg-services swagger docs</a>
+ * @see <a href="https://modapp.adeo.no/aareg-services/api/swagger-ui/index.html#/">Aareg-services swagger docs</a>
  */
 internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     baseUrl: URI,
