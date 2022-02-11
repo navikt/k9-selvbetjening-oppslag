@@ -41,7 +41,8 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         baseUrl = url,
         queryParameters = mapOf(
             "ansettelsesperiodeFom" to listOf(fraOgMed.toString()),
-            "ansettelsesperiodeTom" to listOf(tilOgMed.toString())
+            "ansettelsesperiodeTom" to listOf(tilOgMed.toString()),
+            "arbeidsforholdtype" to listOf("ordinaertArbeidsforhold,maritimtArbeidsforhold,forenkletOppgjoersordning,frilanserOppdragstakerHonorarPersonerMm")
         )
     ).toString()
 
