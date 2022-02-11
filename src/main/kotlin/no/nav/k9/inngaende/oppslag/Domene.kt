@@ -1,5 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.utgaende.rest.Frilansoppdrag
 import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
 
 data class Ident(internal val value: String)
@@ -26,6 +27,9 @@ internal enum class Attributt(internal val api: String) {
     privateArbeidsgivereAnsettelseperiode("private_arbeidsgivere[].ansettelsesperiode"),
     privateArbeidsgivereOffentligIdent("private_arbeidsgivere[].offentlig_ident"),
 
+    frilansOppdragType("frilans_oppdrag[].type"),
+    frilansOppdragAnsettelsesperiode("frilans_oppdrag[].ansettelsesperiode"),
+
     personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
     personligForetakNavn("personlige_foretak[].navn"),
     personligForetakOrganisasjonsform("personlige_foretak[].organisasjonsform"),
@@ -42,17 +46,15 @@ internal enum class Attributt(internal val api: String) {
         }
     }
 }
-internal fun Set<Attributt>.etterspurtBarn() =
-    any { it.api.startsWith("barn[].") }
+internal fun Set<Attributt>.etterspurtBarn() = any { it.api.startsWith("barn[].") }
 
-internal fun Set<Attributt>.etterspurtArbeidsgivereOrganisasjoner() =
-    any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
+internal fun Set<Attributt>.etterspurtArbeidsgivereOrganisasjoner() = any { it.api.startsWith("arbeidsgivere[].organisasjoner[]") }
 
-internal fun Set<Attributt>.etterspurtPrivateArbeidsgivere() =
-    any { it.api.startsWith("private_arbeidsgivere[]") }
+internal fun Set<Attributt>.etterspurtPrivateArbeidsgivere() = any { it.api.startsWith("private_arbeidsgivere[]") }
 
-internal fun Set<Attributt>.etterspurtPersonligForetak() =
-    any { it.api.startsWith("personlige_foretak[]") }
+internal fun Set<Attributt>.etterspurtPersonligForetak() = any { it.api.startsWith("personlige_foretak[]") }
+
+internal fun Set<Attributt>.etterspurtFrilansOppdrag() = any { it.api.startsWith("frilans_oppdrag[]") }
 
 private val megAttributter = setOf(
     Attributt.aktørId,
@@ -68,5 +70,6 @@ internal data class OppslagResultat(
     internal val barn: Set<Barn>? = null,
     internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>? = null,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver>? = null,
-    internal val personligeForetak: Set<PersonligForetak<String>>? = null
+    internal val personligeForetak: Set<PersonligForetak<String>>? = null,
+    internal val frilansOppdrag: Set<Frilansoppdrag>? = null
 )

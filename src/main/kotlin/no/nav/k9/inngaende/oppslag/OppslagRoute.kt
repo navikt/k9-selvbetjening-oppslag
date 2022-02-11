@@ -9,7 +9,6 @@ import no.nav.helse.dusseldorf.ktor.auth.idToken
 import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
-import no.nav.k9.inngaende.idToken
 import no.nav.k9.utgaende.gateway.TilgangNektetException
 import org.json.JSONObject
 import org.slf4j.Logger

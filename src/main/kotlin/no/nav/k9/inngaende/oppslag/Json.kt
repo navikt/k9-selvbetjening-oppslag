@@ -33,10 +33,11 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     }
 
     // Arbeidsgivere
-    if (attributter.etterspurtArbeidsgivereOrganisasjoner() || attributter.etterspurtPrivateArbeidsgivere()) {
+    if (attributter.etterspurtArbeidsgivereOrganisasjoner() || attributter.etterspurtPrivateArbeidsgivere() || attributter.etterspurtFrilansOppdrag()) {
         val arbeidsgivereJson = JSONObject()
         val organisasjonerJson = JSONArray()
         val privateArbeidsgivereJson = JSONArray()
+        val frilansOppdragJson = JSONArray()
 
         if(attributter.etterspurtArbeidsgivereOrganisasjoner()){
             arbeidsgivereOrganisasjoner?.forEach {
@@ -65,6 +66,21 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
                 )
             }
             arbeidsgivereJson.put("private_arbeidsgivere", privateArbeidsgivereJson)
+        }
+
+        if(attributter.etterspurtFrilansOppdrag()){
+            frilansOppdrag?.forEach{
+                frilansOppdragJson.put(
+                    JSONObject().apply {
+                        if(attributter.contains(Attributt.frilansOppdragType)) put("type", it.type)
+                        if(attributter.contains(Attributt.frilansOppdragAnsettelsesperiode)){
+                            put("ansatt_fom", it.ansattFom)
+                            put("ansatt_tom", it.ansattTom)
+                        }
+                    }
+                )
+            }
+            arbeidsgivereJson.put("frilans_oppdrag", frilansOppdragJson)
         }
 
         json.put("arbeidsgivere", arbeidsgivereJson)

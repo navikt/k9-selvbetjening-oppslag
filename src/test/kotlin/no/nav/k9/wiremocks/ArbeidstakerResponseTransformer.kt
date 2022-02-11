@@ -405,7 +405,177 @@ private fun getResponse(navIdent: String) : String {
              }
             ]
         """.trimIndent()
-        } else -> {
+        }
+        "14047316486" -> {
+            //language=json
+            return """
+            [
+              {
+                "sporingsinformasjon": {
+                  "opprettetKilde": "AAREG",
+                  "endretAv": "srvtestnorge-aareg",
+                  "opprettetKildereferanse": "DOLLY",
+                  "opprettetTidspunkt": "2022-02-11T12:10:54.321",
+                  "opprettetAv": "srvtestnorge-aareg",
+                  "endretKilde": "AAREG",
+                  "endretKildereferanse": "DOLLY",
+                  "endretTidspunkt": "2022-02-11T12:10:54.321"
+                },
+                "navArbeidsforholdId": 55481340,
+                "arbeidsforholdId": "1",
+                "opplysningspliktig": {
+                  "type": "Organisasjon",
+                  "organisasjonsnummer": "928497704"
+                },
+                "type": "frilanserOppdragstakerHonorarPersonerMm",
+                "varsler": [
+                  {
+                    "entitet": "ARBEIDSFORHOLD",
+                    "varslingskode": "NAVEND"
+                  }
+                ],
+                "ansettelsesperiode": {
+                  "bruksperiode": {
+                    "fom": "2022-02-11T12:10:54.321"
+                  },
+                  "sporingsinformasjon": {
+                    "opprettetKilde": "AAREG",
+                    "endretAv": "srvtestnorge-aareg",
+                    "opprettetKildereferanse": "DOLLY",
+                    "opprettetTidspunkt": "2022-02-11T12:10:54.321",
+                    "opprettetAv": "srvtestnorge-aareg",
+                    "endretKilde": "AAREG",
+                    "endretKildereferanse": "DOLLY",
+                    "endretTidspunkt": "2022-02-11T12:10:54.321"
+                  },
+                  "periode": {
+                    "tom": "2022-02-28",
+                    "fom": "2020-01-01"
+                  }
+                },
+                "arbeidsgiver": {
+                  "type": "Person",
+                  "offentligIdent": "805824352"
+                },
+                "arbeidstaker": {
+                  "offentligIdent": "14047316486",
+                  "type": "Person"
+                },
+                "arbeidsavtaler": [
+                  {
+                    "antallTimerPrUke": 37.5,
+                    "bruksperiode": {
+                      "fom": "2022-02-11T12:10:54.321"
+                    },
+                    "sporingsinformasjon": {
+                      "opprettetKilde": "AAREG",
+                      "endretAv": "srvtestnorge-aareg",
+                      "opprettetKildereferanse": "DOLLY",
+                      "opprettetTidspunkt": "2022-02-11T12:10:54.321",
+                      "opprettetAv": "srvtestnorge-aareg",
+                      "endretKilde": "AAREG",
+                      "endretKildereferanse": "DOLLY",
+                      "endretTidspunkt": "2022-02-11T12:10:54.321"
+                    },
+                    "arbeidstidsordning": "ikkeSkift",
+                    "yrke": "2521106",
+                    "gyldighetsperiode": {
+                      "fom": "2020-01-01"
+                    },
+                    "type": "Ordinaer",
+                    "beregnetAntallTimerPrUke": 37.5,
+                    "stillingsprosent": 100
+                  }
+                ],
+                "registrert": "2022-02-11T12:10:54.264",
+                "sistBekreftet": "2022-02-11T12:10:54",
+                "innrapportertEtterAOrdningen": true
+              },
+              {
+                "sporingsinformasjon": {
+                  "opprettetKilde": "AAREG",
+                  "endretAv": "srvtestnorge-aareg",
+                  "opprettetKildereferanse": "DOLLY",
+                  "opprettetTidspunkt": "2022-02-11T12:10:54.833",
+                  "opprettetAv": "srvtestnorge-aareg",
+                  "endretKilde": "AAREG",
+                  "endretKildereferanse": "DOLLY",
+                  "endretTidspunkt": "2022-02-11T12:10:54.833"
+                },
+                "navArbeidsforholdId": 55481251,
+                "arbeidsforholdId": "2",
+                "opplysningspliktig": {
+                  "type": "Organisasjon",
+                  "organisasjonsnummer": "928497704"
+                },
+                "type": "frilanserOppdragstakerHonorarPersonerMm",
+                "varsler": [
+                  {
+                    "entitet": "ARBEIDSFORHOLD",
+                    "varslingskode": "NAVEND"
+                  }
+                ],
+                "ansettelsesperiode": {
+                  "bruksperiode": {
+                    "fom": "2022-02-11T12:10:54.833"
+                  },
+                  "sporingsinformasjon": {
+                    "opprettetKilde": "AAREG",
+                    "endretAv": "srvtestnorge-aareg",
+                    "opprettetKildereferanse": "DOLLY",
+                    "opprettetTidspunkt": "2022-02-11T12:10:54.833",
+                    "opprettetAv": "srvtestnorge-aareg",
+                    "endretKilde": "AAREG",
+                    "endretKildereferanse": "DOLLY",
+                    "endretTidspunkt": "2022-02-11T12:10:54.833"
+                  },
+                  "periode": {
+                    "tom": "2022-02-28",
+                    "fom": "2020-01-01"
+                  }
+                },
+                "arbeidsgiver": {
+                  "type": "Organisasjon",
+                  "organisasjonsnummer": "907670201"
+                },
+                "arbeidstaker": {
+                  "offentligIdent": "14047316486",
+                  "type": "Person"
+                },
+                "arbeidsavtaler": [
+                  {
+                    "antallTimerPrUke": 37.5,
+                    "bruksperiode": {
+                      "fom": "2022-02-11T12:10:54.832"
+                    },
+                    "sporingsinformasjon": {
+                      "opprettetKilde": "AAREG",
+                      "endretAv": "srvtestnorge-aareg",
+                      "opprettetKildereferanse": "DOLLY",
+                      "opprettetTidspunkt": "2022-02-11T12:10:54.833",
+                      "opprettetAv": "srvtestnorge-aareg",
+                      "endretKilde": "AAREG",
+                      "endretKildereferanse": "DOLLY",
+                      "endretTidspunkt": "2022-02-11T12:10:54.833"
+                    },
+                    "arbeidstidsordning": "ikkeSkift",
+                    "yrke": "7125102",
+                    "gyldighetsperiode": {
+                      "fom": "2020-01-01"
+                    },
+                    "type": "Frilanser",
+                    "beregnetAntallTimerPrUke": 37.5,
+                    "stillingsprosent": 100
+                  }
+                ],
+                "registrert": "2022-02-11T12:10:54.785",
+                "sistBekreftet": "2022-02-11T12:10:54",
+                "innrapportertEtterAOrdningen": true
+              }
+            ]
+        """.trimIndent()
+        }
+        else -> {
             return """
                  []
              """.trimIndent()

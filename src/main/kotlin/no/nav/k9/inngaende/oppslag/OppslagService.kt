@@ -86,7 +86,8 @@ internal class OppslagService(
             personligeForetak = personligeForetakOppslag.personligeForetak(
                 ident = ident,
                 attributter = attributter
-            )
+            ),
+            frilansOppdrag = arbeidsgivere?.frilansOppdrag
         )
     }
 
