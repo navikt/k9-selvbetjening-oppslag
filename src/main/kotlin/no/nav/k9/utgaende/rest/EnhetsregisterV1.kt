@@ -67,7 +67,7 @@ internal class EnhetsregisterV1(
         logger.logResponse(json)
 
         if (!json.has("navn")) {
-            logger.warn("Inget navn tilgjenelig for organisasjon ${organisasjonsnummer}. Response = '$json'")
+            logger.warn("Ingen navn tilgjenelig for organisasjon ${organisasjonsnummer}. Response = '$json'")
             return Enhet(
                 organisasjonsnummer = organisasjonsnummer,
                 navn = null,

@@ -536,7 +536,7 @@ private fun getResponse(navIdent: String) : String {
                 },
                 "arbeidsgiver": {
                   "type": "Organisasjon",
-                  "organisasjonsnummer": "907670201"
+                  "organisasjonsnummer": "123456789"
                 },
                 "arbeidstaker": {
                   "offentligIdent": "14047316486",

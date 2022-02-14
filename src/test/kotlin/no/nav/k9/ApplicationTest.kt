@@ -739,14 +739,17 @@ class ApplicationTest {
                       "arbeidsgivere": {
                         "frilans_oppdrag": [
                           {
-                            "ansatt_fom": "2020-01-01",
                             "type": "Person",
-                            "ansatt_tom": "2022-02-28"
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2022-02-28",
+                            "offentligIdent": "805824352"
                           },
                           {
-                            "ansatt_fom": "2020-01-01",
                             "type": "Organisasjon",
-                            "ansatt_tom": "2022-02-28"
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2022-02-28",
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
                           }
                         ]
                       }

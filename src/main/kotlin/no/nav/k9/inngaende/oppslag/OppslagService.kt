@@ -2,6 +2,7 @@ package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.Arbeidsgivere
+import no.nav.k9.utgaende.rest.Frilansoppdrag
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
 import java.time.LocalDate
 
@@ -87,7 +88,13 @@ internal class OppslagService(
                 ident = ident,
                 attributter = attributter
             ),
-            frilansOppdrag = arbeidsgivere?.frilansOppdrag
+            frilansOppdrag = arbeidsgivere?.frilansOppdrag?.map {
+                it.copy(
+                    navn = if (it.organisasjonsnummer != null) arbeidsgiverOppslag.hentNavn(
+                        it.organisasjonsnummer, setOf(Attributt.arbeidsgivereOrganisasjonerNavn)
+                    ) else null
+                )
+            }?.toSet()
         )
     }
 

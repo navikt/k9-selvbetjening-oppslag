@@ -129,10 +129,15 @@ private fun JSONArray.hentFrilansOppdrag(): Set<Frilansoppdrag> {
         }
         .map { ansettelsesforhold ->
             val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
-            val type = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("type")
+            val arbeidsgiver = ansettelsesforhold.getJSONObject("arbeidsgiver")
+            val type = arbeidsgiver.getString("type")
+            val offentligIdent = if(type == "Person") arbeidsgiver.getString("offentligIdent") else null
+            val organisasjonsnummer = if(type == "Organisasjon") arbeidsgiver.getString("organisasjonsnummer") else null
 
             Frilansoppdrag(
                 type = type,
+                offentligIdent = offentligIdent,
+                organisasjonsnummer = organisasjonsnummer,
                 ansattFom = LocalDate.parse(ansattFom),
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )
@@ -205,6 +210,9 @@ internal data class PrivatArbeidsgiver (
 
 internal data class Frilansoppdrag (
     internal val type: String,
+    internal val organisasjonsnummer: String? = null,
+    internal val navn: String? = null,
+    internal val offentligIdent: String? = null,
     internal val ansattFom: LocalDate? = null,
     internal val ansattTom: LocalDate? = null
 )
