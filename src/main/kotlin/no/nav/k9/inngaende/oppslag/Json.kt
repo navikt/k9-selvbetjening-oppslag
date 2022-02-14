@@ -75,7 +75,7 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
                         put("type", it.type)
                         put("ansatt_fom", it.ansattFom)
                         put("ansatt_tom", it.ansattTom)
-                        it.offentligIdent?.let { put("offentligIdent", it) }
+                        it.offentligIdent?.let { put("offentlig_ident", it) }
                         it.organisasjonsnummer?.let { put("organisasjonsnummer", it) }
                         it.navn?.let { put("navn", it) }
                     }

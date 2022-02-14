@@ -742,7 +742,7 @@ class ApplicationTest {
                             "type": "Person",
                             "ansatt_fom": "2020-01-01",
                             "ansatt_tom": "2022-02-28",
-                            "offentligIdent": "805824352"
+                            "offentlig_ident": "805824352"
                           },
                           {
                             "type": "Organisasjon",
