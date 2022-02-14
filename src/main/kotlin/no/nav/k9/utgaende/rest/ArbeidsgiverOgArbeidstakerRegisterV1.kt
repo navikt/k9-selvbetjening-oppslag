@@ -123,10 +123,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 private fun JSONArray.hentFrilansoppdrag(): Set<Frilansoppdrag> {
     return this
         .hentArbeidsgivereMedAnsettelseperiode()
-        .filter {
-            val type = it.getString("type")
-            type.equals(FRILANS.type)
-        }
+        .filter { it.getString("type").equals(FRILANS.type) }
         .map { ansettelsesforhold ->
             val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
             val arbeidsgiver = ansettelsesforhold.getJSONObject("arbeidsgiver")
