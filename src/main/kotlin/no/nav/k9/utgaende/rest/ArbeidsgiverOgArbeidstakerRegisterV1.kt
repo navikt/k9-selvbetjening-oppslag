@@ -103,24 +103,24 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         if (json.isEmpty) return Arbeidsgivere(
             organisasjoner = emptySet(),
             privateArbeidsgivere = emptySet(),
-            frilansOppdrag = emptySet()
+            frilansoppdrag = emptySet()
         )
 
         val organisasjoner = json.hentOrganisasjoner()
 
         val privateArbeidsgivere = json.hentPrivateArbeidsgivere()
 
-        val frilansoppdrag = json.hentFrilansOppdrag()
+        val frilansoppdrag = json.hentFrilansoppdrag()
 
         return Arbeidsgivere(
             organisasjoner = organisasjoner,
             privateArbeidsgivere = privateArbeidsgivere,
-            frilansOppdrag = frilansoppdrag
+            frilansoppdrag = frilansoppdrag
         )
     }
 }
 
-private fun JSONArray.hentFrilansOppdrag(): Set<Frilansoppdrag> {
+private fun JSONArray.hentFrilansoppdrag(): Set<Frilansoppdrag> {
     return this
         .hentArbeidsgivereMedAnsettelseperiode()
         .filter {
@@ -220,5 +220,5 @@ internal data class Frilansoppdrag (
 internal data class Arbeidsgivere(
     internal val organisasjoner: Set<OrganisasjonArbeidsgivere>,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet(),
-    internal val frilansOppdrag: Set<Frilansoppdrag> = emptySet()
+    internal val frilansoppdrag: Set<Frilansoppdrag> = emptySet()
 )

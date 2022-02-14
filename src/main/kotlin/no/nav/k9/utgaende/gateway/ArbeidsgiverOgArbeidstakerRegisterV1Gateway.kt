@@ -15,8 +15,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
             Attributt.arbeidsgivereOrganisasjonerNavn,
             Attributt.privateArbeidsgivereAnsettelseperiode,
             Attributt.privateArbeidsgivereOffentligIdent,
-            Attributt.frilansOppdragType,
-            Attributt.frilansOppdragAnsettelsesperiode
+            Attributt.frilansoppdrag
         )
     }
 

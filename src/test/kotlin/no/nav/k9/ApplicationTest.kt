@@ -726,7 +726,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?a=frilans_oppdrag[].type&a=frilans_oppdrag[].ansettelsesperiode"
+                "/meg?a=frilansoppdrag[]"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-frilans-oppdrag")
@@ -737,7 +737,7 @@ class ApplicationTest {
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
-                        "frilans_oppdrag": [
+                        "frilansoppdrag": [
                           {
                             "type": "Person",
                             "ansatt_fom": "2020-01-01",

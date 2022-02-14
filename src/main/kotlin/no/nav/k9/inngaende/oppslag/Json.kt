@@ -33,11 +33,11 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
     }
 
     // Arbeidsgivere
-    if (attributter.etterspurtArbeidsgivereOrganisasjoner() || attributter.etterspurtPrivateArbeidsgivere() || attributter.etterspurtFrilansOppdrag()) {
+    if (attributter.etterspurtArbeidsgivereOrganisasjoner() || attributter.etterspurtPrivateArbeidsgivere() || attributter.etterspurtFrilansoppdrag()) {
         val arbeidsgivereJson = JSONObject()
         val organisasjonerJson = JSONArray()
         val privateArbeidsgivereJson = JSONArray()
-        val frilansOppdragJson = JSONArray()
+        val frilansoppdragJson = JSONArray()
 
         if(attributter.etterspurtArbeidsgivereOrganisasjoner()){
             arbeidsgivereOrganisasjoner?.forEach {
@@ -68,22 +68,20 @@ internal fun OppslagResultat.somJson(attributter: Set<Attributt>) : JSONObject {
             arbeidsgivereJson.put("private_arbeidsgivere", privateArbeidsgivereJson)
         }
 
-        if(attributter.etterspurtFrilansOppdrag()){
-            frilansOppdrag?.forEach{
-                frilansOppdragJson.put(
+        if(attributter.etterspurtFrilansoppdrag()){
+            frilansoppdrag?.forEach{
+                frilansoppdragJson.put(
                     JSONObject().apply {
-                        if(attributter.contains(Attributt.frilansOppdragType)) put("type", it.type)
-                        if(attributter.contains(Attributt.frilansOppdragAnsettelsesperiode)){
-                            put("ansatt_fom", it.ansattFom)
-                            put("ansatt_tom", it.ansattTom)
-                        }
+                        put("type", it.type)
+                        put("ansatt_fom", it.ansattFom)
+                        put("ansatt_tom", it.ansattTom)
                         it.offentligIdent?.let { put("offentligIdent", it) }
                         it.organisasjonsnummer?.let { put("organisasjonsnummer", it) }
                         it.navn?.let { put("navn", it) }
                     }
                 )
             }
-            arbeidsgivereJson.put("frilans_oppdrag", frilansOppdragJson)
+            arbeidsgivereJson.put("frilansoppdrag", frilansoppdragJson)
         }
 
         json.put("arbeidsgivere", arbeidsgivereJson)
