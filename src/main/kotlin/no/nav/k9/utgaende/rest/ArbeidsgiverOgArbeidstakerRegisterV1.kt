@@ -22,6 +22,10 @@ import java.time.Duration
 import java.time.LocalDate
 import kotlin.coroutines.coroutineContext
 
+/**
+ * @see <a href="https://modapp.adeo.no/aareg-services/api/swagger-ui/index.html#/">Aareg-services swagger docs</a>
+ */
+
 enum class ArbeidsforholdType(val type: String){
     ORDINÆRT("ordinaertArbeidsforhold"),
     MARITIMT("maritimtArbeidsforhold"),
