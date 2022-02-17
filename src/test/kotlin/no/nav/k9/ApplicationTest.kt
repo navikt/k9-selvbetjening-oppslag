@@ -733,7 +733,6 @@ class ApplicationTest {
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                println("HALLO ${response.content!!}")
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
