@@ -29,7 +29,7 @@ internal class ArbeidsgivereOppslag(
 
     }
 
-    private suspend fun hentNavn(
+    suspend fun hentNavn(
         organisasjonsnummer: String,
         attributter: Set<Attributt>,
     ) = try {

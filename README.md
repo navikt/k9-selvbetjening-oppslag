@@ -31,10 +31,16 @@ Man setter ønskede attributter i query parameter `a` og får en JSON response s
 | personlige_foretak[].organisasjonsform                                |           |
 | personlige_foretak[].registreringsdato                                |           |
 | personlige_foretak[].opphørsdato                                      | x         |
+| private_arbeidsgivere[].ansettelsesperiode                            |           |
+| private_arbeidsgivere[].offentlig_ident                               |           |
+| frilansoppdrag[]                                                      |           |
 
 ### Personlige foretak
 `personlige_foretak[]` returnerer personlig foretak som omfatter `organisasjonsform` `ENK`(Enkeltpersonforetak),  `ANS` (Ansvarlig selskap)  og `DA` (Selskap med delt ansvar).
 Det tre nevnte verdiene er de man kan få som `organisasjonsform`
+
+### Frilansoppdrag
+`frilansoppdrag[]` returnerer frilansoppdrag som omfatter arbeidsforhold av typen "frilanserOppdragstakerHonorarPersonerMm"
 
 ### Eksempel
 

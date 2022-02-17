@@ -86,7 +86,14 @@ internal class OppslagService(
             personligeForetak = personligeForetakOppslag.personligeForetak(
                 ident = ident,
                 attributter = attributter
-            )
+            ),
+            frilansoppdrag = arbeidsgivere?.frilansoppdrag?.map {
+                it.copy(
+                    navn = if (it.organisasjonsnummer != null) arbeidsgiverOppslag.hentNavn(
+                        it.organisasjonsnummer, setOf(Attributt.arbeidsgivereOrganisasjonerNavn)
+                    ) else null
+                )
+            }?.toSet()
         )
     }
 

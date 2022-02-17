@@ -12,6 +12,7 @@ import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.utgaende.rest.ArbeidsforholdType.*
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -24,6 +25,14 @@ import kotlin.coroutines.coroutineContext
 /**
  * @see <a href="https://modapp.adeo.no/aareg-services/api/swagger-ui/index.html#/">Aareg-services swagger docs</a>
  */
+
+enum class ArbeidsforholdType(val type: String){
+    ORDINÆRT("ordinaertArbeidsforhold"),
+    MARITIMT("maritimtArbeidsforhold"),
+    FORENKLET("forenkletOppgjoersordning"),
+    FRILANS("frilanserOppdragstakerHonorarPersonerMm")
+}
+
 internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     baseUrl: URI,
     accessTokenClient: AccessTokenClient,
@@ -44,7 +53,8 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         baseUrl = url,
         queryParameters = mapOf(
             "ansettelsesperiodeFom" to listOf(fraOgMed.toString()),
-            "ansettelsesperiodeTom" to listOf(tilOgMed.toString())
+            "ansettelsesperiodeTom" to listOf(tilOgMed.toString()),
+            "arbeidsforholdtype" to listOf("${ORDINÆRT.type},${MARITIMT.type},${FORENKLET.type},${FRILANS.type}")
         )
     ).toString()
 
@@ -94,26 +104,52 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
 
         logger.logResponse(json)
 
-
         if (json.isEmpty) return Arbeidsgivere(
             organisasjoner = emptySet(),
-            privateArbeidsgivere = emptySet()
+            privateArbeidsgivere = emptySet(),
+            frilansoppdrag = emptySet()
         )
 
         val organisasjoner = json.hentOrganisasjoner()
 
         val privateArbeidsgivere = json.hentPrivateArbeidsgivere()
 
+        val frilansoppdrag = json.hentFrilansoppdrag()
+
         return Arbeidsgivere(
             organisasjoner = organisasjoner,
-            privateArbeidsgivere = privateArbeidsgivere
+            privateArbeidsgivere = privateArbeidsgivere,
+            frilansoppdrag = frilansoppdrag
         )
     }
+}
+
+private fun JSONArray.hentFrilansoppdrag(): Set<Frilansoppdrag> {
+    return this
+        .hentArbeidsgivereMedAnsettelseperiode()
+        .filter { it.getString("type").equals(FRILANS.type) }
+        .map { ansettelsesforhold ->
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+            val arbeidsgiver = ansettelsesforhold.getJSONObject("arbeidsgiver")
+            val type = arbeidsgiver.getString("type")
+            val offentligIdent = if(type == "Person") arbeidsgiver.getString("offentligIdent") else null
+            val organisasjonsnummer = if(type == "Organisasjon") arbeidsgiver.getString("organisasjonsnummer") else null
+
+            Frilansoppdrag(
+                type = type,
+                offentligIdent = offentligIdent,
+                organisasjonsnummer = organisasjonsnummer,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .toSet()
 }
 
 private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
     return this
         .hentArbeidsgivereMedAnsettelseperiode()
+        .filterNot { it.getString("type").equals(FRILANS.type) }
         .filter { it.getJSONObject("arbeidsgiver").has("organisasjonsnummer") }
         .map { ansettelsesforhold ->
             val organisasjonsnummer = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("organisasjonsnummer")
@@ -132,6 +168,7 @@ private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
 private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
     return this
         .hentArbeidsgivereMedAnsettelseperiode()
+        .filterNot { it.getString("type").equals(FRILANS.type) }
         .filter { it.getJSONObject("arbeidsgiver").has("offentligIdent") }
         .map { ansettelsesforhold ->
             val offentligIdent = ansettelsesforhold.getJSONObject("arbeidsgiver").getString("offentligIdent")
@@ -172,7 +209,17 @@ internal data class PrivatArbeidsgiver (
     internal val ansattTom: LocalDate? = null
 )
 
+internal data class Frilansoppdrag (
+    internal val type: String,
+    internal val organisasjonsnummer: String? = null,
+    internal val navn: String? = null,
+    internal val offentligIdent: String? = null,
+    internal val ansattFom: LocalDate? = null,
+    internal val ansattTom: LocalDate? = null
+)
+
 internal data class Arbeidsgivere(
     internal val organisasjoner: Set<OrganisasjonArbeidsgivere>,
-    internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet()
+    internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet(),
+    internal val frilansoppdrag: Set<Frilansoppdrag> = emptySet()
 )

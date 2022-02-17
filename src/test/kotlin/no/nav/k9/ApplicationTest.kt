@@ -19,6 +19,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
+import no.nav.k9.PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
@@ -714,6 +715,45 @@ class ApplicationTest {
                     }
                     """.trimIndent()
                 println("HER ${response.content!!}")
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `Teste oppslag av frilans oppdrag`(){
+        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FRILANS_OPPDRAG)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=frilansoppdrag[]"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-frilans-oppdrag")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                    {
+                      "arbeidsgivere": {
+                        "frilansoppdrag": [
+                          {
+                            "type": "Person",
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2022-02-28",
+                            "offentlig_ident": "805824352"
+                          },
+                          {
+                            "type": "Organisasjon",
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2022-02-28",
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
+                          }
+                        ]
+                      }
+                    }
+                    """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
