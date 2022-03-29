@@ -49,9 +49,6 @@ spec:
         - application: k9-ettersending-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
-        - application: omsorgspenger-midlertidig-alene-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: omsorgspengerutbetaling-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
