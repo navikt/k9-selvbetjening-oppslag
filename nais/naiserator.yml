@@ -70,6 +70,9 @@ spec:
         - application: k9-brukerdialog-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: k9-sak-innsyn-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
