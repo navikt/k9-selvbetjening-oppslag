@@ -73,6 +73,9 @@ spec:
         - application: k9-sak-innsyn-api
           cluster: {{environment}}-gcp
           namespace: {{namespace}}
+        - application: sif-innsyn-api
+          cluster: {{environment}}-gcp
+          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
