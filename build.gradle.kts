@@ -5,7 +5,7 @@ val dusseldorfKtorVersion = "3.1.6.7-05da1a0"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "5.3.2"
-val sifTilgangskontrollVersion = "1-a2c709e"
+val sifTilgangskontrollVersion = "1-4881792"
 
 val mockkVersion = "1.12.3"
 val jsonassertVersion = "1.5.0"
@@ -14,7 +14,7 @@ val fuelVersion = "2.3.1"
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -81,8 +81,8 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 
