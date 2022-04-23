@@ -26,11 +26,11 @@ jobs:
           distribution: 'zulu'
           cache: 'gradle'
       - name: Build JAR
-        run: ./gradlew clean build -x test # Creates a combined JAR of project and runTime dependencies.
+        run: ./gradlew shadowJar # Creates a combined JAR of project and runTime dependencies.
       - name: Build Docker image
         run: docker build --tag ${IMAGE} .
 
       - uses: snyk/actions/setup@master
       - name: Monitor container image
         run: |
-          snyk container monitor $IMAGE --file=Dockerfile --app-vulns
+          snyk container monitor $IMAGE --file=Dockerfile --app-vulns --nested-jars-depth=2
