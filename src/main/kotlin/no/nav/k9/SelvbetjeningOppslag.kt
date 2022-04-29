@@ -68,7 +68,7 @@ fun Application.SelvbetjeningOppslag() {
         clientSecret = environment.config.clientSecret()
     )
 
-    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxExchangeTokenClient)
+    val tokenxExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxExchangeTokenClient)
     val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azureSystemTokenClient)
 
     val pdlClient = GraphQLKtorClient(
@@ -95,7 +95,7 @@ fun Application.SelvbetjeningOppslag() {
                     oppslagService = OppslagService(
                         pdlProxyGateway = PDLProxyGateway(
                             tilgangService = tilgangService,
-                            cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                            cachedAccessTokenClient = tokenxExchangeTokenClient,
                             pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
                             pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
                             cachedSystemTokenClient = cachedAzureSystemTokenClient
@@ -108,7 +108,7 @@ fun Application.SelvbetjeningOppslag() {
                         arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
                             arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
                                 baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
-                                cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                                cachedAccessTokenClient = tokenxExchangeTokenClient,
                                 aaregTokenxAudience = environment.config.aaregTokenxAudience()
                             )
                         ),
