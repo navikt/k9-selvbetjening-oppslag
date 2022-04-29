@@ -32,7 +32,6 @@ import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
-import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -69,9 +68,8 @@ fun Application.SelvbetjeningOppslag() {
         clientSecret = environment.config.clientSecret()
     )
 
-    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxPdlApiExchangeTokenClient)
-    val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azurePdlApiSystemTokenClient)
-
+    val tokenxPdlApiExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxExchangeTokenClient)
+    val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azureSystemTokenClient)
 
     val pdlClient = GraphQLKtorClient(
         url = environment.config.pdlUrl().toURL(),
@@ -110,7 +108,8 @@ fun Application.SelvbetjeningOppslag() {
                         arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
                             arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
                                 baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
-                                accessTokenClient = naisStsAccessTokenClient
+                                cachedAccessTokenClient = tokenxPdlApiExchangeTokenClient,
+                                aaregTokenxAudience = environment.config.aaregTokenxAudience()
                             )
                         ),
                         brregProxyV1Gateway = BrregProxyV1Gateway(

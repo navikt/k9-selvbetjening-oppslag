@@ -13,13 +13,12 @@ internal class AccessTokenClientResolver(
     val clients: Map<String, Client>,
 ) {
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(AccessTokenClientResolver::class.java)
-        private const val TOKEN_X_PDL_API = "tokenx-pdl-api"
-        private const val AZURE_PDL_API = "azure-pdl-api"
+        private const val TOKEN_X = "tokenx"
+        private const val AZURE = "azure"
     }
 
-    internal val tokenxPdlApiExchangeTokenClient get() = createSignedJwtAccessTokenClient(resolveClient(TOKEN_X_PDL_API))
-    internal val azurePdlApiSystemTokenClient get() = createSignedJwtAccessTokenClient(resolveClient(AZURE_PDL_API))
+    internal val tokenxExchangeTokenClient get() = createSignedJwtAccessTokenClient(resolveClient(TOKEN_X))
+    internal val azureSystemTokenClient get() = createSignedJwtAccessTokenClient(resolveClient(AZURE))
 
     private fun resolveClient(alias: String) =
         clients.getOrElse(alias) {

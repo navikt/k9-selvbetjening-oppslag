@@ -23,7 +23,7 @@ import java.time.LocalDate
 import kotlin.coroutines.coroutineContext
 
 /**
- * @see <a href="https://modapp.adeo.no/aareg-services/api/swagger-ui/index.html#/">Aareg-services swagger docs</a>
+ * @see <a href="https://aareg-services.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2">Aareg-services swagger docs</a>
  */
 
 enum class ArbeidsforholdType(val type: String){
@@ -35,14 +35,12 @@ enum class ArbeidsforholdType(val type: String){
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
     baseUrl: URI,
-    accessTokenClient: AccessTokenClient,
-    private val henteArbeidsforholdPerArbeidstakerScopes: Set<String> = setOf("openid")
+    private val cachedAccessTokenClient: CachedAccessTokenClient,
+    private val aaregTokenxAudience: String
 ) {
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV1::class.java)
     }
-
-    private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
 
     private val arbeidsforholdPerArbeidstakerUrl = Url.buildURL(
         baseUrl = baseUrl,
@@ -63,17 +61,18 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1 (
         fraOgMed: LocalDate,
         tilOgMed: LocalDate
     ) : Arbeidsgivere {
-        val navConsumerIdHeader = cachedAccessTokenClient.getAccessToken(henteArbeidsforholdPerArbeidstakerScopes).asAuthoriationHeader()
-        val authorizationHeader = "Bearer ${coroutineContext.idToken().value}"
+        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+            scopes = setOf(aaregTokenxAudience),
+            onBehalfOf = coroutineContext.idToken().value
+        )
+
         val url = urlMedFraOgMedTilOgMed(arbeidsforholdPerArbeidstakerUrl, fraOgMed, tilOgMed)
 
-        val httpRequest = url
+        val httpRequest = urlMedFraOgMedTilOgMed(arbeidsforholdPerArbeidstakerUrl, fraOgMed, tilOgMed)
             .httpGet()
             .header(
-                HttpHeaders.Authorization to authorizationHeader,
+                HttpHeaders.Authorization to "Bearer ${exchangeToken.token}",
                 HttpHeaders.Accept to "application/json",
-                NavHeaders.ConsumerToken to navConsumerIdHeader,
-                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
                 NavHeaders.CallId to coroutineContext.correlationId().value,
                 NavHeaders.PersonIdent to ident.value
             )
