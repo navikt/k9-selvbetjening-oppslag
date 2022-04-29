@@ -34,6 +34,7 @@ object TestConfiguration {
             Pair("nav.auth.client_secret", "mySecret"),
             Pair("nav.auth.pdl_api_tokenx_audience", "dev-fss:pdl:pdl-api"),
             Pair("nav.auth.pdl_api_azure_audience", "dev-fss.pdl.pdl-api/.default"),
+            Pair("nav.auth.aareg_tokenx_audience", "dev-fss.arbeidsforhold.aareg-services-nais"),
 
             Pair("nav.auth.issuers.0.alias", "login-service-v1"),
             Pair("nav.auth.issuers.0.discovery_endpoint", wireMockServer!!.getLoginServiceV1WellKnownUrl()),
@@ -42,11 +43,11 @@ object TestConfiguration {
             Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getTokendingsWellKnownUrl()),
 
             // Clients
-            Pair("nav.auth.clients.0.alias", "tokenx-pdl-api"),
+            Pair("nav.auth.clients.0.alias", "tokenx"),
             Pair("nav.auth.clients.0.client_id", "k9-selvbetjening-oppslag"),
             Pair("nav.auth.clients.0.private_key_jwk", ClientCredentials.ClientC.privateKeyJwk),
             Pair("nav.auth.clients.0.discovery_endpoint", wireMockServer.getTokendingsWellKnownUrl()),
-            Pair("nav.auth.clients.1.alias", "azure-pdl-api"),
+            Pair("nav.auth.clients.1.alias", "azure"),
             Pair("nav.auth.clients.1.client_id", "k9-selvbetjening-oppslag"),
             Pair("nav.auth.clients.1.private_key_jwk", ClientCredentials.ClientA.privateKeyJwk),
             Pair("nav.auth.clients.1.discovery_endpoint", wireMockServer.getAzureV2WellKnownUrl()),

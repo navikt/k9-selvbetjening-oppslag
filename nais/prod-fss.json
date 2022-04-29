@@ -12,8 +12,9 @@
   "azureTenant": "nav.no",
   "env": {
     "LOGIN_SERVICE_V1_DISCOVERY_ENDPOINT": "https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten",
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://modapp.adeo.no/aareg-services/api/v1",
-    "ENHET_V1_URL": "https://modapp.adeo.no/ereg/api/v1/",
+    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.intern.nav.no/api/v1",
+    "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
+    "ENHET_V1_URL": "https://ereg-services.intern.nav.no/api/v1/",
     "REST_TOKEN_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/token",
     "BRREG_PROXY_V1_URL": "https://brreg-proxy.nais.adeo.no/api/v1",
     "PDL_URL": "https://pdl-api.intern.nav.no/graphql",
