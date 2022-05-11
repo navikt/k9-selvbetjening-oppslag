@@ -6,6 +6,8 @@ val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "5.3.2"
 val sifTilgangskontrollVersion = "1-2254a85"
+val tokenSupportVersion = "2.0.15"
+val mockOauth2ServerVersion = "0.4.6"
 
 val mockkVersion = "1.12.3"
 val jsonassertVersion = "1.5.0"
@@ -33,6 +35,9 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-coroutines:$fuelVersion") {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
+
+    implementation ("no.nav.security:token-validation-ktor:$tokenSupportVersion")
+    testImplementation ("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
 
     implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")
     implementation("no.nav.sif.tilgangskontroll:core:$sifTilgangskontrollVersion") {

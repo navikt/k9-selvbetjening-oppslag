@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import no.nav.helse.dusseldorf.ktor.auth.idToken
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
+import no.nav.k9.objectMapper
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 
 internal fun Route.SystemOppslagRoute(
@@ -16,7 +17,7 @@ internal fun Route.SystemOppslagRoute(
 
     post("/system/hent-identer") {
         val idToken = call.idToken()
-        val hentIdenterForespørsel = call.receive<HentIdenterForespørsel>()
+        val hentIdenterForespørsel = objectMapper().readValue(call.receive<String>(), HentIdenterForespørsel::class.java)
 
         withContext(requestContextService.getCoroutineContext(
             context = coroutineContext,

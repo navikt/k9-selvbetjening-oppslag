@@ -5,7 +5,10 @@ import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
-import no.nav.helse.dusseldorf.testsupport.jws.*
+import no.nav.helse.dusseldorf.testsupport.jws.IDPorten
+import no.nav.helse.dusseldorf.testsupport.jws.LoginService
+import no.nav.helse.dusseldorf.testsupport.jws.Tokendings
+import no.nav.helse.dusseldorf.testsupport.jws.toDate
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
@@ -21,9 +24,12 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
+import no.nav.k9.TokenUtils.hentToken
 import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
+import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -55,10 +61,15 @@ class ApplicationTest {
             .stubEnhetsRegister()
             .stubBrregProxyV1()
 
+        val mockOAuth2Server = MockOAuth2Server().apply { start() }
+
         fun getConfig(): ApplicationConfig {
 
             val fileConfig = ConfigFactory.load()
-            val testConfig = ConfigFactory.parseMap(TestConfiguration.asMap(wireMockServer = wireMockServer))
+            val testConfig = ConfigFactory.parseMap(TestConfiguration.asMap(
+                wireMockServer = wireMockServer,
+                mockOAuth2Server = mockOAuth2Server
+            ))
             val mergedConfig = testConfig.withFallback(fileConfig)
 
             return HoconApplicationConfig(mergedConfig)
@@ -92,6 +103,7 @@ class ApplicationTest {
         fun tearDown() {
             logger.info("Tearing down")
             wireMockServer.stop()
+            mockOAuth2Server.shutdown()
             CollectorRegistry.defaultRegistry.clear()
             logger.info("Tear down complete")
         }
@@ -125,7 +137,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktoerId`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -143,12 +155,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktoerId med tokenx token med subjectToken fra loginservice`() {
-        val idToken: String = Tokendings.generateJwt(
-            urlDecodedBody = Tokendings.generateUrlDecodedBody(
-                subjectToken = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN),
-                clientAssertion = assertionJwt
-            )
-        )
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
 
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
@@ -167,12 +174,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktoerId med tokenx token med subjectToken fra IDPorten`() {
-        val idToken: String = Tokendings.generateJwt(
-            urlDecodedBody = Tokendings.generateUrlDecodedBody(
-                subjectToken = IDPorten.generateIdToken(PERSON_1_MED_BARN),
-                clientAssertion = assertionJwt
-            )
-        )
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
 
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
@@ -191,10 +193,13 @@ class ApplicationTest {
 
     @Test
     fun `megOppslag med azure token skal gi 401 feil`() {
-        val azureToken: String = Azure.V2_0.generateJwt(
-            clientId = "dev-gcp:dusseldorf:k9-sak-innsyn-api",
-            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag"
-        )
+
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("role" to "access_as_application")
+        ).serialize()
 
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
@@ -207,8 +212,36 @@ class ApplicationTest {
     }
 
     @Test
+    fun `systemoppslag med azure token skal gi 200`() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("role" to "access_as_application")
+        ).serialize()
+
+        with(engine) {
+            handleRequest(HttpMethod.Post, "/system/hent-identer") {
+                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
+                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-identer")
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.ContentType, "application/json")
+                //language=json
+                setBody("""
+                    {
+                        "identer": ["$PERSON_1_MED_BARN"],
+                        "identGrupper": ["${IdentGruppe.AKTORID}"]
+                    }
+                """.trimIndent())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+            }
+        }
+    }
+
+    @Test
     fun `test megOppslag aktør_id og fornavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
+        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -227,7 +260,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag aktør_id og navn og fødselsdato`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -251,7 +284,7 @@ class ApplicationTest {
 
     @Test
     fun `test megOppslag navn har ikke mellomnavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt("01010067894")
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = "01010067894")
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -273,7 +306,7 @@ class ApplicationTest {
 
     @Test
     fun `gitt oppslag av død person, forvent feil`() {
-        val idToken: String = LoginService.V1_0.generateJwt(DØD_PERSON)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = DØD_PERSON)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -286,7 +319,7 @@ class ApplicationTest {
 
     @Test
     fun `gitt oppslag av person under myndighetsalder (18), forvent feil`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UNDER_MYNDIGHETS_ALDER)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_UNDER_MYNDIGHETS_ALDER)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -299,7 +332,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag aktoerId`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
+        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -325,7 +358,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn og fødselsdato`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_2_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_2_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -357,7 +390,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn har ikke mellomnavn`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -382,7 +415,8 @@ class ApplicationTest {
 
     @Test
     fun `gitt barn med strengt fortrolig adresse, forvent tom liste`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_3_MED_SKJERMET_BARN)
+        val idToken: String =
+            mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_3_MED_SKJERMET_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -402,7 +436,7 @@ class ApplicationTest {
 
     @Test
     fun `gitt død barn, forvent tom liste`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_4_MED_DØD_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_4_MED_DØD_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -422,7 +456,7 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag ingenBarn`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_UTEN_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -442,7 +476,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -471,7 +505,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr og navn`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -505,7 +539,7 @@ class ApplicationTest {
 
     @Test
     fun `Forvent organiasjon uten navn, gitt at navn ikke er funnet`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -535,7 +569,7 @@ class ApplicationTest {
 
     @Test
     fun `Forvent 1 organisasjon med navn, gitt organisasjonsnummer`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -566,7 +600,7 @@ class ApplicationTest {
 
     @Test
     fun `Forvent 2 organisasjoner med navn, gitt organisasjonsnummer`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -601,7 +635,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -639,7 +673,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag med ingen arbeidsgivere`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_ARBEIDSGIVER)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_UTEN_ARBEIDSGIVER)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -666,7 +700,7 @@ class ApplicationTest {
 
     @Test
     fun `tester oppslag av private arbeidsgivere`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -696,8 +730,8 @@ class ApplicationTest {
     }
 
     @Test
-    fun `Forventer å kun få unike arbeidsgivere selvom man har flere arbeidsforhold hos en arbeidsgiver`(){
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
+    fun `Forventer å kun få unike arbeidsgivere selvom man har flere arbeidsforhold hos en arbeidsgiver`() {
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -735,8 +769,8 @@ class ApplicationTest {
     }
 
     @Test
-    fun `Teste oppslag av frilans oppdrag`(){
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FRILANS_OPPDRAG)
+    fun `Teste oppslag av frilans oppdrag`() {
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_MED_FRILANS_OPPDRAG)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -775,7 +809,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag alle attributter`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
@@ -832,7 +866,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag ingen attributter skal returnere tom JSON`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -850,7 +884,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag bare ugyldig attributt - bad request`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=ugyldigAttrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -877,7 +911,7 @@ class ApplicationTest {
 
     @Test
     fun `test oppslag ugyldige attributt - bad request`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -905,7 +939,7 @@ class ApplicationTest {
 
     @Test
     fun `gitt oppslag av søker under myndighetsalder, forvent 451 Unavailable For Legal Reasons`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UNDER_MYNDIGHETS_ALDER)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_UNDER_MYNDIGHETS_ALDER)
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
@@ -930,7 +964,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag feil format fom`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -960,7 +994,7 @@ class ApplicationTest {
 
     @Test
     fun `test arbeidsgiverOppslag feil format tom`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_1_MED_BARN)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -990,7 +1024,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FORETAK)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_MED_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -1026,7 +1060,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som ikke har det`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_UTEN_FORETAK)
+        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_UTEN_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
@@ -1049,7 +1083,7 @@ class ApplicationTest {
 
     @Test
     fun `Hente personlige foretak for en person som har fler roller i samme foretak`() {
-        val idToken: String = LoginService.V1_0.generateJwt(PERSON_MED_FLERE_ROLLER_I_FORETAK)
+        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v1", subject = PERSON_MED_FLERE_ROLLER_I_FORETAK)
         with(engine) {
             handleRequest(
                 HttpMethod.Get,

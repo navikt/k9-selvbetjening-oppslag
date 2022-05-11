@@ -33,22 +33,54 @@ import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
+import no.nav.security.token.support.ktor.RequiredClaims
+import no.nav.security.token.support.ktor.asIssuerProps
+import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
+import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.SelvbetjeningOppslag() {
+    val logger = LoggerFactory.getLogger("no.nav.k9.SelvbetjeningOppslagKt.SelvbetjeningOppslag")
     val appId = environment.config.id()
     logProxyProperties()
     DefaultExports.initialize()
 
+    val config = this.environment.config
+    val allIssuers = config.asIssuerProps().keys
+
     val requestContextService = RequestContextService()
-    val issuers = environment.config.issuers().withoutAdditionalClaimRules()
     val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
-        multipleJwtIssuers(issuers = issuers, logJwtPayloadOnUnsupportedIssuer = true)
+        // multipleJwtIssuers(issuers = issuers, logJwtPayloadOnUnsupportedIssuer = true)
+        allIssuers
+            .filterNot { it == "azure" }
+            .forEach { issuer: String ->
+                tokenValidationSupport(
+                    name = issuer,
+                    config = config,
+                    requiredClaims = RequiredClaims(
+                        issuer = issuer,
+                        claimMap = arrayOf("acr=Level4")
+                    )
+                )
+            }
+
+        allIssuers
+            .filter { it == "azure" }
+            .forEach { issuer: String ->
+                tokenValidationSupport(
+                    name = issuer,
+                    config = config,
+                    requiredClaims = RequiredClaims(
+                        issuer = issuer,
+                        claimMap = arrayOf("role=access_as_application")
+                    )
+                )
+            }
     }
 
     install(ContentNegotiation) {
@@ -99,7 +131,7 @@ fun Application.SelvbetjeningOppslag() {
     )
     install(Routing) {
         authenticate(
-            configurations = issuers.allIssuers().filter { issuer -> issuer != "azure" }.toTypedArray()
+            configurations = allIssuers.filter { issuer -> issuer != "azure" }.toTypedArray()
         ) {
             requiresCallId {
                 OppslagRoute(
@@ -131,7 +163,7 @@ fun Application.SelvbetjeningOppslag() {
 
         // Tillater kun azure issuer. Ment for systemkall.
         authenticate(
-            configurations = issuers.allIssuers().filter { issuer -> issuer == "azure" }.toTypedArray()
+            configurations = allIssuers.filter { issuer -> issuer == "azure" }.toTypedArray()
         ) {
             requiresCallId {
                 SystemOppslagRoute(
@@ -159,6 +191,15 @@ fun Application.SelvbetjeningOppslag() {
     install(CallLogging) {
         correlationIdAndRequestIdInMdc()
         logRequests()
+        mdc("id_token_jti") { call ->
+            try {
+                val idToken = call.idToken()
+                logger.info("Issuer [{}]", idToken.issuer())
+                idToken.getId()
+            } catch (cause: Throwable) {
+                null
+            }
+        }
     }
 
     environment.monitor.subscribe(ApplicationStopping) {
