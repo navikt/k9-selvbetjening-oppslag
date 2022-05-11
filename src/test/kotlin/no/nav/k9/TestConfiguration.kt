@@ -38,9 +38,16 @@ object TestConfiguration {
 
             Pair("nav.auth.issuers.0.alias", "login-service-v1"),
             Pair("nav.auth.issuers.0.discovery_endpoint", wireMockServer!!.getLoginServiceV1WellKnownUrl()),
+            Pair("nav.auth.issuers.0.audience", "dev-fss:dusseldorf:k9-selvbetjening-oppslag"),
 
             Pair("nav.auth.issuers.1.alias", "tokenx"),
             Pair("nav.auth.issuers.1.discovery_endpoint", wireMockServer.getTokendingsWellKnownUrl()),
+            Pair("nav.auth.issuers.1.audience", "dev-fss:dusseldorf:k9-selvbetjening-oppslag"),
+
+            Pair("nav.auth.issuers.2.alias", "azure"),
+            Pair("nav.auth.issuers.2.discovery_endpoint", wireMockServer.getAzureV2WellKnownUrl()),
+            Pair("nav.auth.issuers.2.audience", "dev-fss:dusseldorf:k9-selvbetjening-oppslag"),
+            Pair("nav.auth.issuers.2.azure.required_roles", "access_as_application"),
 
             // Clients
             Pair("nav.auth.clients.0.alias", "tokenx"),

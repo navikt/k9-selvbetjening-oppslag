@@ -5,10 +5,7 @@ import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
-import no.nav.helse.dusseldorf.testsupport.jws.IDPorten
-import no.nav.helse.dusseldorf.testsupport.jws.LoginService
-import no.nav.helse.dusseldorf.testsupport.jws.Tokendings
-import no.nav.helse.dusseldorf.testsupport.jws.toDate
+import no.nav.helse.dusseldorf.testsupport.jws.*
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
@@ -188,6 +185,23 @@ class ApplicationTest {
                 { "aktør_id": "12345" }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `megOppslag med azure token skal gi 401 feil`() {
+        val azureToken: String = Azure.V2_0.generateJwt(
+            clientId = "dev-gcp:dusseldorf:k9-sak-innsyn-api",
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag"
+        )
+
+        with(engine) {
+            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
+                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
+                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+            }.apply {
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
     }

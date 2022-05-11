@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
@@ -27,6 +28,8 @@ import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.inngaende.oppslag.SystemOppslagRoute
+import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
@@ -45,7 +48,7 @@ fun Application.SelvbetjeningOppslag() {
     val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
-        multipleJwtIssuers(issuers)
+        multipleJwtIssuers(issuers = issuers, logJwtPayloadOnUnsupportedIssuer = true)
     }
 
     install(ContentNegotiation) {
@@ -87,19 +90,22 @@ fun Application.SelvbetjeningOppslag() {
         pdlService = PdlService(graphQLClient = pdlClient)
     )
 
+    val pdlProxyGateway = PDLProxyGateway(
+        tilgangService = tilgangService,
+        cachedAccessTokenClient = tokenxExchangeTokenClient,
+        pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+        pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+        cachedSystemTokenClient = cachedAzureSystemTokenClient
+    )
     install(Routing) {
-        authenticate(*issuers.allIssuers()) {
+        authenticate(
+            configurations = issuers.allIssuers().filter { issuer -> issuer != "azure" }.toTypedArray()
+        ) {
             requiresCallId {
                 OppslagRoute(
                     requestContextService = requestContextService,
                     oppslagService = OppslagService(
-                        pdlProxyGateway = PDLProxyGateway(
-                            tilgangService = tilgangService,
-                            cachedAccessTokenClient = tokenxExchangeTokenClient,
-                            pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
-                            pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
-                            cachedSystemTokenClient = cachedAzureSystemTokenClient
-                        ),
+                        pdlProxyGateway = pdlProxyGateway,
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(
                                 baseUrl = environment.config.enhetsregisterV1Url()
@@ -119,6 +125,18 @@ fun Application.SelvbetjeningOppslag() {
                             )
                         )
                     )
+                )
+            }
+        }
+
+        // Tillater kun azure issuer. Ment for systemkall.
+        authenticate(
+            configurations = issuers.allIssuers().filter { issuer -> issuer == "azure" }.toTypedArray()
+        ) {
+            requiresCallId {
+                SystemOppslagRoute(
+                    requestContextService = requestContextService,
+                    systemOppslagService = SystemOppslagService(pdlProxyGateway = pdlProxyGateway)
                 )
             }
         }

@@ -9,6 +9,8 @@ import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
 import no.nav.siftilgangskontroll.core.pdl.AktørId
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
+import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
+import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkResult
 import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
 import no.nav.siftilgangskontroll.policy.spesification.PolicyEvaluation
 import org.slf4j.LoggerFactory
@@ -49,7 +51,7 @@ class PDLProxyGateway(
     }
 
     internal suspend fun barn(
-        identer: List<Ident>
+        identer: List<Ident>,
     ): List<PdlBarn> {
         val identListe = identer.map { it.value }
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
@@ -71,9 +73,26 @@ class PDLProxyGateway(
             .map { it.barn!! }
     }
 
+    internal suspend fun hentIdenter(
+        identer: List<String>,
+        identGrupper: List<IdentGruppe>,
+    ): List<HentIdenterBolkResult> {
+
+        val callId = coroutineContext.correlationId().value
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+
+        val identerBolkResults = tilgangService.hentIdenter(
+            identer = identer,
+            identGrupper = identGrupper,
+            systemToken = systemToken.token,
+            callId = callId
+        )
+        return identerBolkResults
+    }
+
     internal suspend fun aktørId(
         ident: Ident,
-        attributter: Set<Attributt>
+        attributter: Set<Attributt>,
     ): AktørId? {
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
@@ -83,15 +102,17 @@ class PDLProxyGateway(
 
         val aktørId = tilgangService.hentAktørId(
             ident = ident.value,
+            identGruppe = IdentGruppe.AKTORID,
             borgerToken = exchangeToken.token,
             callId = callId
         )
 
         return when {
-            attributter.any { it in støttedeAttributter } ->  aktørId
+            attributter.any { it in støttedeAttributter } -> aktørId
             else -> null
         }
     }
 }
 
-data class TilgangNektetException(override val message: String, val policyException: PolicyEvaluation) : RuntimeException(message)
+data class TilgangNektetException(override val message: String, val policyException: PolicyEvaluation) :
+    RuntimeException(message)
