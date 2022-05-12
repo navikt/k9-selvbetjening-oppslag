@@ -57,6 +57,7 @@ class ApplicationTest {
             .stubPDLRequest(PdlOperasjon.HENT_PERSON)
             .stubPDLRequest(PdlOperasjon.HENT_PERSON_BOLK)
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER)
+            .stubPDLRequest(PdlOperasjon.HENT_IDENTER_BOLK)
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
             .stubBrregProxyV1()
@@ -79,18 +80,6 @@ class ApplicationTest {
         val engine = TestApplicationEngine(createTestEnvironment {
             config = getConfig()
         })
-
-        private val assertionJwt = Tokendings.generateAssertionJwt(mapOf(
-            "client_id" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
-            "iss" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
-            "aud" to Tokendings.getAudience(),
-            "sub" to "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
-            "iat" to LocalDateTime.now().toDate(),
-            "nbf" to LocalDateTime.now().toDate(),
-            "exp" to LocalDateTime.now().plusSeconds(200).toDate(),
-            "jti" to UUID.randomUUID().toString(),
-        ))
-
 
         @BeforeAll
         @JvmStatic
@@ -230,11 +219,28 @@ class ApplicationTest {
                 setBody("""
                     {
                         "identer": ["$PERSON_1_MED_BARN"],
-                        "identGrupper": ["${IdentGruppe.AKTORID}"]
+                        "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
                     }
                 """.trimIndent())
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
+                //language=json
+                val expectedResponse = """
+                    {
+                      "data": {
+                        "hentIdenterBolk": [
+                          {
+                            "identer": [
+                              {
+                                "ident": "$PERSON_1_MED_BARN",
+                                "gruppe": "${IdentGruppe.FOLKEREGISTERIDENT}"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                """.trimIndent()
             }
         }
     }

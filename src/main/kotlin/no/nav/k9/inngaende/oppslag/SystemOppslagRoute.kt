@@ -2,6 +2,7 @@ package no.nav.k9.inngaende.oppslag
 
 import io.ktor.application.*
 import io.ktor.request.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.withContext
 import no.nav.helse.dusseldorf.ktor.auth.idToken
@@ -24,10 +25,12 @@ internal fun Route.SystemOppslagRoute(
             correlationId = call.correlationId(),
             idToken = idToken
         )) {
-            systemOppslagService.hentIdenter(
+            val hentIdenterBolkResults = systemOppslagService.hentIdenter(
                 identer = hentIdenterForespørsel.identer,
                 identGrupper = hentIdenterForespørsel.identGrupper
             )
+
+            call.respond(hentIdenterBolkResults)
         }
     }
 }
