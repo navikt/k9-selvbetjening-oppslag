@@ -42,8 +42,8 @@ object TestConfiguration {
             Pair("no.nav.security.jwt.issuers.0.discoveryurl", "${mockOAuth2Server!!.wellKnownUrl("tokendings")}"),
             Pair("no.nav.security.jwt.issuers.0.accepted_audience", "dev-fss:dusseldorf:k9-selvbetjening-oppslag"),
 
-            Pair("no.nav.security.jwt.issuers.1.issuer_name", "login-service-v1"),
-            Pair("no.nav.security.jwt.issuers.1.discoveryurl", "${mockOAuth2Server.wellKnownUrl("login-service-v1")}"),
+            Pair("no.nav.security.jwt.issuers.1.issuer_name", "login-service-v2"),
+            Pair("no.nav.security.jwt.issuers.1.discoveryurl", "${mockOAuth2Server.wellKnownUrl("login-service-v2")}"),
             Pair("no.nav.security.jwt.issuers.1.accepted_audience", "dev-fss:dusseldorf:k9-selvbetjening-oppslag"),
 
             Pair("no.nav.security.jwt.issuers.2.issuer_name", "azure"),
