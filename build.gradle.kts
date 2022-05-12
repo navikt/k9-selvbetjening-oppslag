@@ -7,7 +7,7 @@ val kotlinVersion = ext.get("kotlinVersion").toString()
 val graphqlKotlinClientVersion = "5.3.2"
 val sifTilgangskontrollVersion = "1-4881792"
 
-val mockkVersion = "1.12.3"
+val mockkVersion = "1.12.4"
 val jsonassertVersion = "1.5.0"
 val fuelVersion = "2.3.1"
 
