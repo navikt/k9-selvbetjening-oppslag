@@ -33,6 +33,7 @@ import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
+import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever
 import no.nav.security.token.support.ktor.RequiredClaims
 import no.nav.security.token.support.ktor.asIssuerProps
 import no.nav.security.token.support.ktor.tokenValidationSupport
@@ -65,7 +66,8 @@ fun Application.SelvbetjeningOppslag() {
                     requiredClaims = RequiredClaims(
                         issuer = issuer,
                         claimMap = arrayOf("acr=Level4")
-                    )
+                    ),
+                    resourceRetriever = ProxyAwareResourceRetriever()
                 )
             }
 
