@@ -4,7 +4,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="no.nav" level="INFO"/>
+    <logger name="no.nav" level="DEBUG"/>
     <logger name="io.ktor.auth.jwt" level="TRACE" />
 
     <root level="INFO">
