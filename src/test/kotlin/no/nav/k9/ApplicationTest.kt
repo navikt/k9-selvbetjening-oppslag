@@ -206,7 +206,7 @@ class ApplicationTest {
             issuerId = "azure",
             subject = UUID.randomUUID().toString(),
             audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
-            claims = mapOf("role" to "access_as_application")
+            claims = mapOf("roles" to "access_as_application")
         ).serialize()
 
         with(engine) {
