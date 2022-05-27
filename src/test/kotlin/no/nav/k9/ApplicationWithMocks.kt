@@ -7,6 +7,7 @@ import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
 import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
 import no.nav.k9.wiremocks.stubEnhetsRegister
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -17,6 +18,7 @@ class ApplicationWithMocks {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            val mockOAuth2Server = MockOAuth2Server().apply { start() }
 
             val wireMockServer = WireMockBuilder()
                 .withPort(8081)
@@ -28,7 +30,10 @@ class ApplicationWithMocks {
                 .stubEnhetsRegister()
                 .stubBrregProxyV1()
 
-            val testArgs = TestConfiguration.asMap(wireMockServer = wireMockServer).asArguments()
+            val testArgs = TestConfiguration.asMap(
+                wireMockServer = wireMockServer,
+                mockOAuth2Server = mockOAuth2Server
+            ).asArguments()
 
             Runtime.getRuntime().addShutdownHook(object : Thread() {
                 override fun run() {

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
@@ -27,25 +28,59 @@ import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
+import no.nav.k9.inngaende.oppslag.SystemOppslagRoute
+import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.*
+import no.nav.security.token.support.ktor.RequiredClaims
+import no.nav.security.token.support.ktor.asIssuerProps
+import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
+import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.SelvbetjeningOppslag() {
+    val logger = LoggerFactory.getLogger("no.nav.k9.SelvbetjeningOppslagKt.SelvbetjeningOppslag")
     val appId = environment.config.id()
     logProxyProperties()
     DefaultExports.initialize()
 
+    val config = this.environment.config
+    val allIssuers = config.asIssuerProps().keys
+
     val requestContextService = RequestContextService()
-    val issuers = environment.config.issuers().withoutAdditionalClaimRules()
     val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
-        multipleJwtIssuers(issuers)
+        // multipleJwtIssuers(issuers = issuers, logJwtPayloadOnUnsupportedIssuer = true)
+        allIssuers
+            .filterNot { it == "azure" }
+            .forEach { issuer: String ->
+                tokenValidationSupport(
+                    name = issuer,
+                    config = config,
+                    requiredClaims = RequiredClaims(
+                        issuer = issuer,
+                        claimMap = arrayOf("acr=Level4")
+                    )
+                )
+            }
+
+        allIssuers
+            .filter { it == "azure" }
+            .forEach { issuer: String ->
+                tokenValidationSupport(
+                    name = issuer,
+                    config = config,
+                    requiredClaims = RequiredClaims(
+                        issuer = issuer,
+                        claimMap = arrayOf("roles=access_as_application")
+                    )
+                )
+            }
     }
 
     install(ContentNegotiation) {
@@ -87,19 +122,22 @@ fun Application.SelvbetjeningOppslag() {
         pdlService = PdlService(graphQLClient = pdlClient)
     )
 
+    val pdlProxyGateway = PDLProxyGateway(
+        tilgangService = tilgangService,
+        cachedAccessTokenClient = tokenxExchangeTokenClient,
+        pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
+        pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
+        cachedSystemTokenClient = cachedAzureSystemTokenClient
+    )
     install(Routing) {
-        authenticate(*issuers.allIssuers()) {
+        authenticate(
+            configurations = allIssuers.filter { issuer -> issuer != "azure" }.toTypedArray()
+        ) {
             requiresCallId {
                 OppslagRoute(
                     requestContextService = requestContextService,
                     oppslagService = OppslagService(
-                        pdlProxyGateway = PDLProxyGateway(
-                            tilgangService = tilgangService,
-                            cachedAccessTokenClient = tokenxExchangeTokenClient,
-                            pdlApiTokenxAudience = environment.config.pdlApiTokenxAudience(),
-                            pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
-                            cachedSystemTokenClient = cachedAzureSystemTokenClient
-                        ),
+                        pdlProxyGateway = pdlProxyGateway,
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(
                                 baseUrl = environment.config.enhetsregisterV1Url()
@@ -122,6 +160,18 @@ fun Application.SelvbetjeningOppslag() {
                 )
             }
         }
+
+        // Tillater kun azure issuer. Ment for systemkall.
+        authenticate(
+            configurations = allIssuers.filter { issuer -> issuer == "azure" }.toTypedArray()
+        ) {
+            requiresCallId {
+                SystemOppslagRoute(
+                    requestContextService = requestContextService,
+                    systemOppslagService = SystemOppslagService(pdlProxyGateway = pdlProxyGateway)
+                )
+            }
+        }
         DefaultProbeRoutes()
         MetricsRoute()
     }
@@ -141,6 +191,15 @@ fun Application.SelvbetjeningOppslag() {
     install(CallLogging) {
         correlationIdAndRequestIdInMdc()
         logRequests()
+        mdc("id_token_jti") { call ->
+            try {
+                val idToken = call.idToken()
+                logger.info("Issuer [{}]", idToken.issuer())
+                idToken.getId()
+            } catch (cause: Throwable) {
+                null
+            }
+        }
     }
 
     environment.monitor.subscribe(ApplicationStopping) {
