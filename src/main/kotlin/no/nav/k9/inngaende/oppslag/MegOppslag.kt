@@ -42,7 +42,7 @@ internal class MegOppslag(
 
 fun Person.barnIdenter(): List<Ident> = forelderBarnRelasjon
     .filter { it.relatertPersonsRolle == ForelderBarnRelasjonRolle.BARN }
-    .map { Ident(it.relatertPersonsIdent) }
+    .map { Ident(it.relatertPersonsIdent!!) }
 
 data class PdlPerson(
     internal val fornavn: String,

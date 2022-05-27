@@ -22,6 +22,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(PdlAktoerIdResponseTransformer())
         .extensions(PDLHentPersonBolkResponseTransformer())
         .extensions(PDLPersonResponseTransformer())
+        .extensions(PDLHentIdentBolkResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
@@ -43,6 +44,7 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
                         PdlOperasjon.HENT_PERSON -> "pdl-hent-person"
                         PdlOperasjon.HENT_PERSON_BOLK -> "pdl-hent-barn"
                         PdlOperasjon.HENT_IDENTER -> "pdl-hent-ident"
+                        PdlOperasjon.HENT_IDENTER_BOLK -> "pdl-hent-identer-bolk"
                     })
             )
     )

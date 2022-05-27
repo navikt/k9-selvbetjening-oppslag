@@ -14,7 +14,6 @@ object PersonFødselsnummer {
     const val PERSON_UTEN_ARBEIDSGIVER = "02029212345"
     const val PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER = "04047316486"
     const val PERSON_MED_FRILANS_OPPDRAG = "14047316486"
-
 }
 
 object BarnFødselsnummer {
