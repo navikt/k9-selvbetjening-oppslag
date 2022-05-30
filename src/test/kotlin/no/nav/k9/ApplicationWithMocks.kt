@@ -22,13 +22,11 @@ class ApplicationWithMocks {
 
             val wireMockServer = WireMockBuilder()
                 .withPort(8081)
-                .withNaisStsSupport()
                 .withLoginServiceSupport()
                 .k9SelvbetjeningOppslagConfig()
                 .build()
                 .stubArbeidsgiverOgArbeidstakerRegister()
                 .stubEnhetsRegister()
-                .stubBrregProxyV1()
 
             val testArgs = TestConfiguration.asMap(
                 wireMockServer = wireMockServer,
