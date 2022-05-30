@@ -1,0 +1,26 @@
+{
+  "app": "k9-selvbetjening-oppslag",
+  "cluster": "dev-gcp",
+  "environment": "dev",
+  "namespace": "dusseldorf",
+  "team": "dusseldorf",
+  "minReplicas": "1",
+  "maxReplicas": "2",
+  "ingresses": [
+    "https://k9-selvbetjening-oppslag.dev.intern.nav.no"
+  ],
+  "azureTenant": "trygdeetaten.no",
+  "env": {
+    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v1",
+    "AAREG_TOKENX_AUDIENCE": "dev-fss:arbeidsforhold:aareg-services-nais",
+    "ENHET_V1_URL": "https://ereg-services-q1.dev-fss-pub.nais.io/api/v1/",
+    "REST_TOKEN_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/token",
+    "BRREG_PROXY_V1_URL": "https://brreg-proxy.nais.preprod.local/api/v1",
+    "PDL_URL": "https://pdl-api.dev-fss-pub.nais.io/graphql",
+    "PDL_API_TOKENX_AUDIENCE": "dev-fss:pdl:pdl-api",
+    "PDL_API_AZURE_AUDIENCE": "api://dev-fss.pdl.pdl-api/.default"
+  },
+  "slack-channel": "sif-alerts-dev",
+  "slack-notify-type": "<!here> | k9-selvbetjening-oppslag | ",
+  "app-alert-ingress": "https://k9-selvbetjening-oppslag.dev.intern.nav.no"
+}
