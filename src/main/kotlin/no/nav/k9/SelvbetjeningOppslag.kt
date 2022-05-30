@@ -97,12 +97,6 @@ fun Application.SelvbetjeningOppslag() {
 
     install(CallIdRequired)
 
-    val naisStsAccessTokenClient = NaisStsAccessTokenClient(
-        tokenEndpoint = environment.config.restTokenUrl(),
-        clientId = environment.config.clientId(),
-        clientSecret = environment.config.clientSecret()
-    )
-
     val tokenxExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxExchangeTokenClient)
     val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azureSystemTokenClient)
 
@@ -148,12 +142,6 @@ fun Application.SelvbetjeningOppslag() {
                                 baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
                                 cachedAccessTokenClient = tokenxExchangeTokenClient,
                                 aaregTokenxAudience = environment.config.aaregTokenxAudience()
-                            )
-                        ),
-                        brregProxyV1Gateway = BrregProxyV1Gateway(
-                            brregProxyV1 = BrregProxyV1(
-                                baseUrl = environment.config.brregProxyV1Url(),
-                                accessTokenClient = naisStsAccessTokenClient
                             )
                         )
                     )

@@ -13,9 +13,7 @@ import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 
 private const val arbeidsgiverOgArbeidstakerRegisterServerPath = "/arbeidsgiver-og-arbeidstaker-register-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
-private const val tpsProxyServerPath = "/tps-proxy-mock"
 private const val pdlServerPath = "/graphql"
-private const val brregProxyV1ServerPath = "/brreg-proxy-v1-mock"
 
 internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
     it
@@ -78,23 +76,9 @@ internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
     return this
 }
 
-internal fun WireMockServer.stubBrregProxyV1(): WireMockServer {
-    WireMock.stubFor(
-        WireMock.get(WireMock.urlPathMatching("$brregProxyV1ServerPath/person/rolleoversikt"))
-            .willReturn(
-                WireMock.aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withStatus(200)
-                    .withTransformers("brreg-proxy-v1")
-            )
-    )
-    return this
-}
 
 internal fun WireMockServer.getArbeidsgiverOgArbeidstakerRegisterUrl() =
     baseUrl() + arbeidsgiverOgArbeidstakerRegisterServerPath
 
 internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
-internal fun WireMockServer.getTpsProxyUrl() = baseUrl() + tpsProxyServerPath
 internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath
-internal fun WireMockServer.getBrregProxyV1BaseUrl() = baseUrl() + brregProxyV1ServerPath
