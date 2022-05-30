@@ -11,12 +11,10 @@
   ],
   "azureTenant": "nav.no",
   "env": {
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.prod-fss-pub.nais.ion/api/v1",
+    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v1",
     "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
-    "ENHET_V1_URL": "https://ereg-services.intern.nav.no/api/v1/",
-    "REST_TOKEN_URL": "https://security-token-service.nais.adeo.no/rest/v1/sts/token",
-    "BRREG_PROXY_V1_URL": "https://brreg-proxy.nais.adeo.no/api/v1",
-    "PDL_URL": "https://pdl-api.intern.nav.no/graphql",
+    "ENHET_V1_URL": "https://ereg-services.prod-fss-pub.nais.io/api/v1/",
+    "PDL_URL": "https://pdl-api.prod-fss-pub.nais.io/graphql",
     "PDL_API_TOKENX_AUDIENCE": "prod-fss:pdl:pdl-api",
     "PDL_API_AZURE_AUDIENCE": "api://prod-fss.pdl.pdl-api/.default"
   },

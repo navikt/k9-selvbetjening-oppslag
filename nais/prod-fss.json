@@ -20,5 +20,5 @@
   },
   "slack-channel": "sif-alerts",
   "slack-notify-type": "<!channel> | k9-selvbetjening-oppslag | ",
-  "app-alert-ingress": "https://k9-selvbetjening-oppslag.nais.adeo.no"
+  "app-alert-ingress": "https://k9-selvbetjening-oppslag.prod-fss-pub.nais.io"
 }
