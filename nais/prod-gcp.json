@@ -1,24 +1,24 @@
 {
   "app": "k9-selvbetjening-oppslag",
-  "cluster": "prod-fss",
+  "cluster": "prod-gcp",
   "environment": "prod",
   "namespace": "dusseldorf",
   "team": "dusseldorf",
   "minReplicas": "2",
   "maxReplicas": "4",
   "ingresses": [
-    "https://k9-selvbetjening-oppslag.prod-fss-pub.nais.io"
+    "https://k9-selvbetjening-oppslag.intern.nav.no"
   ],
   "azureTenant": "nav.no",
   "env": {
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.intern.nav.no/api/v1",
+    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v1",
     "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
-    "ENHET_V1_URL": "https://ereg-services.intern.nav.no/api/v1/",
-    "PDL_URL": "https://pdl-api.intern.nav.no/graphql",
+    "ENHET_V1_URL": "https://ereg-services.prod-fss-pub.nais.io/api/v1/",
+    "PDL_URL": "https://pdl-api.prod-fss-pub.nais.io/graphql",
     "PDL_API_TOKENX_AUDIENCE": "prod-fss:pdl:pdl-api",
     "PDL_API_AZURE_AUDIENCE": "api://prod-fss.pdl.pdl-api/.default"
   },
   "slack-channel": "sif-alerts",
   "slack-notify-type": "<!channel> | k9-selvbetjening-oppslag | ",
-  "app-alert-ingress": "https://k9-selvbetjening-oppslag.prod-fss-pub.nais.io"
+  "app-alert-ingress": "https://k9-selvbetjening-oppslag.intern.nav.no"
 }
