@@ -27,13 +27,7 @@ internal enum class Attributt(internal val api: String) {
     privateArbeidsgivereAnsettelseperiode("private_arbeidsgivere[].ansettelsesperiode"),
     privateArbeidsgivereOffentligIdent("private_arbeidsgivere[].offentlig_ident"),
 
-    frilansoppdrag("frilansoppdrag[]"),
-
-    personligForetakOrganisasjonsnummer("personlige_foretak[].organisasjonsnummer"),
-    personligForetakNavn("personlige_foretak[].navn"),
-    personligForetakOrganisasjonsform("personlige_foretak[].organisasjonsform"),
-    personligForetakRegistreringsdato("personlige_foretak[].registreringsdato"),
-    personligForetakOpphørsdato("personlige_foretak[].opphørsdato")
+    frilansoppdrag("frilansoppdrag[]")
     ;
 
     internal companion object {
@@ -51,8 +45,6 @@ internal fun Set<Attributt>.etterspurtArbeidsgivereOrganisasjoner() = any { it.a
 
 internal fun Set<Attributt>.etterspurtPrivateArbeidsgivere() = any { it.api.startsWith("private_arbeidsgivere[]") }
 
-internal fun Set<Attributt>.etterspurtPersonligForetak() = any { it.api.startsWith("personlige_foretak[]") }
-
 internal fun Set<Attributt>.etterspurtFrilansoppdrag() = any { it.api.startsWith("frilansoppdrag[]") }
 
 private val megAttributter = setOf(
@@ -69,6 +61,5 @@ internal data class OppslagResultat(
     internal val barn: Set<Barn>? = null,
     internal val arbeidsgivereOrganisasjoner: Set<ArbeidsgiverOrganisasjon>? = null,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver>? = null,
-    internal val personligeForetak: Set<PersonligForetak<String>>? = null,
     internal val frilansoppdrag: Set<Frilansoppdrag>? = null
 )

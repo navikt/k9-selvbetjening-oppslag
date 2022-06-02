@@ -47,7 +47,6 @@ class ApplicationTest {
         private val logger: Logger = LoggerFactory.getLogger(ApplicationTest::class.java)
 
         val wireMockServer = WireMockBuilder()
-            .withNaisStsSupport()
             .withLoginServiceSupport()
             .withIDPortenSupport()
             .withTokendingsSupport()
@@ -60,7 +59,6 @@ class ApplicationTest {
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER_BOLK)
             .stubArbeidsgiverOgArbeidstakerRegister()
             .stubEnhetsRegister()
-            .stubBrregProxyV1()
 
         val mockOAuth2Server = MockOAuth2Server().apply { start() }
 
@@ -1021,92 +1019,6 @@ class ApplicationTest {
                         {"name":"tom","reason":"Må være på format yyyy-mm-dd.","invalid_value":"2019.10.10","type":"query"}
                     ],
                     "status":400
-                }
-                """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
-            }
-        }
-    }
-
-    @Test
-    fun `Hente personlige foretak for en person som har det`() {
-        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v2", subject = PERSON_MED_FORETAK)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
-                MegUrlGenerator.PersonligeForetak
-            ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                val expectedResponse = """
-                {
-                    "personlige_foretak": [{
-                        "organisasjonsform": "ENK",
-                        "registreringsdato": "2020-01-01",
-                        "organisasjonsnummer": "1"
-                    }, {
-                        "organisasjonsform": "DA",
-                        "registreringsdato": "2020-02-01",
-                        "organisasjonsnummer": "2"
-                    }, {
-                        "opphørsdato": "2020-06-01",
-                        "organisasjonsform": "ANS",
-                        "registreringsdato": "2020-03-01",
-                        "organisasjonsnummer": "3"
-                    }]
-                }
-                """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
-            }
-        }
-    }
-
-    @Test
-    fun `Hente personlige foretak for en person som ikke har det`() {
-        val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v2", subject = PERSON_UTEN_FORETAK)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
-                MegUrlGenerator.PersonligeForetak
-            ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                val expectedResponse = """
-                {
-                    "personlige_foretak": []
-                }
-                """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
-            }
-        }
-    }
-
-    @Test
-    fun `Hente personlige foretak for en person som har fler roller i samme foretak`() {
-        val idToken: String =  mockOAuth2Server.hentToken(issuerId = "login-service-v2", subject = PERSON_MED_FLERE_ROLLER_I_FORETAK)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
-                MegUrlGenerator.PersonligeForetak
-            ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
-                val expectedResponse = """
-                {
-                    "personlige_foretak": [{
-                        "organisasjonsform": "ENK",
-                        "registreringsdato": "2020-01-02",
-                        "organisasjonsnummer": "1"
-                    }]
                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)

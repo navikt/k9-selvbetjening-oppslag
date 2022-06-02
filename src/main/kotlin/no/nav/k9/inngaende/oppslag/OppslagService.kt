@@ -9,7 +9,6 @@ import java.time.LocalDate
 internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
     private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
-    brregProxyV1Gateway: BrregProxyV1Gateway,
     pdlProxyGateway: PDLProxyGateway,
 ) {
     internal companion object {
@@ -48,11 +47,6 @@ internal class OppslagService(
         enhetsregisterV1Gateway = enhetsregisterV1Gateway
     )
 
-    private val personligeForetakOppslag = PersonligeForetakOppslag(
-        enhetsregisterV1Gateway = enhetsregisterV1Gateway,
-        brregProxyV1Gateway = brregProxyV1Gateway
-    )
-
     internal suspend fun oppslag(
         ident: Ident,
         attributter: Set<Attributt>,
@@ -83,10 +77,6 @@ internal class OppslagService(
                 arbeidsgivere = arbeidsgivere
             ),
             privateArbeidsgivere = arbeidsgivere?.privateArbeidsgivere,
-            personligeForetak = personligeForetakOppslag.personligeForetak(
-                ident = ident,
-                attributter = attributter
-            ),
             frilansoppdrag = arbeidsgivere?.frilansoppdrag?.map {
                 it.copy(
                     navn = if (it.organisasjonsnummer != null) arbeidsgiverOppslag.hentNavn(

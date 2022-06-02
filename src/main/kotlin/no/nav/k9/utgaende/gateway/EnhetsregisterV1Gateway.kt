@@ -9,15 +9,7 @@ internal class EnhetsregisterV1Gateway(
 ) {
     internal companion object {
         private val støttedeAttributter = setOf(
-            Attributt.arbeidsgivereOrganisasjonerNavn,
-            Attributt.personligForetakOrganisasjonsform,
-            Attributt.personligForetakNavn,
-            // Selv om vi kun henter organisasjonsform & navn fra Enhetsregisteret
-            // Må det også gjøres også for de andre for personlig foretak
-            // For i det hele tatt avgjøre om det er et personlig foretak.
-            Attributt.personligForetakOrganisasjonsnummer,
-            Attributt.personligForetakRegistreringsdato,
-            Attributt.personligForetakOpphørsdato
+            Attributt.arbeidsgivereOrganisasjonerNavn
         )
     }
 
