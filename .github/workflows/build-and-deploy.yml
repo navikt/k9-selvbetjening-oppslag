@@ -65,34 +65,6 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE_WITH_MOCKS}
 
-  deploy-dev-fss:
-    name: Deploy to dev-fss
-    if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') # Deploy if branch is either master or dev-*
-    needs: build-code-and-push-docker # Depends on build-code-and-push-docker job
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: nais/naiserator.yml
-          VARS: nais/dev-fss.json
-
-  deploy-prod-fss:
-    name: Deploy to prod-fss
-    if: startsWith(github.ref, 'refs/heads/master')  # If the branch is master
-    needs: build-code-and-push-docker # Depends on build-code-and-push-docker job
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: nais/naiserator.yml
-          VARS: nais/prod-fss.json
-
   deploy-dev-gcp:
     name: Deploy to dev-gcp
     if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') # Deploy if branch is either master or dev-*
