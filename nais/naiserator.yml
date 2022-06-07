@@ -36,7 +36,6 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  webproxy: true
   tokenx:
     enabled: true
   azure:
