@@ -1,4 +1,4 @@
-FROM amazoncorretto:17.0.2-alpine3.15
+FROM gcr.io/distroless/java17
 
 COPY build/libs/*.jar app.jar
 
