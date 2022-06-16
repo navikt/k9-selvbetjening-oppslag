@@ -1,6 +1,6 @@
 package no.nav.k9
 
-import io.ktor.server.testing.withApplication
+import io.ktor.server.testing.*
 import no.nav.helse.dusseldorf.testsupport.asArguments
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.*
@@ -41,7 +41,7 @@ class ApplicationWithMocks {
                 }
             })
 
-            withApplication { no.nav.k9.main(testArgs) }
+            testApplication { no.nav.k9.main(testArgs) }
         }
     }
 }

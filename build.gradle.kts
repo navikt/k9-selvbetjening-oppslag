@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "3.1.6.8-5ba66a6"
+val dusseldorfKtorVersion = "3.2.0.2-b18c5fe"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
-val graphqlKotlinClientVersion = "5.5.0"
-val sifTilgangskontrollVersion = "1-fdbcd61"
-val tokenSupportVersion = "2.0.21"
+val graphqlKotlinClientVersion = "6.0.0-alpha.4"
+val sifTilgangskontrollVersion = "1-2e642bd"
+val tokenSupportVersion = "2.1.0"
 val mockOauth2ServerVersion = "0.4.8"
 
 val mockkVersion = "1.12.4"
@@ -21,7 +21,7 @@ plugins {
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/5ba66a6899710ac2398ad497e2c8e22aa63062c8/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/b18c5feeca2840e6812eb805d50937d7aa0aca6a/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
@@ -36,7 +36,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
 
-    implementation ("no.nav.security:token-validation-ktor:$tokenSupportVersion")
+    implementation ("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation ("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
 
     implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")
@@ -61,8 +61,6 @@ dependencies {
 }
 
 repositories {
-    mavenLocal()
-
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
