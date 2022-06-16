@@ -5,20 +5,25 @@ import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.metrics.micrometer.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.metrics.micrometer.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.callid.*
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.routing.*
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.hotspot.DefaultExports
-import no.nav.helse.dusseldorf.ktor.auth.*
+import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
+import no.nav.helse.dusseldorf.ktor.auth.clients
+import no.nav.helse.dusseldorf.ktor.auth.idToken
 import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.helse.dusseldorf.ktor.jackson.dusseldorfConfigured
 import no.nav.helse.dusseldorf.ktor.metrics.MetricsRoute
@@ -31,16 +36,20 @@ import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.inngaende.oppslag.SystemOppslagRoute
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
-import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.rest.*
-import no.nav.security.token.support.ktor.RequiredClaims
-import no.nav.security.token.support.ktor.asIssuerProps
-import no.nav.security.token.support.ktor.tokenValidationSupport
+import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
+import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
+import no.nav.k9.utgaende.gateway.PDLProxyGateway
+import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
+import no.nav.k9.utgaende.rest.EnhetsregisterV1
+import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.security.token.support.v2.RequiredClaims
+import no.nav.security.token.support.v2.asIssuerProps
+import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import org.slf4j.LoggerFactory
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.SelvbetjeningOppslag() {
     val logger = LoggerFactory.getLogger("no.nav.k9.SelvbetjeningOppslagKt.SelvbetjeningOppslag")
@@ -48,20 +57,19 @@ fun Application.SelvbetjeningOppslag() {
     logProxyProperties()
     DefaultExports.initialize()
 
-    val config = this.environment.config
-    val allIssuers = config.asIssuerProps().keys
+    val applicationConfig = this.environment.config
+    val allIssuers = applicationConfig.asIssuerProps().keys
 
     val requestContextService = RequestContextService()
     val accessTokenClientResolver = AccessTokenClientResolver(environment.config.clients())
 
     install(Authentication) {
-        // multipleJwtIssuers(issuers = issuers, logJwtPayloadOnUnsupportedIssuer = true)
         allIssuers
             .filterNot { it == "azure" }
             .forEach { issuer: String ->
                 tokenValidationSupport(
                     name = issuer,
-                    config = config,
+                    config = applicationConfig,
                     requiredClaims = RequiredClaims(
                         issuer = issuer,
                         claimMap = arrayOf("acr=Level4")
@@ -74,7 +82,7 @@ fun Application.SelvbetjeningOppslag() {
             .forEach { issuer: String ->
                 tokenValidationSupport(
                     name = issuer,
-                    config = config,
+                    config = applicationConfig,
                     requiredClaims = RequiredClaims(
                         issuer = issuer,
                         claimMap = arrayOf("roles=access_as_application")
@@ -134,14 +142,14 @@ fun Application.SelvbetjeningOppslag() {
                         pdlProxyGateway = pdlProxyGateway,
                         enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
                             enhetsregisterV1 = EnhetsregisterV1(
-                                baseUrl = environment.config.enhetsregisterV1Url()
+                                baseUrl = applicationConfig.enhetsregisterV1Url()
                             )
                         ),
                         arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
                             arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
-                                baseUrl = environment.config.arbeidsgiverOgArbeidstakerV1Url(),
+                                baseUrl = applicationConfig.arbeidsgiverOgArbeidstakerV1Url(),
                                 cachedAccessTokenClient = tokenxExchangeTokenClient,
-                                aaregTokenxAudience = environment.config.aaregTokenxAudience()
+                                aaregTokenxAudience = applicationConfig.aaregTokenxAudience()
                             )
                         )
                     )

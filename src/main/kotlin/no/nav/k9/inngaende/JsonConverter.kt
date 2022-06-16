@@ -1,29 +1,27 @@
 package no.nav.k9.inngaende
 
-import io.ktor.application.ApplicationCall
-import io.ktor.features.ContentConverter
-import io.ktor.http.ContentType
-import io.ktor.http.content.TextContent
-import io.ktor.http.withCharset
-import io.ktor.request.ApplicationReceiveRequest
-import io.ktor.util.pipeline.PipelineContext
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.jvm.javaio.toInputStream
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.serialization.*
+import io.ktor.util.reflect.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.charsets.*
+import io.ktor.utils.io.jvm.javaio.*
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.text.Charsets
 
 internal class JsonConverter : ContentConverter {
-    override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
-        val request = context.subject
-        val channel = request.value as? ByteReadChannel ?: return null
-        return JSONObject(channel.toInputStream().bufferedReader().readText())
+    override suspend fun deserialize(charset: Charset, typeInfo: TypeInfo, content: ByteReadChannel): Any {
+        return content.toInputStream().bufferedReader().readText()
     }
 
-    override suspend fun convertForSend(
-        context: PipelineContext<Any, ApplicationCall>,
+    override suspend fun serialize(
         contentType: ContentType,
-        value: Any
-    ): Any? {
+        charset: Charset,
+        typeInfo: TypeInfo,
+        value: Any,
+    ): OutgoingContent {
         val json = when(value) {
             is Map<*, *> -> JSONObject(value).toString()
             is List<*> -> JSONArray(value).toString()
@@ -33,5 +31,4 @@ internal class JsonConverter : ContentConverter {
         }
         return TextContent(json, contentType.withCharset(Charsets.UTF_8))
     }
-
 }

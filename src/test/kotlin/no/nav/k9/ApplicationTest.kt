@@ -1,14 +1,10 @@
 package no.nav.k9
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.config.*
 import io.ktor.http.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
-import no.nav.helse.dusseldorf.testsupport.jws.IDPorten
-import no.nav.helse.dusseldorf.testsupport.jws.LoginService
-import no.nav.helse.dusseldorf.testsupport.jws.Tokendings
-import no.nav.helse.dusseldorf.testsupport.jws.toDate
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
@@ -17,15 +13,11 @@ import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER
-import no.nav.k9.PersonFødselsnummer.PERSON_MED_FLERE_ROLLER_I_FORETAK
-import no.nav.k9.PersonFødselsnummer.PERSON_MED_FORETAK
 import no.nav.k9.PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
-import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
 import no.nav.k9.TokenUtils.hentToken
-import no.nav.k9.inngaende.oppslag.MegUrlGenerator
 import no.nav.k9.wiremocks.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
@@ -37,7 +29,6 @@ import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.*
 
 class ApplicationTest {
@@ -224,21 +215,20 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 //language=json
                 val expectedResponse = """
-                    {
-                      "data": {
-                        "hentIdenterBolk": [
+                    [
+                      {
+                        "code": "ok",
+                        "ident": "$PERSON_1_MED_BARN",
+                        "identer": [
                           {
-                            "identer": [
-                              {
-                                "ident": "$PERSON_1_MED_BARN",
-                                "gruppe": "${IdentGruppe.FOLKEREGISTERIDENT}"
-                              }
-                            ]
+                            "ident": "$PERSON_1_MED_BARN",
+                            "gruppe": "${IdentGruppe.FOLKEREGISTERIDENT}"
                           }
                         ]
                       }
-                    }
+                    ]
                 """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
     }

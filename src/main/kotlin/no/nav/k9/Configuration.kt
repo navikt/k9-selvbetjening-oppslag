@@ -1,6 +1,6 @@
 package no.nav.k9
 
-import io.ktor.config.ApplicationConfig
+import io.ktor.server.config.ApplicationConfig
 import no.nav.helse.dusseldorf.ktor.core.getRequiredString
 import java.net.URI
 
