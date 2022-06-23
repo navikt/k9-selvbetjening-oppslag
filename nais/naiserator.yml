@@ -46,32 +46,14 @@ spec:
     inbound:
       rules:
         - application: k9-ettersending-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: omsorgspengerutbetaling-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: pleiepengesoknad-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: pleiepenger-livets-sluttfase-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: omsorgsdager-melding-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: omsorgsdager-aleneomsorg-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: k9-brukerdialog-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: k9-sak-innsyn-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
         - application: sif-innsyn-api
-          cluster: {{environment}}-gcp
-          namespace: {{namespace}}
   env:
   {{#each env}}
      - name: {{@key}}
