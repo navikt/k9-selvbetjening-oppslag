@@ -6,6 +6,7 @@
 
     <logger name="no.nav" level="INFO"/>
     <logger name="io.ktor.auth.jwt" level="TRACE" />
+    <logger name="no.nav.security.token.support" level="TRACE" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT_JSON"/>
