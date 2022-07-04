@@ -12,6 +12,7 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.*
+import no.nav.k9.utgaende.rest.ArbeidsforholdType.FRILANS
 import no.nav.k9.utgaende.rest.NavHeaderValues
 import no.nav.k9.utgaende.rest.NavHeaders
 import org.json.JSONArray
@@ -49,7 +50,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate
-    ) {
+    ) : Arbeidsgivere{
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(aaregTokenxAudience),
             onBehalfOf = coroutineContext.idToken().value
@@ -92,28 +93,40 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
 
         val organisasjoner = json.hentOrganisasjoner()
         logger.info("DEBUG; SKAL IKKE I PROD. Respons fra v2=$json")
-        logger.info("DEBUG; SKAL IKKE I PROD. organisasjoner fra v2=$organisasjoner")
+
+        if (json.isEmpty) return Arbeidsgivere(
+            organisasjoner = emptySet(),
+            privateArbeidsgivere = emptySet(),
+            frilansoppdrag = emptySet()
+        )
+
+        // TODO: 04/07/2022 Husk å filtrere alle arbeidsgivere basert på fraOgMed og tilOgMed
+        return Arbeidsgivere(
+            organisasjoner = organisasjoner,
+            privateArbeidsgivere = emptySet(),
+            frilansoppdrag = emptySet()
+        )
     }
 }
 
-private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
-    return this
-        .hentArbeidsgivereMedAnsettelseperiode()
-        .filterNot { it.getJSONObject("type").getString("kode").equals(ArbeidsforholdType.FRILANS.type) }
-        .filter { it.harOrganisasjonsnummer() }
-        .map { ansettelsesforhold ->
-            val organisasjonsnummer = ansettelsesforhold.organisasjonsnummer()
-            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere> =
+    hentArbeidsgivereMedAnsettelseperiode()
+    .filterNot { it.erFrilansaktivitet() }
+    .filter { it.harOrganisasjonsnummer() }
+    .map { ansettelsesforhold ->
+        val organisasjonsnummer = ansettelsesforhold.organisasjonsnummer()
+        val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
 
-            OrganisasjonArbeidsgivere(
-                organisasjonsnummer = organisasjonsnummer,
-                ansattFom = LocalDate.parse(ansattFom),
-                ansattTom = ansattTom?.let { LocalDate.parse(it) }
-            )
-        }
-        .distinctBy { it.organisasjonsnummer }
-        .toSet()
-}
+        OrganisasjonArbeidsgivere(
+            organisasjonsnummer = organisasjonsnummer,
+            ansattFom = LocalDate.parse(ansattFom),
+            ansattTom = ansattTom?.let { LocalDate.parse(it) }
+        )
+    }
+    .distinctBy { it.organisasjonsnummer }
+    .toSet()
+
+private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("kode").equals(FRILANS.type)
 
 private fun JSONObject.harOrganisasjonsnummer() = getJSONObject("arbeidssted")
     .getJSONArray("identer")

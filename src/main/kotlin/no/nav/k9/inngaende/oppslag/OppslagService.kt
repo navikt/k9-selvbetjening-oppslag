@@ -3,6 +3,8 @@ package no.nav.k9.inngaende.oppslag
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
+import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 
@@ -12,6 +14,9 @@ internal class OppslagService(
     private val megOppslag: MegOppslag,
     private val barnOppslag: BarnOppslag
 ) {
+
+    private val logger = LoggerFactory.getLogger(OppslagService::class.java)
+
     internal companion object {
         val støttedeAttributter = setOf(
             Attributt.aktørId,
@@ -43,7 +48,14 @@ internal class OppslagService(
         tilOgMed: LocalDate,
     ): OppslagResultat {
 
-        arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
+        val arbeidsgivereFraV2 = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
+
+        val organisasjonerFraV2 = arbeidsgiverOppslag.organisasjoner(
+            attributter = attributter,
+            arbeidsgivere = arbeidsgivereFraV2
+        )
+
+        logger.info("DEBUG; SKAL IKKE I PROD. Organisasjoner fra v2=$organisasjonerFraV2")
 
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
             ident = ident,

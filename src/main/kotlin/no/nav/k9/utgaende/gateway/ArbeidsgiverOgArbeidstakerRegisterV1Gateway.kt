@@ -41,9 +41,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         attributter: Set<Attributt>
-    ) {
-        if (!attributter.any { it in støttedeAttributter }) return
-        arbeidstakerOgArbeidstakerRegisterV2.arbeidsgivere(
+    ): Arbeidsgivere? {
+        if (!attributter.any { it in støttedeAttributter }) return null
+        return arbeidstakerOgArbeidstakerRegisterV2.arbeidsgivere(
             ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed
