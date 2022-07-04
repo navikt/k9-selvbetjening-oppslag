@@ -8,8 +8,9 @@ import java.time.LocalDate
 
 internal class OppslagService(
     private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
-    private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
-    pdlProxyGateway: PDLProxyGateway,
+    private val arbeidsgiverOppslag: ArbeidsgivereOppslag,
+    private val megOppslag: MegOppslag,
+    private val barnOppslag: BarnOppslag
 ) {
     internal companion object {
         val støttedeAttributter = setOf(
@@ -35,24 +36,14 @@ internal class OppslagService(
         )
     }
 
-    private val megOppslag = MegOppslag(
-        pdlProxyGateway = pdlProxyGateway
-    )
-
-    private val barnOppslag = BarnOppslag(
-        pdlProxyV1Gateway = pdlProxyGateway
-    )
-
-    private val arbeidsgiverOppslag = ArbeidsgivereOppslag(
-        enhetsregisterV1Gateway = enhetsregisterV1Gateway
-    )
-
     internal suspend fun oppslag(
         ident: Ident,
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
     ): OppslagResultat {
+
+        arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
 
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
             ident = ident,

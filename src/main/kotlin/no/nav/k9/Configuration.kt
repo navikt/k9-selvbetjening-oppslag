@@ -9,6 +9,7 @@ internal fun ApplicationConfig.pdlApiTokenxAudience() = getRequiredString("nav.a
 internal fun ApplicationConfig.pdlApiAzureAudience() = getRequiredString("nav.auth.pdl_api_azure_audience", secret = false)
 
 internal fun ApplicationConfig.arbeidsgiverOgArbeidstakerV1Url() = URI(getRequiredString("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", secret = false))
+internal fun ApplicationConfig.arbeidsgiverOgArbeidstakerV2Url() = URI(getRequiredString("nav.register_urls.arbeidsgiver_og_arbeidstaker_v2", secret = false))
 internal fun ApplicationConfig.aaregTokenxAudience() = getRequiredString("nav.auth.aareg_tokenx_audience", secret = false)
 
 internal fun ApplicationConfig.enhetsregisterV1Url() = URI(getRequiredString("nav.register_urls.enhetsregister_v1", secret = false))
