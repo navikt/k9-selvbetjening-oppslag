@@ -26,6 +26,12 @@ import kotlin.coroutines.coroutineContext
  * @see <a href="https://aareg-services.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2#/arbeidstaker/finnArbeidsforholdPrArbeidstaker">Aareg-services swagger docs</a>
  */
 
+enum class ArbeidsforholdStatus(){
+    AKTIV,
+    AVSLUTTET,
+    FREMTIDIG
+}
+
 internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     baseUrl: URI,
     private val cachedAccessTokenClient: CachedAccessTokenClient,
@@ -38,7 +44,10 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     private val arbeidsforholdPerArbeidstakerUrl = Url.buildURL(
         baseUrl = baseUrl,
         pathParts = listOf("arbeidstaker", "arbeidsforhold"),
-        queryParameters = mapOf("arbeidsforholdtype" to listOf(ArbeidsforholdType.values().joinToString(",") { it.type}))
+        queryParameters = mapOf(
+            "arbeidsforholdtype" to listOf(ArbeidsforholdType.values().joinToString(",") { it.type}),
+            "arbeidsforholdstatus" to listOf(ArbeidsforholdStatus.values().joinToString(","))
+        )
     )
 
     internal suspend fun arbeidsgivere(
