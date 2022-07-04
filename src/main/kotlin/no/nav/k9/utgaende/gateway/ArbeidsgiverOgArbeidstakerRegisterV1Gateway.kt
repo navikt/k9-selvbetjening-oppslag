@@ -4,7 +4,7 @@ import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV2
+import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import java.time.LocalDate
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(

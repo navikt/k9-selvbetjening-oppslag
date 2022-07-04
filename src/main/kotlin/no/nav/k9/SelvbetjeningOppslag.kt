@@ -41,7 +41,7 @@ import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV2
+import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.security.token.support.v2.RequiredClaims

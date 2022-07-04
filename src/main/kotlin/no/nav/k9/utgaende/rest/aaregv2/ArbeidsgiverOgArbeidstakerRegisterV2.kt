@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.rest
+package no.nav.k9.utgaende.rest.aaregv2
 
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
@@ -7,12 +7,13 @@ import io.ktor.http.Url
 import no.nav.helse.dusseldorf.ktor.client.buildURL
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
-import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
-import no.nav.k9.utgaende.rest.ArbeidsforholdType.*
+import no.nav.k9.utgaende.rest.*
+import no.nav.k9.utgaende.rest.NavHeaderValues
+import no.nav.k9.utgaende.rest.NavHeaders
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -25,12 +26,6 @@ import kotlin.coroutines.coroutineContext
 /**
  * @see <a href="https://aareg-services.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2#/arbeidstaker/finnArbeidsforholdPrArbeidstaker">Aareg-services swagger docs</a>
  */
-
-enum class ArbeidsforholdStatus(){
-    AKTIV,
-    AVSLUTTET,
-    FREMTIDIG
-}
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     baseUrl: URI,
@@ -95,6 +90,49 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
 
         logger.logResponse(json)
 
+        val organisasjoner = json.hentOrganisasjoner()
         logger.info("DEBUG; SKAL IKKE I PROD. Respons fra v2=$json")
+        logger.info("DEBUG; SKAL IKKE I PROD. organisasjoner fra v2=$organisasjoner")
     }
+}
+
+private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
+    return this
+        .hentArbeidsgivereMedAnsettelseperiode()
+        .filterNot { it.getJSONObject("type").getString("kode").equals(ArbeidsforholdType.FRILANS.type) }
+        .filter { it.harOrganisasjonsnummer() }
+        .map { ansettelsesforhold ->
+            val organisasjonsnummer = ansettelsesforhold.organisasjonsnummer()
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+
+            OrganisasjonArbeidsgivere(
+                organisasjonsnummer = organisasjonsnummer,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .distinctBy { it.organisasjonsnummer }
+        .toSet()
+}
+
+private fun JSONObject.harOrganisasjonsnummer() = getJSONObject("arbeidssted")
+    .getJSONArray("identer")
+    .getJSONObject(0)
+    .getString("type")
+    .equals("ORGANISASJONSNUMMER")
+
+private fun JSONObject.organisasjonsnummer() = getJSONObject("arbeidssted")
+    .getJSONArray("identer")
+    .getJSONObject(0)
+    .getString("ident")
+
+private fun JSONArray.hentArbeidsgivereMedAnsettelseperiode(): Sequence<JSONObject> = this
+    .asSequence()
+    .map { it as JSONObject }
+    .filter { it.has("arbeidssted") }
+    .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("startdato") }
+
+private fun JSONObject.hentFomTomFraAnsettelseperiode(): Pair<String, String?> {
+    val ansettelsesperiode = this.getJSONObject("ansettelsesperiode")
+    return Pair(ansettelsesperiode.getString("startdato"), ansettelsesperiode.getStringOrNull("sluttdato"))
 }
