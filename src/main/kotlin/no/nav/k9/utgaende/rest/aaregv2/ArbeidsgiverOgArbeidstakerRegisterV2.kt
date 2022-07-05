@@ -99,14 +99,10 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
             frilansoppdrag = emptySet()
         )
 
-        val organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed)
-        val privateArbeidsgivere = json.hentPrivateArbeidsgivereV2(fraOgMed, tilOgMed)
-        val frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
-
         return Arbeidsgivere(
-            organisasjoner = organisasjoner,
-            privateArbeidsgivere = privateArbeidsgivere,
-            frilansoppdrag = frilansoppdrag
+            organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed),
+            privateArbeidsgivere = json.hentPrivateArbeidsgivereV2(fraOgMed, tilOgMed),
+            frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
         )
     }
 }
