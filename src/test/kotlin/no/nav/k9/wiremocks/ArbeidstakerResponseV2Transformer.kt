@@ -35,6 +35,7 @@ class ArbeidstakerResponseV2Transformer : ResponseTransformer() {
 private fun getResponse(navIdent: String) : String {
     when (navIdent) {
         PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG -> {
+            //language=json
             return """
                 [
                   {
