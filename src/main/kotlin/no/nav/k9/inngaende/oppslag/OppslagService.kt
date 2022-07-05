@@ -47,16 +47,18 @@ internal class OppslagService(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
     ): OppslagResultat {
-        val arbeidsgivereFraV2 = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
-
-        logger.info("DEBUG; SKAL IKKE I PROD. Arbeidsgivere fra v2=$arbeidsgivereFraV2")
-
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
             ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed,
             attributter = attributter
         )
+        val arbeidsgivereFraV2 = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
+
+        arbeidsgivere?.also {
+            val arbeidsgivereFraV1erLikV2 = arbeidsgivere == arbeidsgivereFraV2
+            logger.info("Migreringsjekk til aareg v2. Er like=$arbeidsgivereFraV1erLikV2")
+        }
 
         val meg = megOppslag.meg(
             ident = ident,

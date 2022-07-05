@@ -18,18 +18,22 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.TokenUtils.hentToken
+import no.nav.k9.utgaende.rest.erAnsattIPerioden
 import no.nav.k9.wiremocks.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate.*
 import java.util.*
+import kotlin.test.assertFalse
 
 class ApplicationTest {
 
@@ -49,6 +53,7 @@ class ApplicationTest {
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER)
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER_BOLK)
             .stubArbeidsgiverOgArbeidstakerRegister()
+            .stubArbeidsgiverOgArbeidstakerRegisterV2()
             .stubEnhetsRegister()
 
         val mockOAuth2Server = MockOAuth2Server().apply { start() }
@@ -1014,5 +1019,29 @@ class ApplicationTest {
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
+    }
+
+    @Test
+    fun `Test av erAnsattIPerioden`(){
+        val mandag = parse("2022-01-07")
+        val tirsdag = mandag.plusDays(1)
+        val onsdag = tirsdag.plusDays(1)
+        val torsdag = onsdag.plusDays(1)
+        val fredag = torsdag.plusDays(1)
+
+        val ansattFOM = tirsdag
+        var ansattTOM = torsdag
+
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, tirsdag, torsdag)) //Samme dato
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, tirsdag, fredag)) //En dag ekstra TOM
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, mandag, torsdag)) //En dag ekstra FOM
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, onsdag, fredag)) //Overlapp midt i
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, mandag, fredag)) //Full overlapp
+
+        assertFalse(erAnsattIPerioden(ansattFOM, ansattTOM, mandag, mandag)) //En dag før
+        assertFalse(erAnsattIPerioden(ansattFOM, ansattTOM, fredag, fredag)) //En dag etter
+
+        ansattTOM = null
+        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, fredag, fredag)) //Har ingen TOM
     }
 }

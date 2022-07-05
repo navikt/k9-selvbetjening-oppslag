@@ -7,7 +7,6 @@ import io.ktor.http.Url
 import no.nav.helse.dusseldorf.ktor.client.buildURL
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
-import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
@@ -205,7 +204,7 @@ internal data class OrganisasjonArbeidsgivere(
 
 internal data class PrivatArbeidsgiver (
     internal val offentligIdent: String,
-    internal val ansattFom: LocalDate? = null,
+    internal val ansattFom: LocalDate,
     internal val ansattTom: LocalDate? = null
 )
 
@@ -214,9 +213,15 @@ internal data class Frilansoppdrag (
     internal val organisasjonsnummer: String? = null,
     internal val navn: String? = null,
     internal val offentligIdent: String? = null,
-    internal val ansattFom: LocalDate? = null,
+    internal val ansattFom: LocalDate,
     internal val ansattTom: LocalDate? = null
 )
+
+internal fun erAnsattIPerioden(ansattFom: LocalDate?, ansattTom: LocalDate?, fraOgMed: LocalDate, tilOgMed: LocalDate): Boolean {
+    return ansattFom.erLikEllerFør(tilOgMed) && fraOgMed.erLikEllerFør(ansattTom)
+}
+
+internal fun LocalDate?.erLikEllerFør(dato: LocalDate?) = if(dato == null || this == null) true else this.isBefore(dato) || this.isEqual(dato)
 
 internal enum class TypeArbeidssted{
     Person,

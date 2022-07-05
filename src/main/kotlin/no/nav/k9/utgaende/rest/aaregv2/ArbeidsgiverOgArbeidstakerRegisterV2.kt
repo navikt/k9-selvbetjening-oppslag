@@ -92,18 +92,16 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
 
         logger.logResponse(json)
 
-        val organisasjoner = json.hentOrganisasjoner()
-        val privateArbeidsgivere = json.hentPrivateArbeidsgivere()
-        val frilansoppdrag = json.hentFrilansoppdrag()
-        logger.info("DEBUG; SKAL IKKE I PROD. Respons fra v2=$json")
-
         if (json.isEmpty) return Arbeidsgivere(
             organisasjoner = emptySet(),
             privateArbeidsgivere = emptySet(),
             frilansoppdrag = emptySet()
         )
 
-        // TODO: 04/07/2022 Husk å filtrere alle arbeidsgivere basert på fraOgMed og tilOgMed
+        val organisasjoner = json.hentOrganisasjoner(fraOgMed, tilOgMed)
+        val privateArbeidsgivere = json.hentPrivateArbeidsgivere(fraOgMed, tilOgMed)
+        val frilansoppdrag = json.hentFrilansoppdrag(fraOgMed, tilOgMed)
+
         return Arbeidsgivere(
             organisasjoner = organisasjoner,
             privateArbeidsgivere = privateArbeidsgivere,
@@ -112,42 +110,46 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     }
 }
 
-private fun JSONArray.hentFrilansoppdrag(): Set<Frilansoppdrag> = hentArbeidsgivereMedAnsettelseperiode()
-    .filter { it.erFrilansaktivitet() }
-    .map { ansettelsesforhold ->
-        val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
-        val typeArbeidssted = ansettelsesforhold.getJSONObject("arbeidssted").getString("type")
+private fun JSONArray.hentFrilansoppdrag(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<Frilansoppdrag> =
+    hentArbeidsgivereMedAnsettelseperiode()
+        .filter { it.erFrilansaktivitet() }
+        .map { ansettelsesforhold ->
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+            val typeArbeidssted = ansettelsesforhold.hentArbeidsstedType()
 
-        val offentligIdent = if(typeArbeidssted == "Person") ansettelsesforhold.hentØnsketIdentFraArbeidssted("FOLKEREGISTERIDENT") else null
-        val organisasjonsnummer = if(typeArbeidssted == "Underenhet") ansettelsesforhold.hentØnsketIdentFraArbeidssted("ORGANISASJONSNUMMER") else null
+            val offentligIdent = if (typeArbeidssted == "Person") ansettelsesforhold.hentØnsketIdentFraArbeidssted("FOLKEREGISTERIDENT") else null
+            val organisasjonsnummer = if (typeArbeidssted == "Underenhet") ansettelsesforhold.hentØnsketIdentFraArbeidssted("ORGANISASJONSNUMMER") else null
 
-        Frilansoppdrag(
-            type = typeArbeidssted.somTypeArbeidssted(),
-            organisasjonsnummer = organisasjonsnummer,
-            navn = null,
-            offentligIdent = offentligIdent,
-            ansattFom = LocalDate.parse(ansattFom),
-            ansattTom = ansattTom?.let { LocalDate.parse(it) }
-        )
-    }
-    .toSet()
+            Frilansoppdrag(
+                type = typeArbeidssted.somTypeArbeidssted(),
+                organisasjonsnummer = organisasjonsnummer,
+                navn = null,
+                offentligIdent = offentligIdent,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
+        .toSet()
 
 
-private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> = hentArbeidsgivereMedAnsettelseperiode()
-    .filterNot { it.erFrilansaktivitet() }
-    .filter { it.arbeidstedErPerson() }
-    .map { ansettelsesforhold ->
-        val ident = ansettelsesforhold.hentØnsketIdentFraArbeidssted("FOLKEREGISTERIDENT")
-        val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+private fun JSONArray.hentPrivateArbeidsgivere(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<PrivatArbeidsgiver> =
+    hentArbeidsgivereMedAnsettelseperiode()
+        .filterNot { it.erFrilansaktivitet() }
+        .filter { it.arbeidstedErPerson() }
+        .map { ansettelsesforhold ->
+            val ident = ansettelsesforhold.hentØnsketIdentFraArbeidssted("FOLKEREGISTERIDENT")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
 
-        PrivatArbeidsgiver(
-            offentligIdent = ident,
-            ansattFom = LocalDate.parse(ansattFom),
-            ansattTom = ansattTom?.let { LocalDate.parse(it) }
-        )
-    }
-    .distinctBy { it.offentligIdent }
-    .toSet()
+            PrivatArbeidsgiver(
+                offentligIdent = ident,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
+        .distinctBy { it.offentligIdent }
+        .toSet()
 
 private fun JSONObject.hentØnsketIdentFraArbeidssted(identType: String): String {
     val identer = this.getJSONObject("arbeidssted").getJSONArray("identer")
@@ -159,26 +161,28 @@ private fun JSONObject.hentØnsketIdentFraArbeidssted(identType: String): String
     return identer.getJSONObject(0).getString("ident")
 }
 
-private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere> =
+private fun JSONArray.hentOrganisasjoner(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<OrganisasjonArbeidsgivere> =
     hentArbeidsgivereMedAnsettelseperiode()
-    .filterNot { it.erFrilansaktivitet() }
-    .filter { it.arbeidstedErUnderenhet() }
-    .map { ansettelsesforhold ->
-        val organisasjonsnummer = ansettelsesforhold.hentØnsketIdentFraArbeidssted("ORGANISASJONSNUMMER")
-        val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
+        .filterNot { it.erFrilansaktivitet() }
+        .filter { it.arbeidstedErUnderenhet() }
+        .map { ansettelsesforhold ->
+            val organisasjonsnummer = ansettelsesforhold.hentØnsketIdentFraArbeidssted("ORGANISASJONSNUMMER")
+            val (ansattFom, ansattTom) = ansettelsesforhold.hentFomTomFraAnsettelseperiode()
 
-        OrganisasjonArbeidsgivere(
-            organisasjonsnummer = organisasjonsnummer,
-            ansattFom = LocalDate.parse(ansattFom),
-            ansattTom = ansattTom?.let { LocalDate.parse(it) }
-        )
-    }
-    .distinctBy { it.organisasjonsnummer }
-    .toSet()
+            OrganisasjonArbeidsgivere(
+                organisasjonsnummer = organisasjonsnummer,
+                ansattFom = LocalDate.parse(ansattFom),
+                ansattTom = ansattTom?.let { LocalDate.parse(it) }
+            )
+        }
+        .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
+        .distinctBy { it.organisasjonsnummer }
+        .toSet()
 
 private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("kode").equals(FRILANS.type)
-private fun JSONObject.arbeidstedErUnderenhet() = getJSONObject("arbeidssted").getString("type").equals("Underenhet")
-private fun JSONObject.arbeidstedErPerson() = getJSONObject("arbeidssted").getString("type").equals("Person")
+private fun JSONObject.hentArbeidsstedType() = getJSONObject("arbeidssted").getString("type")
+private fun JSONObject.arbeidstedErUnderenhet() = hentArbeidsstedType().equals("Underenhet")
+private fun JSONObject.arbeidstedErPerson() = hentArbeidsstedType().equals("Person")
 
 private fun JSONArray.hentArbeidsgivereMedAnsettelseperiode(): Sequence<JSONObject> = this
     .asSequence()

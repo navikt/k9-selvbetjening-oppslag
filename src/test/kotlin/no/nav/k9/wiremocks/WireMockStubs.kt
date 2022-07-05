@@ -12,6 +12,7 @@ import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 
 private const val arbeidsgiverOgArbeidstakerRegisterV1ServerPath = "/arbeidsgiver-og-arbeidstaker-register-v1-mock"
+private const val arbeidsgiverOgArbeidstakerRegisterV2ServerPath = "/arbeidsgiver-og-arbeidstaker-register-v2-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val pdlServerPath = "/graphql"
 
@@ -22,6 +23,7 @@ internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfigurat
         .extensions(PDLPersonResponseTransformer())
         .extensions(PDLHentIdentBolkResponseTransformer())
         .extensions(ArbeidstakerResponseTransformer())
+        .extensions(ArbeidstakerResponseV2Transformer())
         .extensions(EnhetsregResponseTransformer())
         .extensions(BrregProxyV1ResponseTransformer())
 }
@@ -63,6 +65,20 @@ internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegister(): WireMockSe
     return this
 }
 
+internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegisterV2(): WireMockServer {
+    WireMock.stubFor(
+        WireMock.get(WireMock.urlPathMatching("$arbeidsgiverOgArbeidstakerRegisterV2ServerPath/arbeidstaker/arbeidsforhold*"))
+            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .willReturn(
+                WireMock.aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(200)
+                    .withTransformers("arbeidstaker-arbeidsforhold-v2")
+            )
+    )
+    return this
+}
+
 internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
     WireMock.stubFor(
         WireMock.get(WireMock.urlPathMatching("$enhetsRegisterServerPath/organisasjon/([0-9]*)/noekkelinfo")) // organisasjon/{orgnummer}/noekkelinfo
@@ -77,8 +93,8 @@ internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
 }
 
 
-internal fun WireMockServer.getArbeidsgiverOgArbeidstakerV1RegisterUrl() =
-    baseUrl() + arbeidsgiverOgArbeidstakerRegisterV1ServerPath
+internal fun WireMockServer.getArbeidsgiverOgArbeidstakerV1RegisterUrl() = baseUrl() + arbeidsgiverOgArbeidstakerRegisterV1ServerPath
+internal fun WireMockServer.getArbeidsgiverOgArbeidstakerV2RegisterUrl() = baseUrl() + arbeidsgiverOgArbeidstakerRegisterV2ServerPath
 
 internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
 internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath

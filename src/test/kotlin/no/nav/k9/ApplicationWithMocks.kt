@@ -26,6 +26,7 @@ class ApplicationWithMocks {
                 .k9SelvbetjeningOppslagConfig()
                 .build()
                 .stubArbeidsgiverOgArbeidstakerRegister()
+                .stubArbeidsgiverOgArbeidstakerRegisterV2()
                 .stubEnhetsRegister()
 
             val testArgs = TestConfiguration.asMap(
