@@ -10,7 +10,7 @@ val tokenSupportVersion = "2.1.1"
 val mockOauth2ServerVersion = "0.5.1"
 
 val mockkVersion = "1.12.4"
-val jsonassertVersion = "1.5.0"
+val jsonassertVersion = "1.5.1"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
