@@ -56,6 +56,7 @@ internal class OppslagService(
         )
 
         logger.info("DEBUG; SKAL IKKE I PROD. Organisasjoner fra v2=$organisasjonerFraV2")
+        logger.info("DEBUG; SKAL IKKE I PROD. Arbeidsgivere fra v2=$arbeidsgivereFraV2")
 
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
             ident = ident,
