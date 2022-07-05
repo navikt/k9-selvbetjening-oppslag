@@ -33,15 +33,13 @@ internal fun JSONArray.hentFrilansoppdragV2(fraOgMed: LocalDate, tilOgMed: Local
         .filter { it.erFrilansaktivitet() }
         .map { ansettelsesforhold ->
             val (ansattFom, ansattTom) = ansettelsesforhold.hentStartdatoOgSluttdatoFraAnsettelseperiode()
-            val typeArbeidssted = ansettelsesforhold.hentArbeidsstedType()
 
-            val offentligIdent = if (typeArbeidssted == "Person") ansettelsesforhold.hentFolkeregistrertIdent() else null
-            val organisasjonsnummer = if (typeArbeidssted == "Underenhet") ansettelsesforhold.hentOrganisasjonsnummer() else null
+            val offentligIdent = if (ansettelsesforhold.arbeidstedErPerson()) ansettelsesforhold.hentFolkeregistrertIdent() else null
+            val organisasjonsnummer = if (ansettelsesforhold.arbeidstedErUnderenhet()) ansettelsesforhold.hentOrganisasjonsnummer() else null
 
             Frilansoppdrag(
-                type = typeArbeidssted.somTypeArbeidssted(),
+                type = ansettelsesforhold.arbeidsstedType().somTypeArbeidssted(),
                 organisasjonsnummer = organisasjonsnummer,
-                navn = null,
                 offentligIdent = offentligIdent,
                 ansattFom = LocalDate.parse(ansattFom),
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
@@ -91,6 +89,6 @@ private fun JSONObject.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = this
 private enum class IdentType { FOLKEREGISTERIDENT, ORGANISASJONSNUMMER }
 
 private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("kode").equals(ArbeidsforholdType.FRILANS.type)
-private fun JSONObject.arbeidstedErUnderenhet() = hentArbeidsstedType().equals("Underenhet")
-private fun JSONObject.hentArbeidsstedType() = getJSONObject("arbeidssted").getString("type")
-private fun JSONObject.arbeidstedErPerson() = hentArbeidsstedType().equals("Person")
+private fun JSONObject.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
+private fun JSONObject.arbeidsstedType() = getJSONObject("arbeidssted").getString("type")
+private fun JSONObject.arbeidstedErPerson() = arbeidsstedType().equals("Person")

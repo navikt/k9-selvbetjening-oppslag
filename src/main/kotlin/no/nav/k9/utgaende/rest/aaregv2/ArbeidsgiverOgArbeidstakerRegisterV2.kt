@@ -34,6 +34,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     private val cachedAccessTokenClient: CachedAccessTokenClient,
     private val aaregTokenxAudience: String
 ) {
+
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
     }
@@ -108,4 +109,10 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
             frilansoppdrag = frilansoppdrag
         )
     }
+}
+
+private enum class ArbeidsforholdStatus(){
+    AKTIV,
+    AVSLUTTET,
+    FREMTIDIG
 }
