@@ -47,15 +47,8 @@ internal class OppslagService(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
     ): OppslagResultat {
-
         val arbeidsgivereFraV2 = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
 
-        val organisasjonerFraV2 = arbeidsgiverOppslag.organisasjoner(
-            attributter = attributter,
-            arbeidsgivere = arbeidsgivereFraV2
-        )
-
-        logger.info("DEBUG; SKAL IKKE I PROD. Organisasjoner fra v2=$organisasjonerFraV2")
         logger.info("DEBUG; SKAL IKKE I PROD. Arbeidsgivere fra v2=$arbeidsgivereFraV2")
 
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(

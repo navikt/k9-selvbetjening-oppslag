@@ -13,6 +13,7 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.ArbeidsforholdType.*
+import no.nav.k9.utgaende.rest.TypeArbeidssted.Companion.somTypeArbeidssted
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -135,7 +136,7 @@ private fun JSONArray.hentFrilansoppdrag(): Set<Frilansoppdrag> {
             val organisasjonsnummer = if(type == "Organisasjon") arbeidsgiver.getString("organisasjonsnummer") else null
 
             Frilansoppdrag(
-                type = type,
+                type = type.somTypeArbeidssted(),
                 offentligIdent = offentligIdent,
                 organisasjonsnummer = organisasjonsnummer,
                 ansattFom = LocalDate.parse(ansattFom),
@@ -209,13 +210,26 @@ internal data class PrivatArbeidsgiver (
 )
 
 internal data class Frilansoppdrag (
-    internal val type: String,
+    internal val type: TypeArbeidssted,
     internal val organisasjonsnummer: String? = null,
     internal val navn: String? = null,
     internal val offentligIdent: String? = null,
     internal val ansattFom: LocalDate? = null,
     internal val ansattTom: LocalDate? = null
 )
+
+internal enum class TypeArbeidssted{
+    Person,
+    Organisasjon;
+
+    companion object{
+        internal fun String.somTypeArbeidssted() = when(this){
+            "Person" -> Person
+            "Organisasjon", "Underenhet" -> Organisasjon
+            else -> throw Exception("Ukjent type arbeidssted. '$this'")
+        }
+    }
+}
 
 internal data class Arbeidsgivere(
     internal val organisasjoner: Set<OrganisasjonArbeidsgivere>,

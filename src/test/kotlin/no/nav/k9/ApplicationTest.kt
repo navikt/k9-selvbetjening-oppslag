@@ -712,7 +712,7 @@ class ApplicationTest {
                           {
                             "offentlig_ident": "10047206508",
                             "ansatt_fom": "2014-07-01",
-                             "ansatt_tom": "2015-12-31"
+                            "ansatt_tom": "2015-12-31"
                           }
                         ]
                       }
