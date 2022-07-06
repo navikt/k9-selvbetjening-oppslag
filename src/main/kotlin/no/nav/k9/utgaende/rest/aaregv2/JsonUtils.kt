@@ -76,9 +76,6 @@ private fun JSONObject.hentStartdatoOgSluttdatoFraAnsettelseperiode(): Pair<Stri
     return Pair(ansettelsesperiode.getString("startdato"), ansettelsesperiode.getStringOrNull("sluttdato"))
 }
 
-private fun JSONObject.hentFolkeregistrertIdent() = hentIdentAvGittTypeFraArbeidssted(IdentType.FOLKEREGISTERIDENT)
-private fun JSONObject.hentOrganisasjonsnummer() = hentIdentAvGittTypeFraArbeidssted(IdentType.ORGANISASJONSNUMMER)
-
 private fun JSONObject.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = this
     .getJSONObject("arbeidssted")
     .getJSONArray("identer")
@@ -86,9 +83,12 @@ private fun JSONObject.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = this
     .find { it.getString("type") == type.toString() }!!
     .getString("ident")
 
+private fun JSONObject.hentFolkeregistrertIdent() = hentIdentAvGittTypeFraArbeidssted(IdentType.FOLKEREGISTERIDENT)
+private fun JSONObject.hentOrganisasjonsnummer() = hentIdentAvGittTypeFraArbeidssted(IdentType.ORGANISASJONSNUMMER)
+
 private enum class IdentType { FOLKEREGISTERIDENT, ORGANISASJONSNUMMER }
 
 private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("kode").equals(ArbeidsforholdType.FRILANS.type)
-private fun JSONObject.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
 private fun JSONObject.arbeidsstedType() = getJSONObject("arbeidssted").getString("type")
 private fun JSONObject.arbeidstedErPerson() = arbeidsstedType().equals("Person")
+private fun JSONObject.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")

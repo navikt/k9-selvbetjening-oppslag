@@ -34,17 +34,13 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     private val cachedAccessTokenClient: CachedAccessTokenClient,
     private val aaregTokenxAudience: String
 ) {
-
-    private companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
-    }
-
+    private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
     private val arbeidsforholdPerArbeidstakerUrl = Url.buildURL(
         baseUrl = baseUrl,
         pathParts = listOf("arbeidstaker", "arbeidsforhold"),
         queryParameters = mapOf(
             "arbeidsforholdtype" to listOf(ArbeidsforholdType.values().joinToString(",") { it.type}),
-            "arbeidsforholdstatus" to listOf(ArbeidsforholdStatus.values().joinToString(","))
+            "arbeidsforholdstatus" to listOf(ArbeidsforholdStatus.somQueryParameters())
         )
     )
 
@@ -105,10 +101,4 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
             frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
         )
     }
-}
-
-private enum class ArbeidsforholdStatus(){
-    AKTIV,
-    AVSLUTTET,
-    FREMTIDIG
 }
