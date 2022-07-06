@@ -18,7 +18,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.TokenUtils.hentToken
-import no.nav.k9.utgaende.rest.erAnsattIPerioden
+import no.nav.k9.utgaende.rest.aaregv2.erAnsattIPerioden
 import no.nav.k9.wiremocks.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon

@@ -5,7 +5,6 @@ import no.nav.k9.utgaende.rest.Frilansoppdrag
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
 import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
 import no.nav.k9.utgaende.rest.TypeArbeidssted.Companion.somTypeArbeidssted
-import no.nav.k9.utgaende.rest.erAnsattIPerioden
 import no.nav.k9.utgaende.rest.getStringOrNull
 import org.json.JSONArray
 import org.json.JSONObject
@@ -92,3 +91,9 @@ private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("k
 private fun JSONObject.arbeidsstedType() = getJSONObject("arbeidssted").getString("type")
 private fun JSONObject.arbeidstedErPerson() = arbeidsstedType().equals("Person")
 private fun JSONObject.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
+
+internal fun erAnsattIPerioden(ansattFom: LocalDate?, ansattTom: LocalDate?, fraOgMed: LocalDate, tilOgMed: LocalDate): Boolean {
+    return ansattFom.erLikEllerFør(tilOgMed) && fraOgMed.erLikEllerFør(ansattTom)
+}
+
+internal fun LocalDate?.erLikEllerFør(dato: LocalDate?) = if(dato == null || this == null) true else this.isBefore(dato) || this.isEqual(dato)

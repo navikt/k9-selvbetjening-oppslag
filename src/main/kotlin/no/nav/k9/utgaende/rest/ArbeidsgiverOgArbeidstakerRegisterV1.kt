@@ -217,11 +217,6 @@ internal data class Frilansoppdrag (
     internal val ansattTom: LocalDate? = null
 )
 
-internal fun erAnsattIPerioden(ansattFom: LocalDate?, ansattTom: LocalDate?, fraOgMed: LocalDate, tilOgMed: LocalDate): Boolean {
-    return ansattFom.erLikEllerFør(tilOgMed) && fraOgMed.erLikEllerFør(ansattTom)
-}
-
-internal fun LocalDate?.erLikEllerFør(dato: LocalDate?) = if(dato == null || this == null) true else this.isBefore(dato) || this.isEqual(dato)
 
 internal enum class TypeArbeidssted{
     Person,
