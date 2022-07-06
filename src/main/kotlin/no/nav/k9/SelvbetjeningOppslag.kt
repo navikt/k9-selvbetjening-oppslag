@@ -31,15 +31,17 @@ import no.nav.helse.dusseldorf.ktor.metrics.init
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.JsonConverter
 import no.nav.k9.inngaende.RequestContextService
+import no.nav.k9.inngaende.oppslag.*
+import no.nav.k9.inngaende.oppslag.ArbeidsgivereOppslag
 import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.inngaende.oppslag.SystemOppslagRoute
-import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
 import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
+import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.security.token.support.v2.RequiredClaims
@@ -139,15 +141,23 @@ fun Application.SelvbetjeningOppslag() {
                 OppslagRoute(
                     requestContextService = requestContextService,
                     oppslagService = OppslagService(
-                        pdlProxyGateway = pdlProxyGateway,
-                        enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
-                            enhetsregisterV1 = EnhetsregisterV1(
-                                baseUrl = applicationConfig.enhetsregisterV1Url()
+                        megOppslag = MegOppslag(pdlProxyGateway),
+                        barnOppslag = BarnOppslag(pdlProxyGateway),
+                        arbeidsgiverOppslag = ArbeidsgivereOppslag(
+                            enhetsregisterV1Gateway = EnhetsregisterV1Gateway(
+                                enhetsregisterV1 = EnhetsregisterV1(
+                                    baseUrl = applicationConfig.enhetsregisterV1Url()
+                                )
                             )
                         ),
                         arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
                             arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
                                 baseUrl = applicationConfig.arbeidsgiverOgArbeidstakerV1Url(),
+                                cachedAccessTokenClient = tokenxExchangeTokenClient,
+                                aaregTokenxAudience = applicationConfig.aaregTokenxAudience()
+                            ),
+                            arbeidstakerOgArbeidstakerRegisterV2 = ArbeidsgiverOgArbeidstakerRegisterV2(
+                                baseUrl = applicationConfig.arbeidsgiverOgArbeidstakerV2Url(),
                                 cachedAccessTokenClient = tokenxExchangeTokenClient,
                                 aaregTokenxAudience = applicationConfig.aaregTokenxAudience()
                             )
