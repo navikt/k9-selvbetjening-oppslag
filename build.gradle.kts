@@ -1,27 +1,27 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "3.2.0.2-b18c5fe"
+val dusseldorfKtorVersion = "3.2.0.2-259fbf4"
 val ktorVersion = ext.get("ktorVersion").toString()
 val kotlinVersion = ext.get("kotlinVersion").toString()
-val graphqlKotlinClientVersion = "6.0.0-alpha.5"
-val sifTilgangskontrollVersion = "1-2e642bd"
-val tokenSupportVersion = "2.1.1"
+val graphqlKotlinClientVersion = "6.1.0"
+val sifTilgangskontrollVersion = "1-ff02eb8"
+val tokenSupportVersion = "2.1.2"
 val mockOauth2ServerVersion = "0.5.1"
 
 val mockkVersion = "1.12.4"
-val jsonassertVersion = "1.5.0"
+val jsonassertVersion = "1.5.1"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm") version "1.7.10"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 buildscript {
-    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/b18c5feeca2840e6812eb805d50937d7aa0aca6a/gradle/dusseldorf-ktor.gradle.kts")
+    apply("https://raw.githubusercontent.com/navikt/dusseldorf-ktor/d4fdef93d9c095447393dc4b2c62c1978a13715d/gradle/dusseldorf-ktor.gradle.kts")
 }
 
 dependencies {
