@@ -1,5 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.objectMapper
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
@@ -58,6 +59,12 @@ internal class OppslagService(
         arbeidsgivere?.also {
             val arbeidsgivereFraV1erLikV2 = arbeidsgivere == arbeidsgivereFraV2
             logger.info("Migreringsjekk til aareg v2. Er like=$arbeidsgivereFraV1erLikV2")
+            if(!arbeidsgivereFraV1erLikV2){
+                // TODO: 15/08/2022 SKAL IKKE I PROD
+                val mapper = objectMapper()
+                logger.info("Respons fra v1: ${mapper.writeValueAsString(arbeidsgivere)}")
+                logger.info("Respons fra v2: ${mapper.writeValueAsString(arbeidsgivereFraV2)}")
+            }
         }
 
         val meg = megOppslag.meg(
