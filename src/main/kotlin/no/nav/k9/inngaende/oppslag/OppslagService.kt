@@ -58,6 +58,11 @@ internal class OppslagService(
         arbeidsgivere?.also {
             val arbeidsgivereFraV1erLikV2 = arbeidsgivere == arbeidsgivereFraV2
             logger.info("Migreringsjekk til aareg v2. Er like=$arbeidsgivereFraV1erLikV2")
+            if(!arbeidsgivereFraV1erLikV2){
+                logger.info("Antall organisasjoner: V1=${arbeidsgivere.organisasjoner.size}, V2=${arbeidsgivereFraV2?.organisasjoner?.size}")
+                logger.info("Antall frilansoppdrag: V1=${arbeidsgivere.frilansoppdrag.size}, V2=${arbeidsgivereFraV2?.frilansoppdrag?.size}")
+                logger.info("Antall private arbeidsgivere: V1=${arbeidsgivere.privateArbeidsgivere.size}, V2=${arbeidsgivereFraV2?.privateArbeidsgivere?.size}")
+            }
         }
 
         val meg = megOppslag.meg(
