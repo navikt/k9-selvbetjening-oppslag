@@ -71,8 +71,8 @@ internal class OppslagService(
                     val v2 = arbeidsgivereFraV2.organisasjoner.toList().sortedBy { it.organisasjonsnummer }
                     for(i in v1.indices){
                         if(v1[i].organisasjonsnummer != v2[i].organisasjonsnummer) logger.info("Forskjell på organisasjonsnummer")
-                        if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom.")
-                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom.")
+                        if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom")
+                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom")
                     }
                 }
             }
