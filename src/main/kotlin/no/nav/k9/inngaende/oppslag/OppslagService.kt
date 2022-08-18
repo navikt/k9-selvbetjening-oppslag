@@ -59,6 +59,9 @@ internal class OppslagService(
             val arbeidsgivereFraV1erLikV2 = arbeidsgivere == arbeidsgivereFraV2
             logger.info("Migreringsjekk til aareg v2. Er like=$arbeidsgivereFraV1erLikV2")
             if(!arbeidsgivereFraV1erLikV2){
+                logger.info("V1 = $arbeidsgivere")
+                logger.info("V2 = $arbeidsgivereFraV2")
+
                 logger.info("Antall organisasjoner: V1=${arbeidsgivere.organisasjoner.size}, V2=${arbeidsgivereFraV2?.organisasjoner?.size}")
                 logger.info("Antall frilansoppdrag: V1=${arbeidsgivere.frilansoppdrag.size}, V2=${arbeidsgivereFraV2?.frilansoppdrag?.size}")
                 logger.info("Antall private arbeidsgivere: V1=${arbeidsgivere.privateArbeidsgivere.size}, V2=${arbeidsgivereFraV2?.privateArbeidsgivere?.size}")
@@ -68,8 +71,8 @@ internal class OppslagService(
                     val v2 = arbeidsgivereFraV2.organisasjoner.toList().sortedBy { it.organisasjonsnummer }
                     for(i in v1.indices){
                         if(v1[i].organisasjonsnummer != v2[i].organisasjonsnummer) logger.info("Forskjell på organisasjonsnummer")
-                        if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom. V1 = ${v1[i]}, V2 = ${v2[i]}")
-                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom. V1 = ${v1[i]}, V2 = ${v2[i]}")
+                        if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom.")
+                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom.")
                     }
                 }
             }
