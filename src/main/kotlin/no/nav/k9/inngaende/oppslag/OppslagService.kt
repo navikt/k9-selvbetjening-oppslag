@@ -69,7 +69,7 @@ internal class OppslagService(
                     for(i in v1.indices){
                         if(v1[i].organisasjonsnummer != v2[i].organisasjonsnummer) logger.info("Forskjell på organisasjonsnummer")
                         if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom. V1 = ${v1[i].ansattFom}, V2 = ${v2[i].ansattFom}")
-                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom")
+                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom. V1 = ${v1[i].ansattTom}, V2 = ${v2[i].ansattTom}")
                     }
                 }
             }
