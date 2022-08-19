@@ -488,10 +488,10 @@ class ApplicationTest {
                     "arbeidsgivere": {
                         "organisasjoner": [
                             {
-                            "organisasjonsnummer": "123456789"
+                            "organisasjonsnummer": "981585216"
                             },
                             {
-                            "organisasjonsnummer": "981585216"
+                            "organisasjonsnummer": "123456789"
                             }
                         ]
                     }
@@ -520,12 +520,12 @@ class ApplicationTest {
                 "arbeidsgivere": {
                     "organisasjoner": [
                         {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
-                        {
                             "organisasjonsnummer": "981585216",
                             "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        },
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
                         }
                     ]
                 }
@@ -651,15 +651,15 @@ class ApplicationTest {
                     "arbeidsgivere": {
                         "organisasjoner": [
                             {
+                                "organisasjonsnummer": "981585216",
+                                "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
+                                "ansatt_fom": "2000-04-24"
+                            },                            
+                            {
                                 "organisasjonsnummer": "123456789",
                                 "navn": "DNB, FORSIKRING",
                                 "ansatt_fom": "2014-07-01",
                                 "ansatt_tom": "2015-12-31"
-                            },
-                            {
-                                "organisasjonsnummer": "981585216",
-                                "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
-                                "ansatt_fom": "2000-04-24"
                             }
                         ]
                     }
@@ -840,12 +840,12 @@ class ApplicationTest {
                 "arbeidsgivere": {
                     "organisasjoner": [
                         {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
-                        },
-                        {
                             "organisasjonsnummer": "981585216",
                             "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
+                        },
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "DNB, FORSIKRING"
                         }
                     ],
                     "private_arbeidsgivere": [
