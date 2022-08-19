@@ -160,6 +160,7 @@ private fun JSONArray.hentOrganisasjoner(): Set<OrganisasjonArbeidsgivere>{
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )
         }
+        .sortedBy { it.ansattFom }
         .distinctBy { it.organisasjonsnummer }
         .toSet()
 }
@@ -179,6 +180,7 @@ private fun JSONArray.hentPrivateArbeidsgivere(): Set<PrivatArbeidsgiver> {
                 ansattTom = ansattTom?.let { LocalDate.parse(it) }
             )
         }
+        .sortedBy { it.ansattFom }
         .distinctBy { it.offentligIdent }
         .toSet()
 }

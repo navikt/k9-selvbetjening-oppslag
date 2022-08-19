@@ -24,6 +24,7 @@ internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: Local
             )
         }
         .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
+        .sortedBy { it.ansattFom }
         .distinctBy { it.organisasjonsnummer }
         .toSet()
 
@@ -61,6 +62,7 @@ internal fun JSONArray.hentPrivateArbeidsgivereV2(fraOgMed: LocalDate, tilOgMed:
             )
         }
         .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
+        .sortedBy { it.ansattFom }
         .distinctBy { it.offentligIdent }
         .toSet()
 
