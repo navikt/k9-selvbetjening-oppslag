@@ -3,13 +3,12 @@ package no.nav.k9.inngaende.oppslag
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
-import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 
 internal class OppslagService(
-    private val arbeidsgiverOgArbeidstakerRegisterV1Gateway: ArbeidsgiverOgArbeidstakerRegisterV1Gateway,
+    private val arbeidsgiverOgArbeidstakerRegisterGateway: ArbeidsgiverOgArbeidstakerRegisterGateway,
     private val arbeidsgiverOppslag: ArbeidsgivereOppslag,
     private val megOppslag: MegOppslag,
     private val barnOppslag: BarnOppslag
@@ -47,36 +46,8 @@ internal class OppslagService(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
     ): OppslagResultat {
-        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivere(
-            ident = ident,
-            fraOgMed = fraOgMed,
-            tilOgMed = tilOgMed,
-            attributter = attributter
-        )
-        val arbeidsgivereFraV2 = arbeidsgiverOgArbeidstakerRegisterV1Gateway.arbeidsgivereV2(ident, fraOgMed, tilOgMed, attributter)
 
-        arbeidsgivere?.also {
-            val arbeidsgivereFraV1erLikV2 = arbeidsgivere == arbeidsgivereFraV2
-            logger.info("Migreringsjekk til aareg v2. Er like=$arbeidsgivereFraV1erLikV2")
-            if(!arbeidsgivereFraV1erLikV2){
-                logger.info("V1 = $arbeidsgivere")
-                logger.info("V2 = $arbeidsgivereFraV2")
-
-                logger.info("Antall organisasjoner: V1=${arbeidsgivere.organisasjoner.size}, V2=${arbeidsgivereFraV2?.organisasjoner?.size}")
-                logger.info("Antall frilansoppdrag: V1=${arbeidsgivere.frilansoppdrag.size}, V2=${arbeidsgivereFraV2?.frilansoppdrag?.size}")
-                logger.info("Antall private arbeidsgivere: V1=${arbeidsgivere.privateArbeidsgivere.size}, V2=${arbeidsgivereFraV2?.privateArbeidsgivere?.size}")
-
-                if(arbeidsgivereFraV2?.organisasjoner != null && arbeidsgivere.organisasjoner.size == arbeidsgivereFraV2.organisasjoner.size) {
-                    val v1 = arbeidsgivere.organisasjoner.toList().sortedBy { it.organisasjonsnummer }
-                    val v2 = arbeidsgivereFraV2.organisasjoner.toList().sortedBy { it.organisasjonsnummer }
-                    for(i in v1.indices){
-                        if(v1[i].organisasjonsnummer != v2[i].organisasjonsnummer) logger.info("Forskjell på organisasjonsnummer")
-                        if(v1[i].ansattFom != v2[i].ansattFom) logger.info("Forskjell på ansattFom")
-                        if(v1[i].ansattTom != v2[i].ansattTom) logger.info("Forskjell på ansattTom")
-                    }
-                }
-            }
-        }
+        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, attributter)
 
         val meg = megOppslag.meg(
             ident = ident,

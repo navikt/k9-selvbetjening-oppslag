@@ -5,7 +5,6 @@ import no.nav.helse.dusseldorf.testsupport.asArguments
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.k9.wiremocks.*
 import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
-import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegister
 import no.nav.k9.wiremocks.stubEnhetsRegister
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.slf4j.Logger
@@ -25,7 +24,6 @@ class ApplicationWithMocks {
                 .withLoginServiceSupport()
                 .k9SelvbetjeningOppslagConfig()
                 .build()
-                .stubArbeidsgiverOgArbeidstakerRegister()
                 .stubArbeidsgiverOgArbeidstakerRegisterV2()
                 .stubEnhetsRegister()
 

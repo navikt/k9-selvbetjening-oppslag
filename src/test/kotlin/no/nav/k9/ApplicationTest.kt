@@ -6,7 +6,6 @@ import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
-import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
@@ -52,7 +51,6 @@ class ApplicationTest {
             .stubPDLRequest(PdlOperasjon.HENT_PERSON_BOLK)
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER)
             .stubPDLRequest(PdlOperasjon.HENT_IDENTER_BOLK)
-            .stubArbeidsgiverOgArbeidstakerRegister()
             .stubArbeidsgiverOgArbeidstakerRegisterV2()
             .stubEnhetsRegister()
 
@@ -488,9 +486,6 @@ class ApplicationTest {
                     "arbeidsgivere": {
                         "organisasjoner": [
                             {
-                            "organisasjonsnummer": "981585216"
-                            },
-                            {
                             "organisasjonsnummer": "123456789"
                             }
                         ]
@@ -519,10 +514,6 @@ class ApplicationTest {
             {
                 "arbeidsgivere": {
                     "organisasjoner": [
-                        {
-                            "organisasjonsnummer": "981585216",
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
-                        },
                         {
                             "organisasjonsnummer": "123456789",
                             "navn": "DNB, FORSIKRING"
@@ -638,7 +629,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(
                 HttpMethod.Get,
-                "/meg?fom=2019-02-02&tom=2019-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode"
+                "/meg?fom=2019-02-02&tom=2023-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
@@ -647,23 +638,18 @@ class ApplicationTest {
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 //language=json
                 val expectedResponse = """
-                {
-                    "arbeidsgivere": {
+                    {
+                      "arbeidsgivere": {
                         "organisasjoner": [
-                            {
-                                "organisasjonsnummer": "981585216",
-                                "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
-                                "ansatt_fom": "2000-04-24"
-                            },                            
-                            {
-                                "organisasjonsnummer": "123456789",
-                                "navn": "DNB, FORSIKRING",
-                                "ansatt_fom": "2014-07-01",
-                                "ansatt_tom": "2015-12-31"
-                            }
+                          {
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2029-02-28",
+                            "navn": "DNB, FORSIKRING",
+                            "organisasjonsnummer": "123456789"
+                          }
                         ]
+                      }
                     }
-                 }
                 """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
@@ -715,9 +701,9 @@ class ApplicationTest {
                       "arbeidsgivere": {
                         "private_arbeidsgivere": [
                           {
-                            "offentlig_ident": "10047206508",
-                            "ansatt_fom": "2014-07-01",
-                            "ansatt_tom": "2015-12-31"
+                            "offentlig_ident": "28837996386",
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2029-02-28"
                           }
                         ]
                       }
@@ -747,21 +733,20 @@ class ApplicationTest {
                       "arbeidsgivere": {
                         "private_arbeidsgivere": [
                           {
-                            "ansatt_fom": "2014-07-01",
-                            "offentlig_ident": "10047206508",
-                            "ansatt_tom": "2015-12-31"
+                            "ansatt_fom": "2020-01-01",
+                            "offentlig_ident": "28837996386",
+                            "ansatt_tom": "2029-02-28"
                           }
                         ],
                         "organisasjoner": [
                           {
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER",
-                            "organisasjonsnummer": "981585216"
+                            "navn": "DNB, FORSIKRING",
+                            "organisasjonsnummer": "123456789"
                           }
                         ]
                       }
                     }
                     """.trimIndent()
-                println("HER ${response.content!!}")
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }
         }
@@ -787,13 +772,13 @@ class ApplicationTest {
                           {
                             "type": "Person",
                             "ansatt_fom": "2020-01-01",
-                            "ansatt_tom": "2022-02-28",
-                            "offentlig_ident": "805824352"
+                            "ansatt_tom": "2029-02-28",
+                            "offentlig_ident": "28837996386"
                           },
                           {
                             "type": "Organisasjon",
                             "ansatt_fom": "2020-01-01",
-                            "ansatt_tom": "2022-02-28",
+                            "ansatt_tom": "2029-02-28",
                             "organisasjonsnummer": "123456789",
                             "navn": "DNB, FORSIKRING"
                           }
@@ -811,11 +796,11 @@ class ApplicationTest {
         val idToken: String = mockOAuth2Server.hentToken(issuerId = "login-service-v2", subject = PERSON_1_MED_BARN)
         with(engine) {
             handleRequest(
-                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2019-10-10" +
+                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2022-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
                         "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
-                        "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
+                        "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode&a=frilansoppdrag[]"
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
@@ -823,40 +808,51 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
                 val expectedResponse = """
-            {
-                "aktør_id": "12345",
-                "fornavn": "STOR-KAR",
-                "mellomnavn": "LANGEMANN",
-                "etternavn": "TEST",
-                "fødselsdato": "1985-07-27",
-                "barn":[
                     {
-                        "fornavn": "OLA",
-                        "etternavn": "NORDMANN",
-                        "fødselsdato": "2012-02-24",
-                        "identitetsnummer": "$BARN_TIL_PERSON_1"
-                    }
-                ],
-                "arbeidsgivere": {
-                    "organisasjoner": [
-                        {
-                            "organisasjonsnummer": "981585216",
-                            "navn": "NAV FAMILIE- OG PENSJONSYTELSER"
-                        },
-                        {
+                      "mellomnavn": "LANGEMANN",
+                      "etternavn": "TEST",
+                      "arbeidsgivere": {
+                        "private_arbeidsgivere": [
+                          {
+                            "ansatt_fom": "2020-01-01",
+                            "offentlig_ident": "28837996386",
+                            "ansatt_tom": "2029-02-28"
+                          }
+                        ],
+                        "frilansoppdrag": [
+                          {
+                            "ansatt_fom": "2020-01-01",
+                            "offentlig_ident": "28837996386",
+                            "type": "Person",
+                            "ansatt_tom": "2029-02-28"
+                          },
+                          {
+                            "ansatt_fom": "2020-01-01",
+                            "navn": "DNB, FORSIKRING",
+                            "type": "Organisasjon",
                             "organisasjonsnummer": "123456789",
-                            "navn": "DNB, FORSIKRING"
+                            "ansatt_tom": "2029-02-28"
+                          }
+                        ],
+                        "organisasjoner": [
+                          {
+                            "navn": "DNB, FORSIKRING",
+                            "organisasjonsnummer": "123456789"
+                          }
+                        ]
+                      },
+                      "barn": [
+                        {
+                          "etternavn": "NORDMANN",
+                          "identitetsnummer": "11129998665",
+                          "fødselsdato": "2012-02-24",
+                          "fornavn": "OLA"
                         }
-                    ],
-                    "private_arbeidsgivere": [
-                      {
-                        "offentlig_ident": "10047206508",
-                        "ansatt_fom": "2014-07-01",
-                         "ansatt_tom": "2015-12-31"
-                      }
-                    ]
-                }
-             }
+                      ],
+                      "fødselsdato": "1985-07-27",
+                      "fornavn": "STOR-KAR",
+                      "aktør_id": "12345"
+                    }
             """.trimIndent()
                 JSONAssert.assertEquals(expectedResponse, response.content!!, true)
             }

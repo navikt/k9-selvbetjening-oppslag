@@ -1,10 +1,9 @@
 package no.nav.k9.utgaende.rest.aaregv2
 
-import no.nav.k9.utgaende.rest.*
 import no.nav.k9.utgaende.rest.Frilansoppdrag
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
 import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
-import no.nav.k9.utgaende.rest.TypeArbeidssted.Companion.somTypeArbeidssted
+import no.nav.k9.utgaende.rest.aaregv2.TypeArbeidssted.Companion.somTypeArbeidssted
 import no.nav.k9.utgaende.rest.getStringOrNull
 import org.json.JSONArray
 import org.json.JSONObject

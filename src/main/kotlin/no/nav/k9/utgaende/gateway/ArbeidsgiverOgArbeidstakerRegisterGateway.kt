@@ -3,12 +3,10 @@ package no.nav.k9.utgaende.gateway
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.Arbeidsgivere
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import java.time.LocalDate
 
-internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
-    private val arbeidstakerOgArbeidstakerRegisterV1: ArbeidsgiverOgArbeidstakerRegisterV1,
+internal class ArbeidsgiverOgArbeidstakerRegisterGateway(
     private val arbeidstakerOgArbeidstakerRegisterV2: ArbeidsgiverOgArbeidstakerRegisterV2
 
 )  {
@@ -22,21 +20,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
         )
     }
 
-    suspend internal fun arbeidsgivere(
-        ident: Ident,
-        fraOgMed: LocalDate,
-        tilOgMed: LocalDate,
-        attributter: Set<Attributt>
-    ) : Arbeidsgivere? {
-        if (!attributter.any { it in støttedeAttributter }) return null
-        return arbeidstakerOgArbeidstakerRegisterV1.arbeidsgivere(
-            ident = ident,
-            fraOgMed = fraOgMed,
-            tilOgMed = tilOgMed
-        )
-    }
-
-    suspend internal fun arbeidsgivereV2(
+    internal suspend fun arbeidsgivere(
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,

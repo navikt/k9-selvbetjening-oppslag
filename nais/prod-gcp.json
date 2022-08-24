@@ -11,7 +11,6 @@
   ],
   "azureTenant": "nav.no",
   "env": {
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v1",
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
     "ENHET_V1_URL": "https://ereg-services.prod-fss-pub.nais.io/api/v1/",

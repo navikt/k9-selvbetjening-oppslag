@@ -12,12 +12,8 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.*
-import no.nav.k9.utgaende.rest.ArbeidsforholdType.FRILANS
 import no.nav.k9.utgaende.rest.NavHeaderValues
 import no.nav.k9.utgaende.rest.NavHeaders
-import no.nav.k9.utgaende.rest.TypeArbeidssted.Companion.somTypeArbeidssted
-import org.json.JSONArray
-import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -100,5 +96,26 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
             privateArbeidsgivere = json.hentPrivateArbeidsgivereV2(fraOgMed, tilOgMed),
             frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
         )
+    }
+}
+
+enum class ArbeidsforholdType(val type: String){
+    ORDINÆRT("ordinaertArbeidsforhold"),
+    MARITIMT("maritimtArbeidsforhold"),
+    FORENKLET("forenkletOppgjoersordning"),
+    FRILANS("frilanserOppdragstakerHonorarPersonerMm")
+}
+
+
+internal enum class TypeArbeidssted{
+    Person,
+    Organisasjon;
+
+    companion object{
+        internal fun String.somTypeArbeidssted() = when(this){
+            "Person" -> Person
+            "Organisasjon", "Underenhet" -> Organisasjon
+            else -> throw Exception("Ukjent type arbeidssted. '$this'")
+        }
     }
 }

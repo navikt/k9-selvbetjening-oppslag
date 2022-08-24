@@ -37,10 +37,9 @@ import no.nav.k9.inngaende.oppslag.OppslagRoute
 import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.inngaende.oppslag.SystemOppslagRoute
 import no.nav.k9.utgaende.auth.AccessTokenClientResolver
-import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterV1Gateway
+import no.nav.k9.utgaende.gateway.ArbeidsgiverOgArbeidstakerRegisterGateway
 import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
-import no.nav.k9.utgaende.rest.ArbeidsgiverOgArbeidstakerRegisterV1
 import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NavHeaders
@@ -150,12 +149,7 @@ fun Application.SelvbetjeningOppslag() {
                                 )
                             )
                         ),
-                        arbeidsgiverOgArbeidstakerRegisterV1Gateway = ArbeidsgiverOgArbeidstakerRegisterV1Gateway(
-                            arbeidstakerOgArbeidstakerRegisterV1 = ArbeidsgiverOgArbeidstakerRegisterV1(
-                                baseUrl = applicationConfig.arbeidsgiverOgArbeidstakerV1Url(),
-                                cachedAccessTokenClient = tokenxExchangeTokenClient,
-                                aaregTokenxAudience = applicationConfig.aaregTokenxAudience()
-                            ),
+                        arbeidsgiverOgArbeidstakerRegisterGateway = ArbeidsgiverOgArbeidstakerRegisterGateway(
                             arbeidstakerOgArbeidstakerRegisterV2 = ArbeidsgiverOgArbeidstakerRegisterV2(
                                 baseUrl = applicationConfig.arbeidsgiverOgArbeidstakerV2Url(),
                                 cachedAccessTokenClient = tokenxExchangeTokenClient,

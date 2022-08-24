@@ -11,7 +11,6 @@
   ],
   "azureTenant": "trygdeetaten.no",
   "env": {
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V1_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v1",
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "dev-fss:arbeidsforhold:aareg-services-nais",
     "ENHET_V1_URL": "https://ereg-services-q1.dev-fss-pub.nais.io/api/v1/",
