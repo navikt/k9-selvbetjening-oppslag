@@ -14,7 +14,6 @@ object TestConfiguration {
         wireMockServer: WireMockServer? = null,
         mockOAuth2Server: MockOAuth2Server? = null,
         port : Int = 8080,
-        arbeidsgiverOgArbeidstakerRegisterV1BaseUrl : String? = wireMockServer?.getArbeidsgiverOgArbeidstakerV1RegisterUrl(),
         arbeidsgiverOgArbeidstakerRegisterV2BaseUrl : String? = wireMockServer?.getArbeidsgiverOgArbeidstakerV2RegisterUrl(),
         enhetsRegisterBaseUrl : String? = wireMockServer?.getEnhetsregisterUrl(),
         pdlUrl : String? = wireMockServer?.getPdlUrl()
@@ -23,7 +22,6 @@ object TestConfiguration {
         val map = mutableMapOf(
             Pair("ktor.deployment.port","$port"),
 
-            Pair("nav.register_urls.arbeidsgiver_og_arbeidstaker_v1", "$arbeidsgiverOgArbeidstakerRegisterV1BaseUrl"),
             Pair("nav.register_urls.arbeidsgiver_og_arbeidstaker_v2", "$arbeidsgiverOgArbeidstakerRegisterV2BaseUrl"),
             Pair("nav.register_urls.enhetsregister_v1", "$enhetsRegisterBaseUrl"),
             Pair("nav.register_urls.pdl_url", "$pdlUrl"),

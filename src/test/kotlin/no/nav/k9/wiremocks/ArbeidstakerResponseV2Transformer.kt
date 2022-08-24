@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.Response
 import no.nav.k9.PersonFødselsnummer
 import no.nav.k9.utgaende.rest.NavHeaders
+import org.json.JSONArray
 import org.json.JSONObject
 
 class ArbeidstakerResponseV2Transformer : ResponseTransformer() {
@@ -33,184 +34,63 @@ class ArbeidstakerResponseV2Transformer : ResponseTransformer() {
 }
 
 private fun getResponse(navIdent: String) : String {
+    val jsonRespons = JSONArray()
+    val ansettelsesperiode = JSONObject().apply { put("startdato","2020-01-01"); put("sluttdato", "2029-02-28") }
+    val identerOrg = JSONArray().apply { put(JSONObject().apply { put("ident", "123456789"); put("type", "ORGANISASJONSNUMMER") }) }
+    val identerFolkeregistrert = JSONArray().apply { put(JSONObject().apply { put("ident", "28837996386"); put("type", "FOLKEREGISTERIDENT") }) }
+    val arbeidsstedUnderenhet = JSONObject().apply { put("type", "Underenhet"); put("identer", identerOrg) }
+    val arbeidsstedPerson = JSONObject().apply { put("type", "Person"); put("identer", identerFolkeregistrert) }
+    val privatArbeidsgiverUnderenhet = JSONObject().apply {
+        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
+        put("ansettelsesperiode", ansettelsesperiode)
+        put("arbeidssted", arbeidsstedUnderenhet)
+    }
+    val privatArbeidsgiverPerson = JSONObject().apply {
+        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
+        put("ansettelsesperiode", ansettelsesperiode)
+        put("arbeidssted", arbeidsstedPerson)
+    }
+    val organisasjon = JSONObject().apply {
+        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
+        put("ansettelsesperiode", ansettelsesperiode)
+        put("arbeidssted", arbeidsstedUnderenhet)
+    }
+    val frilansoppdragPerson = JSONObject().apply {
+        put("type", JSONObject().apply { put("kode", "frilanserOppdragstakerHonorarPersonerMm")})
+        put("ansettelsesperiode", ansettelsesperiode)
+        put("arbeidssted", arbeidsstedPerson)
+    }
+    val frilansoppdragUnderenhet = JSONObject().apply {
+        put("type", JSONObject().apply { put("kode", "frilanserOppdragstakerHonorarPersonerMm")})
+        put("ansettelsesperiode", ansettelsesperiode)
+        put("arbeidssted", arbeidsstedUnderenhet)
+    }
     when (navIdent) {
+        PersonFødselsnummer.PERSON_1_MED_BARN -> {
+            return jsonRespons.apply {
+                put(privatArbeidsgiverPerson)
+                put(privatArbeidsgiverUnderenhet)
+                put(organisasjon)
+                put(frilansoppdragPerson)
+                put(frilansoppdragUnderenhet)
+            }.toString()
+        }
         PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG -> {
-            //language=json
-            return """
-                [
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "2716992950188",
-                          "type": "AKTORID"
-                        },
-                        {
-                          "ident": "805824352",
-                          "type": "FOLKEREGISTERIDENT"
-                        }
-                      ],
-                      "type": "Person"
-                    },
-                    "type": {
-                      "kode": "frilanserOppdragstakerHonorarPersonerMm"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2020-01-01",
-                      "sluttdato": "2022-02-28"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "123456789",
-                          "type": "ORGANISASJONSNUMMER"
-                        }
-                      ],
-                      "type": "Underenhet"
-                    },
-                    "type": {
-                      "kode": "frilanserOppdragstakerHonorarPersonerMm"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2020-01-01",
-                      "sluttdato": "2022-02-28"
-                    }
-                  }
-                ]
-            """.trimIndent()
+            return jsonRespons.apply {
+                put(frilansoppdragPerson)
+                put(frilansoppdragUnderenhet)
+            }.toString()
         }
         PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER -> {
-            //language=json
-            return """
-                [
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "2716992950188",
-                          "type": "AKTORID"
-                        },
-                        {
-                          "ident": "28837996386",
-                          "type": "FOLKEREGISTERIDENT"
-                        }
-                      ],
-                      "type": "Person"
-                    },
-                    "type": {
-                      "kode": "frilanserOppdragstakerHonorarPersonerMm"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "2716992950188",
-                          "type": "AKTORID"
-                        },
-                        {
-                          "ident": "28837996386",
-                          "type": "FOLKEREGISTERIDENT"
-                        }
-                      ],
-                      "type": "Person"
-                    },
-                    "type": {
-                      "kode": "ordinaertArbeidsforhold"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "2716992950188",
-                          "type": "AKTORID"
-                        },
-                        {
-                          "ident": "28837996386",
-                          "type": "FOLKEREGISTERIDENT"
-                        }
-                      ],
-                      "type": "Person"
-                    },
-                    "type": {
-                      "kode": "ordinaertArbeidsforhold"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05",
-                      "sluttdato": "2021-07-01"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "2984883819834",
-                          "type": "AKTORID"
-                        },
-                        {
-                          "ident": "08816898316",
-                          "type": "FOLKEREGISTERIDENT"
-                        }
-                      ],
-                      "type": "Person"
-                    },
-                    "type": {
-                      "kode": "ordinaertArbeidsforhold"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "839942907",
-                          "type": "ORGANISASJONSNUMMER"
-                        }
-                      ],
-                      "type": "Underenhet"
-                    },
-                    "type": {
-                      "kode": "frilanserOppdragstakerHonorarPersonerMm"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05"
-                    }
-                  },
-                  {
-                    "arbeidssted": {
-                      "identer": [
-                        {
-                          "ident": "896929119",
-                          "type": "ORGANISASJONSNUMMER"
-                        }
-                      ],
-                      "type": "Underenhet"
-                    },
-                    "type": {
-                      "kode": "ordinaertArbeidsforhold"
-                    },
-                    "ansettelsesperiode": {
-                      "startdato": "2002-07-05"
-                    }
-                  }
-                ]
-            """.trimIndent()
+            return jsonRespons.apply {
+                put(privatArbeidsgiverPerson)
+                put(privatArbeidsgiverPerson)
+                put(organisasjon)
+                put(organisasjon)
+            }.toString()
         }
         else -> {
-            return """
-                 []
-             """.trimIndent()
+            return jsonRespons.toString()
         }
     }
 }
