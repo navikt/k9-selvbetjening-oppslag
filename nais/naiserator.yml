@@ -27,7 +27,7 @@ spec:
       memory: 512Mi
   ingresses:
   {{#each ingresses as |url|}}
-    - {{url}}
+     - {{url}}
   {{/each}}
   replicas:
     min: {{minReplicas}}
