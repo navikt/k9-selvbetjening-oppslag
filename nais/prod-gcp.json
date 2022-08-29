@@ -6,9 +6,6 @@
   "team": "dusseldorf",
   "minReplicas": "2",
   "maxReplicas": "4",
-  "ingresses": [
-    "https://k9-selvbetjening-oppslag.intern.nav.no"
-  ],
   "azureTenant": "nav.no",
   "env": {
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v2",
