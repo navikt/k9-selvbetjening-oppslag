@@ -45,12 +45,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: k9-ettersending-api
-        - application: omsorgspengerutbetaling-api
         - application: pleiepengesoknad-api
         - application: pleiepenger-livets-sluttfase-api
         - application: omsorgsdager-melding-api
-        - application: omsorgsdager-aleneomsorg-api
         - application: k9-brukerdialog-api
         - application: k9-sak-innsyn-api
         - application: sif-innsyn-api
