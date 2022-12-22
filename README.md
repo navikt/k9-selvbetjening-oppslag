@@ -1,4 +1,13 @@
 # k9-selvbetjening-oppslag
+
+![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=ncloc)
+![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=alert_status)
+![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=coverage)
+![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=code_smells)
+![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=sqale_index)
+![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=duplicated_lines_density)
+![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=bugs)
+
 Oppslagstjeneste for selvbetjeningsløsninger for Kapittel 9-ytelser. Sykdom i familien.
 
 ## API
