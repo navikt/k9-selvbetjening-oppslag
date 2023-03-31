@@ -24,3 +24,4 @@ updates:
     registries:
       - dusseldorf-ktor
       - sif-tilgangskontroll
+    open-pull-requests-limit: 15
