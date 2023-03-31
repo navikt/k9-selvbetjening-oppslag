@@ -1,24 +1,24 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "3.2.2.1-4942135"
-val ktorVersion = "2.2.1"
-val graphqlKotlinClientVersion = "6.2.5"
-val sifTilgangskontrollVersion = "1-ff02eb8"
-val tokenSupportVersion = "3.0.2"
-val mockOauth2ServerVersion = "0.5.6"
+val dusseldorfKtorVersion = "3.2.2.4-f09ec97"
+val ktorVersion = "2.2.4"
+val graphqlKotlinClientVersion = "6.4.0"
+val sifTilgangskontrollVersion = "1-bc530da"
+val tokenSupportVersion = "3.0.9"
+val mockOauth2ServerVersion = "0.5.8"
 
-val mockkVersion = "1.13.3"
+val mockkVersion = "1.13.4"
 val jsonassertVersion = "1.5.1"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "1.7.22"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.sonarqube") version "3.3"
+    kotlin("jvm") version "1.8.10"
+    id("org.sonarqube") version "4.0.0.2929"
     jacoco
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 dependencies {
@@ -87,7 +87,7 @@ java {
 
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 
 tasks.withType<Test> {
@@ -143,5 +143,5 @@ tasks.register<ShadowJar>("shadowJarWithMocks") {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.4.2"
+    gradleVersion = "8.0.2"
 }
