@@ -16,7 +16,8 @@
     "ENHET_V1_URL": "https://ereg-services-q1.dev-fss-pub.nais.io/api/v1/",
     "PDL_URL": "https://pdl-api.dev-fss-pub.nais.io/graphql",
     "PDL_API_TOKENX_AUDIENCE": "dev-fss:pdl:pdl-api",
-    "PDL_API_AZURE_AUDIENCE": "api://dev-fss.pdl.pdl-api/.default"
+    "PDL_API_AZURE_AUDIENCE": "api://dev-fss.pdl.pdl-api/.default",
+    "JAVA_TOOL_OPTIONS": "-Djavax.net.debug=ssl"
   },
   "slack-channel": "sif-alerts-dev",
   "slack-notify-type": "<!here> | k9-selvbetjening-oppslag | ",
