@@ -10,6 +10,11 @@
   "ingresses": [
     "https://k9-selvbetjening-oppslag.dev.intern.nav.no"
   ],
+  "externalHosts": [
+    "aareg-services-q1.dev-fss-pub.nais.io",
+    "ereg-services-q1.dev-fss-pub.nais.io",
+    "pdl-api.dev-fss-pub.nais.io"
+  ],
   "env": {
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "dev-fss:arbeidsforhold:aareg-services-nais",
