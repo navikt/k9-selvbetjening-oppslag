@@ -54,8 +54,8 @@ spec:
         - application: k9-selvbetjening-oppslag
     outbound:
       external:
-        {{ #each externalHosts as |host|}}
-          - host: {{host }}
+        {{#each externalHosts as |host|}}
+          - host: {{host}}
         {{/each}}
   env:
   {{#each env}}
