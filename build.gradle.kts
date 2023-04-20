@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val dusseldorfKtorVersion = "3.2.2.4-f09ec97"
-val ktorVersion = "2.2.4"
+val ktorVersion = "2.3.0"
 val graphqlKotlinClientVersion = "6.4.0"
 val sifTilgangskontrollVersion = "1-bc530da"
 val tokenSupportVersion = "3.0.9"
