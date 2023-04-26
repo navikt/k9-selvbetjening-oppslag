@@ -7,9 +7,6 @@
   "minReplicas": "2",
   "maxReplicas": "2",
   "azureTenant": "trygdeetaten.no",
-  "ingresses": [
-    "https://k9-selvbetjening-oppslag.dev.intern.nav.no"
-  ],
   "externalHosts": [
     "aareg-services-q1.dev-fss-pub.nais.io",
     "ereg-services-q1.dev-fss-pub.nais.io",
