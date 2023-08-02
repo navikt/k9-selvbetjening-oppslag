@@ -1,5 +1,5 @@
 # This workflow trigger on push to any branch.
-name: CI / CD
+name: Build
 on:
   push:
     paths-ignore:
@@ -9,113 +9,72 @@ on:
       - 'CODEOWNERS'
       - 'nais/alerterator.yml'
       - '.github/workflows/apply-alerts.yml'
-      - '.github/workflows/codeql.yml'
-      - ".github/workflows/dependency-submission.yml"
     branches:
 
-env:
-  IMAGE: ghcr.io/${{ github.repository }}/k9-selvbetjening-oppslag:${{ github.sha }}
-  IMAGE_WITH_MOCKS: ghcr.io/${{ github.repository }}/k9-selvbetjening-oppslag-with-mocks:${{ github.sha }}
-  LATEST: ghcr.io/${{ github.repository }}/k9-selvbetjening-oppslag:latest
-  LATEST_MOCK: ghcr.io/${{ github.repository }}/k9-selvbetjening-oppslag-with-mocks:latest
-  GITHUB_USERNAME: x-access-token
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
+  sonar:
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-sonar.yml@main
+    permissions:
+      contents: read
+      pull-requests: read
+    secrets: inherit
+    with:
+      readertoken: false
+
   test:
-    name: Check Code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: corretto
-          cache: gradle
-      - name: Test Code
-        run: ./gradlew check
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-test.yml@main
+    permissions:
+      contents: read
+    secrets: inherit
+    with:
+      readertoken: false
 
-      - name: SonarCloud Scan
-        run: ./gradlew test jacocoTestReport sonarqube
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+  codeql:
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-codeql.yml@main
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      security-events: write
+    secrets: inherit
+    with:
+      readertoken: false
+      package-command: './gradlew clean build -x test'
+      branch: master
 
-  build-code-and-push-docker:
-    name: Build code and push docker image
+  build:
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-build.yml@main
     if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') || github.event.deployment.payload.triggered # Build and push docker if branch is either master or dev-*
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: corretto
-          cache: gradle
-      - name: Build JAR
-        run: ./gradlew shadowjar # Creates a combined JAR of project and runTime dependencies.
-      - name: Build and publish Docker image
-        run: |
-          docker build --tag ${IMAGE} .
-          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker push ${IMAGE}
-      - name: Build Mock
-        run: ./gradlew clean shadowJarWithMocks
-      - name: Build and publish Docker image mock
-        run: |
-          docker build --tag ${IMAGE_WITH_MOCKS} .
-          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker push ${IMAGE_WITH_MOCKS}
+    permissions:
+      contents: write
+      id-token: write
+    secrets: inherit
+    with:
+      team: dusseldorf
+      readertoken: false
 
-  deploy-dev-gcp:
-    name: Deploy to dev-gcp
+  trivy:
+    needs: [ build ]
+    if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') || github.event.deployment.payload.triggered # Build and push docker if branch is either master or dev-*
+    uses: navikt/sif-gha-workflows/.github/workflows/trivy.yml@main
+    permissions:
+      contents: write
+      security-events: write
+      id-token: write
+      actions: read
+    secrets: inherit
+    with:
+      image: ${{ needs.build.outputs.image }}
+      team: dusseldorf
+
+  deploy:
+    needs: [ test, build ]
     if: startsWith(github.ref, 'refs/heads/dev-') || startsWith(github.ref, 'refs/heads/master') # Deploy if branch is either master or dev-*
-    needs: build-code-and-push-docker # Depends on build-code-and-push-docker job
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
-          RESOURCE: nais/naiserator.yml
-          VARS: nais/dev-gcp.json
-
-  deploy-prod-gcp:
-    name: Deploy to prod-gcp
-    if: startsWith(github.ref, 'refs/heads/master')  # If the branch is master
-    needs: build-code-and-push-docker # Depends on build-code-and-push-docker job
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
-          RESOURCE: nais/naiserator.yml
-          VARS: nais/prod-gcp.json
-
-  tag-image-as-latest:
-    if: github.ref == 'refs/heads/master'
-    name: Tag dockerimage as latest
-    runs-on: ubuntu-latest
-    needs: build-code-and-push-docker
-    steps:
-      - name: Tag and push docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker login ghcr.io -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker pull ${IMAGE}
-          docker tag ${IMAGE} ${LATEST}
-          docker push ${LATEST}
-
-          docker pull ${IMAGE_WITH_MOCKS}
-          docker tag ${IMAGE_WITH_MOCKS} ${LATEST_MOCK}
-          docker push ${LATEST_MOCK}
-
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-deploy.yml@main
+    permissions:
+      contents: read
+    secrets: inherit
+    with:
+      image: ${{ needs.build.outputs.image }}
+      environment: gcp
+      deploy-prod: ${{ startsWith(github.ref, 'refs/heads/master')}}

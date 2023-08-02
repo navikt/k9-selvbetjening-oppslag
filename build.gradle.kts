@@ -62,22 +62,12 @@ repositories {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
         credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
-
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/navikt/sif-tilgangskontroll")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
+            username = project.findProperty("gpr.user") as String? ?: "k9-selvbetjening-oppslag"
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
 
     mavenCentral()
-    maven("https://jitpack.io")
 }
 
 java {
@@ -85,21 +75,55 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "17"
+    }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-}
+    withType<Test> {
+        useJUnitPlatform()
+        finalizedBy(jacocoTestReport) // report is always generated after tests run
+    }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
+    jacocoTestReport {
+        dependsOn(test) // tests are required to run before generating the report
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+        }
+    }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
+    withType<ShadowJar> {
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        manifest {
+            attributes(
+                mapOf(
+                    "Main-Class" to mainClass
+                )
+            )
+        }
+    }
+
+    register<ShadowJar>("shadowJarWithMocks") {
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        from(sourceSets.main.get().output, sourceSets.test.get().output)
+        configurations = mutableListOf(
+            project.configurations.runtimeClasspath.get(),
+            project.configurations.testRuntimeClasspath.get()
+        ) as List<FileCollection>?
+        manifest {
+            attributes(
+                mapOf(
+                    "Main-Class" to "no.nav.k9.ApplicationWithMocks"
+                )
+            )
+        }
+    }
+
+    withType<Wrapper> {
+        gradleVersion = "8.2.1"
     }
 }
 
@@ -111,37 +135,4 @@ sonarqube {
         property("sonar.login", System.getenv("SONAR_TOKEN"))
         property("sonar.sourceEncoding", "UTF-8")
     }
-}
-
-tasks.withType<ShadowJar> {
-    archiveBaseName.set("app")
-    archiveClassifier.set("")
-    manifest {
-        attributes(
-            mapOf(
-                "Main-Class" to mainClass
-            )
-        )
-    }
-}
-
-tasks.register<ShadowJar>("shadowJarWithMocks") {
-    archiveBaseName.set("app")
-    archiveClassifier.set("")
-    from(sourceSets.main.get().output, sourceSets.test.get().output)
-    configurations = mutableListOf(
-        project.configurations.runtimeClasspath.get(),
-        project.configurations.testRuntimeClasspath.get()
-    ) as List<FileCollection>?
-    manifest {
-        attributes(
-            mapOf(
-                "Main-Class" to "no.nav.k9.ApplicationWithMocks"
-            )
-        )
-    }
-}
-
-tasks.withType<Wrapper> {
-    gradleVersion = "8.0.2"
 }
