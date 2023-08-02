@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 val dusseldorfKtorVersion = "4.0.2"
 val ktorVersion = "2.3.3"
 val graphqlKotlinClientVersion = "6.5.3"
-val sifTilgangskontrollVersion = "1-6079482"
+val sifTilgangskontrollVersion = "1-a18ef65"
 val tokenSupportVersion = "3.1.0"
 val mockOauth2ServerVersion = "1.0.0"
 
@@ -58,6 +58,7 @@ dependencies {
 }
 
 repositories {
+    mavenCentral()
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
@@ -66,8 +67,6 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
-
-    mavenCentral()
 }
 
 java {
