@@ -1,14 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "4.0.3"
+val dusseldorfKtorVersion = "4.0.4"
 val ktorVersion = "2.3.3"
 val graphqlKotlinClientVersion = "6.5.3"
-val sifTilgangskontrollVersion = "1.0.0"
-val tokenSupportVersion = "3.1.1"
+val sifTilgangskontrollVersion = "1-6079482"
+val tokenSupportVersion = "3.1.3"
 val mockOauth2ServerVersion = "1.0.0"
 
-val mockkVersion = "1.13.5"
+val mockkVersion = "1.13.7"
 val jsonassertVersion = "1.5.1"
 val fuelVersion = "2.3.1"
 
