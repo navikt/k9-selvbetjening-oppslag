@@ -21,7 +21,6 @@ class ApplicationWithMocks {
 
             val wireMockServer = WireMockBuilder()
                 .withPort(8081)
-                .withLoginServiceSupport()
                 .k9SelvbetjeningOppslagConfig()
                 .build()
                 .stubArbeidsgiverOgArbeidstakerRegisterV2()
