@@ -1,13 +1,10 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
-import no.nav.k9.PersonFødselsnummer
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
@@ -42,19 +39,18 @@ private val identMap = mapOf(
 )
 
 
-class PdlAktoerIdResponseTransformer : ResponseTransformer() {
+class PdlAktoerIdResponseTransformer : ResponseTransformerV2 {
     private companion object {
         val logger = LoggerFactory.getLogger(PdlAktoerIdResponseTransformer::class.java)
     }
 
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?,
-    ): Response {
+    override fun getName(): String {
+        return "pdl-hent-ident"
+    }
 
-        val requestBody = JSONObject(request!!.body.decodeToString())
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+
+        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
         val requestVariables = requestBody.getJSONObject("variables")
         val ident = requestVariables.getString("ident")
         logger.info("Hentet ident fra request: {}", ident)
@@ -62,10 +58,6 @@ class PdlAktoerIdResponseTransformer : ResponseTransformer() {
         return Response.Builder.like(response)
             .body(getResponse(ident))
             .build()
-    }
-
-    override fun getName(): String {
-        return "pdl-hent-ident"
     }
 
     override fun applyGlobally(): Boolean {

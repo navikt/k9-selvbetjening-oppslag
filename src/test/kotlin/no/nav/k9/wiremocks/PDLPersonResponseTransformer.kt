@@ -1,10 +1,8 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
 import no.nav.k9.BarnFødselsnummer.DØD_BARN_TIL_PERSON_4
@@ -15,34 +13,29 @@ import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_4_MED_DØD_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
-import no.nav.siftilgangskontroll.core.pdl.utils.*
+import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentPersonResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.*
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
-class PDLPersonResponseTransformer : ResponseTransformer() {
+class PDLPersonResponseTransformer : ResponseTransformerV2 {
     private companion object {
         val logger = LoggerFactory.getLogger(PDLPersonResponseTransformer::class.java)
     }
 
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?,
-    ): Response {
-        val requestBody = JSONObject(request!!.body.decodeToString())
+    override fun getName(): String {
+        return "pdl-hent-person"
+    }
+
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
         val ident = requestBody.getJSONObject("variables").getString("ident")
         logger.info("Hentet personIdent fra request: {}", ident)
 
         return Response.Builder.like(response)
             .body(getResponse(ident))
             .build()
-    }
-
-    override fun getName(): String {
-        return "pdl-hent-person"
     }
 
     override fun applyGlobally(): Boolean {
