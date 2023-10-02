@@ -1,15 +1,13 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
 import no.nav.k9.BarnFødselsnummer.DØD_BARN_TIL_PERSON_4
 import no.nav.k9.BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3
-import no.nav.siftilgangskontroll.core.pdl.utils.*
+import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentPersonBolkResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.AdressebeskyttelseGradering
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.*
 import org.json.JSONObject
@@ -69,18 +67,17 @@ private val barnMap = mapOf(
     ),
 )
 
-class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
+class PDLHentPersonBolkResponseTransformer : ResponseTransformerV2 {
     private companion object {
         val logger = LoggerFactory.getLogger(PDLHentPersonBolkResponseTransformer::class.java)
     }
 
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?,
-    ): Response {
-        val requestBody = JSONObject(request!!.body.decodeToString())
+    override fun getName(): String {
+        return "pdl-hent-barn"
+    }
+
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
         val identer: List<String> = requestBody.getJSONObject("variables").getJSONArray("identer").map {
             it as String
         }
@@ -89,10 +86,6 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformer() {
         return Response.Builder.like(response)
             .body(getResponse(identer))
             .build()
-    }
-
-    override fun getName(): String {
-        return "pdl-hent-barn"
     }
 
     override fun applyGlobally(): Boolean {
