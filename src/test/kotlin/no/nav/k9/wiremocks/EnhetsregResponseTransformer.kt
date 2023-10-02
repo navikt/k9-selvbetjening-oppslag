@@ -1,27 +1,20 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 
-class EnhetsregResponseTransformer : ResponseTransformer() {
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?
-    ): Response {
-        val requestPathChunks = request!!.url.split("/")
-        val orgnr = requestPathChunks.get(requestPathChunks.size-2)
+class EnhetsregResponseTransformer : ResponseTransformerV2 {
+    override fun getName(): String {
+        return "enhetsreg-noekkelinfo"
+    }
+
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+        val requestPathChunks = serveEvent.request.url.split("/")
+        val orgnr = requestPathChunks[requestPathChunks.size-2]
         return Response.Builder.like(response)
             .body(getResponse(orgnr))
             .build()
-    }
-
-    override fun getName(): String {
-        return "enhetsreg-noekkelinfo"
     }
 
     override fun applyGlobally(): Boolean {

@@ -846,7 +846,7 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                assertEquals("application/problem+json", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -873,7 +873,7 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                assertEquals("application/problem+json", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -901,7 +901,7 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
             }.apply {
                 assertEquals(451, response.status()!!.value)
-                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                assertEquals("application/problem+json", response.contentType().toString())
                 //language=json
                 val expectedResponse = """
                 {
@@ -929,7 +929,7 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                assertEquals("application/problem+json", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -959,7 +959,7 @@ class ApplicationTest {
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json; charset=UTF-8", response.contentType().toString())
+                assertEquals("application/problem+json", response.contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",

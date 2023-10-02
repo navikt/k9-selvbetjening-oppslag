@@ -1,28 +1,21 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.utgaende.rest.NavHeaders
 
-class BrregProxyV1ResponseTransformer : ResponseTransformer() {
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?
-    ): Response {
-        val personIdent = request!!.getHeader(NavHeaders.PersonIdent)
+class BrregProxyV1ResponseTransformer : ResponseTransformerV2 {
+    override fun getName(): String {
+        return "brreg-proxy-v1"
+    }
+
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+        val personIdent = serveEvent.request.getHeader(NavHeaders.PersonIdent)
 
         return Response.Builder.like(response)
             .body(getResponse(personIdent))
             .build()
-    }
-
-    override fun getName(): String {
-        return "brreg-proxy-v1"
     }
 
     override fun applyGlobally(): Boolean {
@@ -55,6 +48,7 @@ private fun getResponse(personIdent: String) = when (personIdent) {
     	}
     }
     """.trimIndent()
+
     "22222222222" -> """
     {
     	"rolle": [{
@@ -79,7 +73,8 @@ private fun getResponse(personIdent: String) = when (personIdent) {
     	}
     }
     """.trimIndent()
-    else  -> """
+
+    else -> """
     {
     	"rolle": [],
     	"statuskoder": {

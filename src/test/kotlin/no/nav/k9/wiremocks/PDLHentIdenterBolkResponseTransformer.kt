@@ -1,10 +1,8 @@
 package no.nav.k9.wiremocks
 
-import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.Parameters
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.Request
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
@@ -54,18 +52,17 @@ private val identerMap = mapOf(
     ),
 )
 
-class PDLHentIdentBolkResponseTransformer : ResponseTransformer() {
+class PDLHentIdentBolkResponseTransformer : ResponseTransformerV2 {
     private companion object {
         val logger = LoggerFactory.getLogger(PDLHentPersonBolkResponseTransformer::class.java)
     }
 
-    override fun transform(
-        request: Request?,
-        response: Response?,
-        files: FileSource?,
-        parameters: Parameters?,
-    ): Response {
-        val requestBody = JSONObject(request!!.body.decodeToString())
+    override fun getName(): String {
+        return "pdl-hent-identer-bolk"
+    }
+
+    override fun transform(response: Response, serveEvent: ServeEvent): Response {
+        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
         val identer: List<String> = requestBody.getJSONObject("variables").getJSONArray("identer").map {
             it as String
         }
@@ -74,10 +71,6 @@ class PDLHentIdentBolkResponseTransformer : ResponseTransformer() {
         return Response.Builder.like(response)
             .body(getResponse(identer))
             .build()
-    }
-
-    override fun getName(): String {
-        return "pdl-hent-identer-bolk"
     }
 
     override fun applyGlobally(): Boolean {
