@@ -5,7 +5,7 @@ val dusseldorfKtorVersion = "4.0.10"
 val ktorVersion = "2.3.4"
 val graphqlKotlinClientVersion = "7.0.1"
 val sifTilgangskontrollVersion = "2.0.1"
-val tokenSupportVersion = "3.1.5"
+val tokenSupportVersion = "3.1.7"
 val mockOauth2ServerVersion = "2.0.1"
 
 val mockkVersion = "1.13.8"
@@ -16,7 +16,7 @@ val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
     kotlin("jvm") version "1.9.10"
-    id("org.sonarqube") version "4.4.0.3356"
+    id("org.sonarqube") version "4.4.1.3373"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
