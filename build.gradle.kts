@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "4.0.10"
-val ktorVersion = "2.3.4"
+val dusseldorfKtorVersion = "4.1.0"
+val ktorVersion = "2.3.5"
 val graphqlKotlinClientVersion = "7.0.1"
 val sifTilgangskontrollVersion = "2.0.1"
-val tokenSupportVersion = "3.1.5"
+val tokenSupportVersion = "3.1.7"
 val mockOauth2ServerVersion = "2.0.1"
 
 val mockkVersion = "1.13.8"
@@ -122,7 +122,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "8.2.1"
+        gradleVersion = "8.4"
     }
 }
 
