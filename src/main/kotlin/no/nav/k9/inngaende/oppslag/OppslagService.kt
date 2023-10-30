@@ -1,5 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.Ytelse
 import no.nav.k9.utgaende.gateway.*
 import no.nav.k9.utgaende.rest.Arbeidsgivere
 import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
@@ -45,20 +46,23 @@ internal class OppslagService(
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
+        ytelse: Ytelse,
     ): OppslagResultat {
 
         val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, attributter)
 
         val meg = megOppslag.meg(
             ident = ident,
-            attributter = attributter
+            attributter = attributter,
+            ytelse = ytelse
         )
 
         return OppslagResultat(
             meg = meg,
             barn = barnOppslag.barn(
                 barnasIdenter = meg.pdlPerson?.barnIdenter ?: listOf(),
-                attributter = attributter
+                attributter = attributter,
+                ytelse = ytelse
             ),
             arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
                 attributter = attributter,
