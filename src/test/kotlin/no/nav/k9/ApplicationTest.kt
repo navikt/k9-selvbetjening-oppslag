@@ -17,6 +17,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.TokenUtils.hentToken
+import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.k9.utgaende.rest.aaregv2.erAnsattIPerioden
 import no.nav.k9.wiremocks.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -109,6 +110,7 @@ class ApplicationTest {
         with(engine) {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
@@ -122,6 +124,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -147,6 +150,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
@@ -204,6 +208,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-fornavn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -223,6 +228,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-navn-foedselsdato")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -247,6 +253,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-har-ikke-mellomnavn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -269,6 +276,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
@@ -282,6 +290,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
             }
@@ -295,6 +304,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -324,6 +334,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -353,6 +364,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -378,6 +390,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -398,6 +411,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -418,6 +432,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-ingen-barn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -438,6 +453,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -467,6 +483,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -593,6 +610,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -627,6 +645,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -653,6 +672,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-private-arbeidsgivere")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -685,6 +705,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -722,6 +743,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-frilans-oppdrag")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -764,6 +786,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -826,6 +849,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ingen-attrib")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("application/json; charset=UTF-8", response.contentType().toString())
@@ -844,6 +868,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=ugyldigAttrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("application/problem+json", response.contentType().toString())
@@ -871,6 +896,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("application/problem+json", response.contentType().toString())
@@ -899,6 +925,7 @@ class ApplicationTest {
             handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(451, response.status()!!.value)
                 assertEquals("application/problem+json", response.contentType().toString())
@@ -927,6 +954,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("application/problem+json", response.contentType().toString())
@@ -957,6 +985,7 @@ class ApplicationTest {
             ) {
                 addHeader(HttpHeaders.Authorization, "Bearer $idToken")
                 addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals("application/problem+json", response.contentType().toString())

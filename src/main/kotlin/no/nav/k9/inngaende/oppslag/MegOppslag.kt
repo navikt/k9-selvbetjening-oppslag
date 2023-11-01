@@ -1,5 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.Ytelse
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person
@@ -13,8 +14,9 @@ internal class MegOppslag(
     internal suspend fun meg(
         ident: Ident,
         attributter: Set<Attributt>,
+        ytelse: Ytelse,
     ): Meg {
-        val pdlPerson = pdlProxyGateway.person()
+        val pdlPerson = pdlProxyGateway.person(ytelse = ytelse)
 
         val aktørId = pdlProxyGateway.aktørId(
             ident = ident,

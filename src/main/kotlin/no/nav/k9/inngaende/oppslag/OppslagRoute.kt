@@ -7,9 +7,11 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.withContext
 import no.nav.helse.dusseldorf.ktor.auth.idToken
 import no.nav.helse.dusseldorf.ktor.core.*
+import no.nav.k9.Ytelse
 import no.nav.k9.inngaende.RequestContextService
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.utgaende.gateway.TilgangNektetException
+import no.nav.k9.ytelseFraHeader
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,6 +34,7 @@ internal fun Route.OppslagRoute(
 
     get("/meg") {
         val attributter = call.hentAttributter()
+        val ytelse = call.ytelseFraHeader()
         if (attributter.isEmpty()) {
             call.tomJsonResponse()
         } else {
@@ -48,7 +51,8 @@ internal fun Route.OppslagRoute(
                         ident = Ident(idToken.getNorskIdentifikasjonsnummer()),
                         attributter = attributter,
                         fraOgMed = fraOgMedTilOgMed.first,
-                        tilOgMed = fraOgMedTilOgMed.second
+                        tilOgMed = fraOgMedTilOgMed.second,
+                        ytelse = ytelse
                     )
                 }
                 call.respond(oppslagResultat.somJson(attributter))
@@ -130,6 +134,9 @@ private fun ApplicationCall.hentFraOgMedTilOgMed(): Pair<LocalDate, LocalDate> {
         second = if (tomQuery == null) iDag() else tomQuery.somLocalDate(TIL_OG_MED_QUERY_NAVN)
     )
 }
+
+private fun ApplicationCall.ytelse(): Ytelse = ytelseFraHeader()
+
 
 private fun ApplicationCall.hentOrganisasjoner(): Set<String> {
     return (request.queryParameters.getAll(ORGANISASJONER)

@@ -1,6 +1,7 @@
 package no.nav.k9.utgaende.gateway
 
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
+import no.nav.k9.Ytelse
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Attributt
@@ -30,7 +31,7 @@ class PDLProxyGateway(
     }
 
     @Throws(TilgangNektetException::class)
-    internal suspend fun person(): PdlPerson {
+    internal suspend fun person(ytelse: Ytelse): PdlPerson {
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
             onBehalfOf = coroutineContext.idToken().value)
@@ -39,7 +40,8 @@ class PDLProxyGateway(
 
         val tilgangResponse = tilgangService.hentPerson(
             bearerToken = exchangeToken.token,
-            callId = callId
+            callId = callId,
+            behandling = ytelse.somBehandling()
         )
         return when (tilgangResponse.policyEvaluation.decision) {
             PolicyDecision.PERMIT -> tilgangResponse.person!!
@@ -52,6 +54,7 @@ class PDLProxyGateway(
 
     internal suspend fun barn(
         identer: List<Ident>,
+        ytelse: Ytelse,
     ): List<PdlBarn> {
         val identListe = identer.map { it.value }
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
@@ -66,7 +69,8 @@ class PDLProxyGateway(
                 barnTilgangForespørsel = BarnTilgangForespørsel(identListe),
                 bearerToken = exchangeToken.token,
                 systemToken = systemToken.token,
-                callId = callId
+                callId = callId,
+                behandling = ytelse.somBehandling()
             )
         return tilgangResponse
             .filter { it.policyEvaluation.decision == PolicyDecision.PERMIT }

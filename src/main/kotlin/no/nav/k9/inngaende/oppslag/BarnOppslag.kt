@@ -1,5 +1,6 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.Ytelse
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person
 import java.time.LocalDate
@@ -11,12 +12,13 @@ internal class BarnOppslag(
     internal suspend fun barn(
         barnasIdenter: List<Ident>,
         attributter: Set<Attributt>,
+        ytelse: Ytelse,
     ): Set<Barn>? {
         if (!attributter.etterspurtBarn()) return null
 
         return when {
             barnasIdenter.isEmpty() -> null
-            else -> pdlProxyV1Gateway.barn(barnasIdenter)
+            else -> pdlProxyV1Gateway.barn(barnasIdenter, ytelse)
                 .map { barn ->
                     val pdlBarn = barn.tilPdlBarn()
                     val aktørId = pdlProxyV1Gateway.aktørId(
