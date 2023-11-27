@@ -21,6 +21,13 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.yaml:snakeyaml:2.2")
+    }
+}
+
+
 dependencies {
     implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
