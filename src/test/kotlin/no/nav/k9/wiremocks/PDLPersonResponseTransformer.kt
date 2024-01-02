@@ -151,7 +151,7 @@ private fun getResponse(
                     etternavn = "Myndighetsalder",
                     forkortetNavn = "Person Under Myndighetsalder"
                 )),
-                foedsel = listOf(Foedsel("2006-01-01")),
+                foedsel = listOf(Foedsel("2019-01-01")),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(),
