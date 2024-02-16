@@ -22,7 +22,7 @@ private val barnMap = mapOf(
             etternavn = "NORDMANN",
             forkortetNavn = "OLA NORDMANN",
         )),
-        foedsel = listOf(Foedsel("2012-02-24")),
+        foedsel = listOf(Foedsel(foedselsdato = "2012-02-24", foedselsaar = 2012)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf()
     ),
@@ -35,7 +35,7 @@ private val barnMap = mapOf(
             etternavn = "STAUDE",
             forkortetNavn = "TALENTFULL MELLOMROM STAUDE",
         )),
-        foedsel = listOf(Foedsel("2017-03-18")),
+        foedsel = listOf(Foedsel(foedselsdato = "2017-03-18", foedselsaar = 2017)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf()
     ),
@@ -48,7 +48,7 @@ private val barnMap = mapOf(
             etternavn = "VEPS",
             forkortetNavn = "TVILSOM GRADERT VEPS",
         )),
-        foedsel = listOf(Foedsel("2012-10-27")),
+        foedsel = listOf(Foedsel(foedselsdato = "2012-10-27", foedselsaar = 2012)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf(Adressebeskyttelse(AdressebeskyttelseGradering.STRENGT_FORTROLIG))
     ),
@@ -61,7 +61,7 @@ private val barnMap = mapOf(
             etternavn = "BARN",
             forkortetNavn = "Død Barn",
         )),
-        foedsel = listOf(Foedsel("2012-10-27")),
+        foedsel = listOf(Foedsel(foedselsdato = "2012-10-27", foedselsaar = 2012)),
         doedsfall = listOf(Doedsfall("2020-06-01")),
         adressebeskyttelse = listOf()
     ),

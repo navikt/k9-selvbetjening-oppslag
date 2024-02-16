@@ -56,7 +56,7 @@ private fun getResponse(
                     etternavn = "TEST",
                     forkortetNavn = "STOR-KAR LANGEMANN TEST"
                 )),
-                foedsel = listOf(Foedsel("1985-07-27")),
+                foedsel = listOf(Foedsel(foedselsdato = "1985-07-27", foedselsaar = 1985)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
@@ -76,7 +76,7 @@ private fun getResponse(
                     etternavn = "CARLSEN",
                     forkortetNavn = "ARNE BJARNE CARLSEN"
                 )),
-                foedsel = listOf(Foedsel("1990-01-02")),
+                foedsel = listOf(Foedsel(foedselsdato = "1990-01-02", foedselsaar = 1990)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
@@ -96,7 +96,7 @@ private fun getResponse(
                     etternavn = "Barn",
                     forkortetNavn = "Ole Med Gradert Barn"
                 )),
-                foedsel = listOf(Foedsel("1990-01-02")),
+                foedsel = listOf(Foedsel(foedselsdato = "1990-01-02", foedselsaar = 1990)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
@@ -116,7 +116,7 @@ private fun getResponse(
                     etternavn = "Barn",
                     forkortetNavn = "Bjarne Med Død Barn"
                 )),
-                foedsel = listOf(Foedsel("1990-01-02")),
+                foedsel = listOf(Foedsel(foedselsdato = "1990-01-02", foedselsaar = 1990)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
@@ -136,7 +136,7 @@ private fun getResponse(
                     etternavn = "Person",
                     forkortetNavn = "Død Person"
                 )),
-                foedsel = listOf(Foedsel("1990-01-02")),
+                foedsel = listOf(Foedsel(foedselsdato = "1990-01-02", foedselsaar = 1990)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(Doedsfall("2021-01-01")),
                 forelderBarnRelasjon = listOf())
@@ -151,7 +151,7 @@ private fun getResponse(
                     etternavn = "Myndighetsalder",
                     forkortetNavn = "Person Under Myndighetsalder"
                 )),
-                foedsel = listOf(Foedsel("2019-01-01")),
+                foedsel = listOf(Foedsel(foedselsdato = "2019-01-01", foedselsaar = 2019)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(),
@@ -167,7 +167,7 @@ private fun getResponse(
                     etternavn = "NILSEN",
                     forkortetNavn = "Cato Nilsen"
                 )),
-                foedsel = listOf(Foedsel("1980-05-20")),
+                foedsel = listOf(Foedsel(foedselsdato = "1980-05-20", foedselsaar = 1980)),
                 adressebeskyttelse = listOf(),
                 doedsfall = listOf(),
                 forelderBarnRelasjon = listOf(),
