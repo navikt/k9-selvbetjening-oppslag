@@ -57,13 +57,25 @@ internal class OppslagService(
             ytelse = ytelse
         )
 
+        val b = barnOppslag.barn(
+            barnasIdenter = meg.pdlPerson?.barnIdenter ?: listOf(),
+            attributter = attributter,
+            ytelse = ytelse
+        )
+
+        if (attributter.etterspurtBarn()) {
+            logger.info("Etterspurte barn, barnFraPdl={}, antall={}, antallBarnOppslag={}",
+                meg.pdlPerson?.barnIdenter != null,
+                meg.pdlPerson?.barnIdenter?.size ?: 0,
+                b?.size ?: 0
+            )
+        }
+
+
+
         return OppslagResultat(
             meg = meg,
-            barn = barnOppslag.barn(
-                barnasIdenter = meg.pdlPerson?.barnIdenter ?: listOf(),
-                attributter = attributter,
-                ytelse = ytelse
-            ),
+            barn =  b,
             arbeidsgivereOrganisasjoner = arbeidsgiverOppslag.organisasjoner(
                 attributter = attributter,
                 arbeidsgivere = arbeidsgivere
