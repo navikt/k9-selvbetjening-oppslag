@@ -85,9 +85,12 @@ class PDLProxyGateway(
                 logger.info("Filterer ut barn fordi: $reason")
             }
 
-        return tilgangResponse
+        val barn = tilgangResponse
             .filter { it.policyEvaluation.decision == PolicyDecision.PERMIT }
             .map { it.barn!! }
+
+        logger.info("Fant ${barn.size} barn som søker har tilgang til.")
+        return barn
     }
 
     internal suspend fun hentIdenter(
