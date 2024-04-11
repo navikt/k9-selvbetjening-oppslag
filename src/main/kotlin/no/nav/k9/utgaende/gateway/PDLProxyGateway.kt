@@ -8,6 +8,7 @@ import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
 import no.nav.siftilgangskontroll.core.pdl.AktørId
+import no.nav.siftilgangskontroll.core.tilgang.BarnResponse
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
 import no.nav.siftilgangskontroll.core.tilgang.TilgangResponseBarn
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
@@ -108,6 +109,23 @@ class PDLProxyGateway(
             callId = callId
         )
         return identerBolkResults
+    }
+
+    internal suspend fun hentBarn(
+        identer: List<String>,
+        ytelse: Ytelse,
+    ): List<BarnResponse> {
+
+        val callId = coroutineContext.correlationId().value
+        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+
+        val barn = tilgangService.slåOppBarn(
+            barnTilgangForespørsel = BarnTilgangForespørsel(identer),
+            systemToken = systemToken.token,
+            callId = callId,
+            behandling = ytelse.somBehandling()
+        )
+        return barn
     }
 
     internal suspend fun aktørId(

@@ -202,6 +202,65 @@ class ApplicationTest {
     }
 
     @Test
+    fun `systemoppslag for å hente barn `() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+
+        with(engine) {
+            handleRequest(HttpMethod.Post, "/system/hent-barn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
+                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-barn")
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.ContentType, "application/json")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                //language=json
+                setBody("""
+                    {
+                        "identer": ["${BarnFødselsnummer.BARN_TIL_PERSON_1}"]
+                    }
+                """.trimIndent())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                //language=json
+                val expectedResponse = """
+                    [
+                      {
+                        "ident": "${BarnFødselsnummer.BARN_TIL_PERSON_1}",
+                        "barn": {
+                          "adressebeskyttelse": [],
+                          "doedsfall": [],
+                          "foedsel": [
+                            {
+                              "foedselsdato": "2012-02-24",
+                              "foedselsaar": 2012
+                            }
+                          ],
+                          "folkeregisteridentifikator": [
+                            {
+                              "identifikasjonsnummer": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
+                            }
+                          ],
+                          "navn": [
+                            {
+                              "fornavn": "OLA",
+                              "etternavn": "NORDMANN",
+                              "forkortetNavn": "OLA NORDMANN"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
     fun `test megOppslag aktør_id og fornavn`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
         with(engine) {

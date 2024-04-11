@@ -3,6 +3,7 @@ package no.nav.k9.wiremocks
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
+import no.nav.k9.BarnFødselsnummer.BARN_MED_UKJENT_RELASJON
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
 import no.nav.k9.BarnFødselsnummer.DØD_BARN_TIL_PERSON_4
@@ -63,6 +64,46 @@ private fun getResponse(
                     relatertPersonsIdent = BARN_TIL_PERSON_1,
                     relatertPersonsRolle = ForelderBarnRelasjonRolle.BARN,
                     minRolleForPerson = ForelderBarnRelasjonRolle.MOR
+                ))
+            )
+        }
+
+        BARN_TIL_PERSON_1 -> {
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "STOR-KAR",
+                    mellomnavn = "LANGEMANN",
+                    etternavn = "TEST",
+                    forkortetNavn = "STOR-KAR LANGEMANN TEST"
+                )),
+                foedsel = listOf(Foedsel(foedselsdato = "1985-07-27", foedselsaar = 1985)),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = PERSON_1_MED_BARN,
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.FAR,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.BARN
+                ))
+            )
+        }
+
+        BARN_MED_UKJENT_RELASJON -> {
+            Person(
+                folkeregisteridentifikator = listOf(Folkeregisteridentifikator(navIdent)),
+                navn = listOf(Navn(
+                    fornavn = "STOR-KAR",
+                    mellomnavn = "LANGEMANN",
+                    etternavn = "TEST",
+                    forkortetNavn = "STOR-KAR LANGEMANN TEST"
+                )),
+                foedsel = listOf(Foedsel(foedselsdato = "1985-07-27", foedselsaar = 1985)),
+                adressebeskyttelse = listOf(),
+                doedsfall = listOf(),
+                forelderBarnRelasjon = listOf(ForelderBarnRelasjon(
+                    relatertPersonsIdent = "07894097862",
+                    relatertPersonsRolle = ForelderBarnRelasjonRolle.FAR,
+                    minRolleForPerson = ForelderBarnRelasjonRolle.BARN
                 ))
             )
         }

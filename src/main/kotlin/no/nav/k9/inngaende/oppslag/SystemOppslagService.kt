@@ -1,6 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
+import no.nav.k9.Ytelse
 import no.nav.k9.utgaende.gateway.PDLProxyGateway
+import no.nav.siftilgangskontroll.core.tilgang.BarnResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkResult
 import org.slf4j.LoggerFactory
@@ -16,5 +18,10 @@ class SystemOppslagService(
     suspend fun hentIdenter(identer: List<String>, identGrupper: List<IdentGruppe>): List<HentIdenterBolkResult> {
         logger.info("Henter identer med systemkall.")
         return pdlProxyGateway.hentIdenter(identer, identGrupper)
+    }
+
+    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<BarnResponse> {
+        logger.info("Henter barn med systemkall.")
+        return pdlProxyGateway.hentBarn(identer, ytelse)
     }
 }
