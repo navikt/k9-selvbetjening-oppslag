@@ -82,7 +82,7 @@ class PDLProxyGateway(
             .forEach { tilgangResponseBarn: TilgangResponseBarn ->
                 val policyEvaluation = tilgangResponseBarn.policyEvaluation
                 val reason = policyEvaluation.children.first { it.isDeny() }.reason
-                logger.debug("Filterer ut barn fordi: $reason")
+                logger.info("Filterer ut barn fordi: $reason")
             }
 
         return tilgangResponse
