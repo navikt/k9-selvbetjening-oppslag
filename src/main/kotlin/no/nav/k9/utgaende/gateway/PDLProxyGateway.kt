@@ -9,11 +9,13 @@ import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
 import no.nav.siftilgangskontroll.core.pdl.AktørId
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
+import no.nav.siftilgangskontroll.core.tilgang.TilgangResponseBarn
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkResult
 import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
 import no.nav.siftilgangskontroll.policy.spesification.PolicyEvaluation
+import no.nav.siftilgangskontroll.policy.spesification.isDeny
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.coroutineContext
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person as PdlBarn
@@ -34,7 +36,8 @@ class PDLProxyGateway(
     internal suspend fun person(ytelse: Ytelse): PdlPerson {
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value)
+            onBehalfOf = coroutineContext.idToken().value
+        )
 
         val callId = coroutineContext.correlationId().value
 
@@ -59,7 +62,8 @@ class PDLProxyGateway(
         val identListe = identer.map { it.value }
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value)
+            onBehalfOf = coroutineContext.idToken().value
+        )
 
         val callId = coroutineContext.correlationId().value
 
@@ -72,6 +76,15 @@ class PDLProxyGateway(
                 callId = callId,
                 behandling = ytelse.somBehandling()
             )
+
+        tilgangResponse
+            .filter { it.policyEvaluation.decision == PolicyDecision.DENY }
+            .forEach { tilgangResponseBarn: TilgangResponseBarn ->
+                val policyEvaluation = tilgangResponseBarn.policyEvaluation
+                val reason = policyEvaluation.children.first { it.isDeny() }.reason
+                logger.debug("Filterer ut barn fordi: $reason")
+            }
+
         return tilgangResponse
             .filter { it.policyEvaluation.decision == PolicyDecision.PERMIT }
             .map { it.barn!! }
@@ -100,7 +113,8 @@ class PDLProxyGateway(
     ): AktørId? {
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value)
+            onBehalfOf = coroutineContext.idToken().value
+        )
 
         val callId = coroutineContext.correlationId().value
 
