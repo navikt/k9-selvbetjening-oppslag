@@ -8,7 +8,7 @@ import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkR
 import org.slf4j.LoggerFactory
 
 class SystemOppslagService(
-    private val pdlProxyGateway: PDLProxyGateway
+    private val pdlProxyGateway: PDLProxyGateway,
 ) {
 
     private companion object {
@@ -20,8 +20,10 @@ class SystemOppslagService(
         return pdlProxyGateway.hentIdenter(identer, identGrupper)
     }
 
-    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<BarnResponse> {
+    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<PdlBarn> {
         logger.info("Henter barn med systemkall.")
-        return pdlProxyGateway.hentBarn(identer, ytelse)
+        return pdlProxyGateway.hentBarn(identer, ytelse).map { br: BarnResponse ->
+            br.barn.tilPdlBarn()
+        }
     }
 }

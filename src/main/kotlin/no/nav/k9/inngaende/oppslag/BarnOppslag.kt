@@ -34,7 +34,7 @@ internal class BarnOppslag(
     }
 }
 
-private fun Person.tilPdlBarn(): PdlBarn {
+fun Person.tilPdlBarn(): PdlBarn {
     val barn = this
     val navn = barn.navn.first()
     val doedsdato = when {
@@ -63,11 +63,11 @@ internal data class Barn(
 )
 
 data class PdlBarn(
-    internal val fornavn: String,
-    internal val mellomnavn: String?,
-    internal val etternavn: String,
-    internal val forkortetNavn: String?,
-    internal val fødselsdato: LocalDate,
-    internal val dødsdato: LocalDate?,
-    internal val ident: Ident,
+   val fornavn: String,
+   val mellomnavn: String?,
+   val etternavn: String,
+   val forkortetNavn: String?,
+   val fødselsdato: LocalDate,
+   val dødsdato: LocalDate?,
+   val ident: Ident,
 )

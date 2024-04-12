@@ -45,12 +45,12 @@ internal fun Route.SystemOppslagRoute(
             correlationId = call.correlationId(),
             idToken = idToken
         )) {
-            val hentIdenterBolkResults = systemOppslagService.hentBarn(
+            val pdlBarnList = systemOppslagService.hentBarn(
                 identer = hentBarnForespørsel.identer,
                 ytelse = ytelse
             )
 
-            call.respond(hentIdenterBolkResults)
+            call.respond(pdlBarnList)
         }
     }
 }

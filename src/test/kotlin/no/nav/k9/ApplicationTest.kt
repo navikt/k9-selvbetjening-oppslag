@@ -229,29 +229,13 @@ class ApplicationTest {
                 val expectedResponse = """
                     [
                       {
-                        "ident": "${BarnFødselsnummer.BARN_TIL_PERSON_1}",
-                        "barn": {
-                          "adressebeskyttelse": [],
-                          "doedsfall": [],
-                          "foedsel": [
-                            {
-                              "foedselsdato": "2012-02-24",
-                              "foedselsaar": 2012
-                            }
-                          ],
-                          "folkeregisteridentifikator": [
-                            {
-                              "identifikasjonsnummer": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
-                            }
-                          ],
-                          "navn": [
-                            {
-                              "fornavn": "OLA",
-                              "etternavn": "NORDMANN",
-                              "forkortetNavn": "OLA NORDMANN"
-                            }
-                          ]
-                        }
+                        "fornavn": "OLA",
+                        "etternavn": "NORDMANN",
+                        "forkortetNavn": "OLA NORDMANN",
+                        "ident": {
+                          "value": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
+                        },
+                        "fødselsdato": "2012-02-24"
                       }
                     ]
                 """.trimIndent()

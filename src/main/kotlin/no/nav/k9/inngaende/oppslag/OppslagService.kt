@@ -59,7 +59,8 @@ internal class OppslagService(
 
         return OppslagResultat(
             meg = meg,
-            barn = barnOppslag.barn(
+            barn = barnOppslag.
+            barn(
                 barnasIdenter = meg.pdlPerson?.barnIdenter ?: listOf(),
                 attributter = attributter,
                 ytelse = ytelse
