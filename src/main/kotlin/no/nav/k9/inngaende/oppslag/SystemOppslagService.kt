@@ -20,10 +20,17 @@ class SystemOppslagService(
         return pdlProxyGateway.hentIdenter(identer, identGrupper)
     }
 
-    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<PdlBarn> {
+    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<Barn> {
         logger.info("Henter barn med systemkall.")
         return pdlProxyGateway.hentBarn(identer, ytelse).map { br: BarnResponse ->
-            br.barn.tilPdlBarn()
+            val aktørId = pdlProxyGateway.aktørId(
+                ident = Ident(br.ident),
+                attributter = setOf(Attributt.barnAktørId)
+            )
+            Barn(
+                pdlBarn = br.barn.tilPdlBarn(),
+                aktørId = aktørId?.let { Ident(it.value) }
+            )
         }
     }
 }

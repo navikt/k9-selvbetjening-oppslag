@@ -229,13 +229,18 @@ class ApplicationTest {
                 val expectedResponse = """
                     [
                       {
-                        "fornavn": "OLA",
-                        "etternavn": "NORDMANN",
-                        "forkortetNavn": "OLA NORDMANN",
-                        "ident": {
-                          "value": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
-                        },
-                        "fødselsdato": "2012-02-24"
+                          "aktørId": {
+                            "value": "54321"
+                          },
+                          "pdlBarn": {
+                            "fornavn": "OLA",
+                            "etternavn": "NORDMANN",
+                            "forkortetNavn": "OLA NORDMANN",
+                            "ident": {
+                              "value": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
+                            },
+                            "fødselsdato": "2012-02-24"
+                          }
                       }
                     ]
                 """.trimIndent()

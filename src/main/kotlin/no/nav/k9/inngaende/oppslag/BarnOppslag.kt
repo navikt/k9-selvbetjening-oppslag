@@ -57,9 +57,9 @@ fun Person.tilPdlBarn(): PdlBarn {
     )
 }
 
-internal data class Barn(
-    internal val pdlBarn: PdlBarn?,
-    internal val aktørId: Ident?,
+data class Barn(
+    val pdlBarn: PdlBarn?,
+    val aktørId: Ident?,
 )
 
 data class PdlBarn(
