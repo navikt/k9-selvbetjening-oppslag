@@ -25,7 +25,8 @@ class SystemOppslagService(
         return pdlProxyGateway.hentBarn(identer, ytelse).map { br: BarnResponse ->
             val aktørId = pdlProxyGateway.aktørId(
                 ident = Ident(br.ident),
-                attributter = setOf(Attributt.barnAktørId)
+                attributter = setOf(Attributt.barnAktørId),
+                system = true
             )
             Barn(
                 pdlBarn = br.barn.tilPdlBarn(),

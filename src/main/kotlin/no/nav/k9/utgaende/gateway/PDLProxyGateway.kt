@@ -131,18 +131,23 @@ class PDLProxyGateway(
     internal suspend fun aktørId(
         ident: Ident,
         attributter: Set<Attributt>,
+        system: Boolean = false,
     ): AktørId? {
-        val exchangeToken = cachedAccessTokenClient.getAccessToken(
-            scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value
-        )
+
+        val token = when (system) {
+            true -> cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+            false -> cachedAccessTokenClient.getAccessToken(
+                scopes = setOf(pdlApiTokenxAudience),
+                onBehalfOf = coroutineContext.idToken().value
+            )
+        }
 
         val callId = coroutineContext.correlationId().value
 
         val aktørId = tilgangService.hentAktørId(
             ident = ident.value,
             identGruppe = IdentGruppe.AKTORID,
-            borgerToken = exchangeToken.token,
+            borgerToken = token.token,
             callId = callId
         )
 
