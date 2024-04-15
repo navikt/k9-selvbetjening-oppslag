@@ -239,7 +239,62 @@ class ApplicationTest {
                             "ident": {
                               "value": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
                             },
-                            "fødselsdato": "2012-02-24"
+                            "fødselsdato": "2012-02-24",
+                            "adressebeskyttelse": []
+                          }
+                      }
+                    ]
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+    @Test
+    fun `systemoppslag for å hente adressebeskyttet barn `() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+
+        with(engine) {
+            handleRequest(HttpMethod.Post, "/system/hent-barn") {
+                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
+                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-adresebeskyttet-barn")
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.ContentType, "application/json")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                //language=json
+                setBody("""
+                    {
+                        "identer": ["${BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3}"]
+                    }
+                """.trimIndent())
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                //language=json
+                val expectedResponse = """
+                    [
+                      {
+                          "aktørId": {
+                            "value": "666666"
+                          },
+                          "pdlBarn": {
+                            "fornavn": "TVILSOM",
+                            "mellomnavn": "GRADERT",
+                            "etternavn": "VEPS",
+                            "forkortetNavn": "TVILSOM GRADERT VEPS",
+                            "ident": {
+                              "value": "${BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3}"
+                            },
+                            "fødselsdato": "2012-10-27",
+                            "adressebeskyttelse": [
+                                {
+                                    "gradering": "STRENGT_FORTROLIG"
+                                }
+                            ]
                           }
                       }
                     ]

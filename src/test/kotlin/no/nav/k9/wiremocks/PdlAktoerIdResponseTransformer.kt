@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Response
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_2
+import no.nav.k9.BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_3_MED_SKJERMET_BARN
@@ -27,6 +28,7 @@ private val identMap = mapOf(
     PERSON_2_MED_BARN to IdentInformasjon(ident = "23456", gruppe = IdentGruppe.AKTORID, historisk = false),
     PERSON_UTEN_BARN to IdentInformasjon(ident = "34567", gruppe = IdentGruppe.AKTORID, historisk = false),
     PERSON_3_MED_SKJERMET_BARN to IdentInformasjon(ident = "111111", gruppe = IdentGruppe.AKTORID, historisk = false),
+    SKJERMET_BARN_TIL_PERSON_3 to IdentInformasjon(ident = "666666", gruppe = IdentGruppe.AKTORID, historisk = false),
     PERSON_4_MED_DØD_BARN to IdentInformasjon(ident = "222222", gruppe = IdentGruppe.AKTORID, historisk = false),
     BARN_TIL_PERSON_1 to IdentInformasjon(ident = "54321", gruppe = IdentGruppe.AKTORID, historisk = false),
     BARN_TIL_PERSON_2 to IdentInformasjon(ident = "65432", gruppe = IdentGruppe.AKTORID, historisk = false),
