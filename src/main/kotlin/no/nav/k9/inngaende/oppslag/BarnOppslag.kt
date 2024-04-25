@@ -34,7 +34,7 @@ internal class BarnOppslag(
     }
 }
 
-fun Person.tilPdlBarn(): PdlBarn {
+private fun Person.tilPdlBarn(): PdlBarn {
     val barn = this
     val navn = barn.navn.first()
     val doedsdato = when {
