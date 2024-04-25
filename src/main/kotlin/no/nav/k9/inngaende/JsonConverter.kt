@@ -16,6 +16,7 @@ internal class JsonConverter : ContentConverter {
         return content.toInputStream().bufferedReader().readText()
     }
 
+    @Deprecated("Deprecated in io.ktor.serialization.ContentConverter")
     override suspend fun serialize(
         contentType: ContentType,
         charset: Charset,

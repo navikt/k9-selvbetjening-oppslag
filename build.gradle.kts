@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "4.2.2"
+val dusseldorfKtorVersion = "4.2.4"
 val ktorVersion = "2.3.10"
 val graphqlKotlinClientVersion = "7.1.1"
 val sifTilgangskontrollVersion = "3.2.1"
-val tokenSupportVersion = "3.2.0"
+val tokenSupportVersion = "4.1.4"
 val mockOauth2ServerVersion = "2.1.4"
 
 val mockkVersion = "1.13.10"
@@ -77,13 +77,13 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "21"
     }
 
     withType<Test> {
@@ -129,7 +129,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "8.2.1"
+        gradleVersion = "8.5"
     }
 }
 
