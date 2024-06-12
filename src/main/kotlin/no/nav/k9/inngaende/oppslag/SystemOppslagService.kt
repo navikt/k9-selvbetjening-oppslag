@@ -46,8 +46,8 @@ class SystemOppslagService(
             else -> LocalDate.parse(barn.doedsfall.first().doedsdato!!)
         }
         val foedselsdato = when {
-            barn.foedsel.first().foedselsdato.isNullOrBlank() -> throw IllegalStateException("Barnets fødselsnummer var tom eller null.")
-            else -> LocalDate.parse(barn.foedsel.first().foedselsdato!!)
+            barn.foedselsdato.first().foedselsdato.isNullOrBlank() -> throw IllegalStateException("Barnets fødselsnummer var tom eller null.")
+            else -> LocalDate.parse(barn.foedselsdato.first().foedselsdato!!)
         }
         val ident = barn.folkeregisteridentifikator.first().identifikasjonsnummer
 
@@ -57,7 +57,6 @@ class SystemOppslagService(
             fornavn = navn.fornavn,
             mellomnavn = navn.mellomnavn,
             etternavn = navn.etternavn,
-            forkortetNavn = navn.forkortetNavn,
             fødselsdato = foedselsdato,
             dødsdato = doedsdato,
             ident = Ident(ident),
@@ -70,7 +69,6 @@ data class SystemoppslagPdlBarn(
     val fornavn: String,
     val mellomnavn: String?,
     val etternavn: String,
-    val forkortetNavn: String?,
     val fødselsdato: LocalDate,
     val dødsdato: LocalDate?,
     val ident: Ident,
