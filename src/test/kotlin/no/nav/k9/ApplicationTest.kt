@@ -235,7 +235,6 @@ class ApplicationTest {
                           "pdlBarn": {
                             "fornavn": "OLA",
                             "etternavn": "NORDMANN",
-                            "forkortetNavn": "OLA NORDMANN",
                             "ident": {
                               "value": "${BarnFødselsnummer.BARN_TIL_PERSON_1}"
                             },
@@ -285,7 +284,6 @@ class ApplicationTest {
                             "fornavn": "TVILSOM",
                             "mellomnavn": "GRADERT",
                             "etternavn": "VEPS",
-                            "forkortetNavn": "TVILSOM GRADERT VEPS",
                             "ident": {
                               "value": "${BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3}"
                             },

@@ -35,8 +35,7 @@ internal class MegOppslag(
             fornavn = navn.fornavn,
             mellomnavn = navn.mellomnavn,
             etternavn = navn.etternavn,
-            forkortetNavn = navn.forkortetNavn,
-            fødselsdato = LocalDate.parse(foedsel.first().foedselsdato),
+            fødselsdato = LocalDate.parse(foedselsdato.first().foedselsdato),
             barnIdenter = this.barnIdenter()
         )
     }
@@ -50,7 +49,6 @@ data class PdlPerson(
     internal val fornavn: String,
     internal val mellomnavn: String?,
     internal val etternavn: String,
-    internal val forkortetNavn: String?,
     internal val fødselsdato: LocalDate,
     internal val barnIdenter: List<Ident>
 )

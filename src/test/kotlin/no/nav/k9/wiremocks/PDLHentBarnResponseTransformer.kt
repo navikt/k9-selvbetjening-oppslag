@@ -19,10 +19,9 @@ private val barnMap = mapOf(
         navn = listOf(Navn(
             fornavn = "OLA",
             mellomnavn = null,
-            etternavn = "NORDMANN",
-            forkortetNavn = "OLA NORDMANN",
+            etternavn = "NORDMANN"
         )),
-        foedsel = listOf(Foedsel(foedselsdato = "2012-02-24", foedselsaar = 2012)),
+        foedselsdato = listOf(Foedselsdato(foedselsdato = "2012-02-24", foedselsaar = 2012)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf()
     ),
@@ -32,10 +31,9 @@ private val barnMap = mapOf(
         navn = listOf(Navn(
             fornavn = "TALENTFULL",
             mellomnavn = "MELLOMROM",
-            etternavn = "STAUDE",
-            forkortetNavn = "TALENTFULL MELLOMROM STAUDE",
+            etternavn = "STAUDE"
         )),
-        foedsel = listOf(Foedsel(foedselsdato = "2017-03-18", foedselsaar = 2017)),
+        foedselsdato = listOf(Foedselsdato(foedselsdato = "2017-03-18", foedselsaar = 2017)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf()
     ),
@@ -45,10 +43,9 @@ private val barnMap = mapOf(
         navn = listOf(Navn(
             fornavn = "TVILSOM",
             mellomnavn = "GRADERT",
-            etternavn = "VEPS",
-            forkortetNavn = "TVILSOM GRADERT VEPS",
+            etternavn = "VEPS"
         )),
-        foedsel = listOf(Foedsel(foedselsdato = "2012-10-27", foedselsaar = 2012)),
+        foedselsdato = listOf(Foedselsdato(foedselsdato = "2012-10-27", foedselsaar = 2012)),
         doedsfall = listOf(),
         adressebeskyttelse = listOf(Adressebeskyttelse(AdressebeskyttelseGradering.STRENGT_FORTROLIG))
     ),
@@ -59,9 +56,8 @@ private val barnMap = mapOf(
             fornavn = "Død",
             mellomnavn = "",
             etternavn = "BARN",
-            forkortetNavn = "Død Barn",
         )),
-        foedsel = listOf(Foedsel(foedselsdato = "2012-10-27", foedselsaar = 2012)),
+        foedselsdato = listOf(Foedselsdato(foedselsdato = "2012-10-27", foedselsaar = 2012)),
         doedsfall = listOf(Doedsfall("2020-06-01")),
         adressebeskyttelse = listOf()
     ),
