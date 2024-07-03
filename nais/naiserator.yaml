@@ -44,6 +44,7 @@ spec:
         - application: k9-brukerdialog-api
         - application: k9-sak-innsyn-api
         - application: sif-innsyn-api
+        - application: k9-brukerdialog-prosessering
     outbound:
       external:
         {{#each externalHosts as |host|}}
