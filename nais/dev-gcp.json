@@ -12,6 +12,7 @@
     "ereg-services-q1.dev-fss-pub.nais.io",
     "pdl-api.dev-fss-pub.nais.io"
   ],
+  "observabilityEnabled": "true",
   "env": {
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "dev-fss:arbeidsforhold:aareg-services-nais",
