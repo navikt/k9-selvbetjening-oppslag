@@ -12,7 +12,7 @@
     "ereg-services.prod-fss-pub.nais.io",
     "pdl-api.prod-fss-pub.nais.io"
   ],
-  "observabilityEnabled": "false",
+  "observabilityEnabled": "true",
   "env": {
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
