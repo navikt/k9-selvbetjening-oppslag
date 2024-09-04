@@ -10,20 +10,20 @@ spec:
   port: 8080
   liveness:
     path: isalive
-    initialDelay: 20
+    initialDelay: 60
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
   readiness:
     path: isready
-    initialDelay: 20
+    initialDelay: 60
     timeout: 1
   resources:
     limits:
       cpu: 200m
       memory: 1024Mi
     requests:
-      cpu: 150m
+      cpu: 50m
       memory: 512Mi
   replicas:
     min: {{minReplicas}}
