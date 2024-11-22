@@ -8,15 +8,15 @@
   "maxReplicas": "2",
   "azureTenant": "trygdeetaten.no",
   "externalHosts": [
-    "aareg-services-q1.dev-fss-pub.nais.io",
-    "ereg-services-q1.dev-fss-pub.nais.io",
+    "aareg-services.dev-fss-pub.nais.io",
+    "ereg-services.intern.dev.nav.no",
     "pdl-api.dev-fss-pub.nais.io"
   ],
   "observabilityEnabled": "true",
   "env": {
-    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services-q1.dev-fss-pub.nais.io/api/v2",
+    "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services.dev-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "dev-fss:arbeidsforhold:aareg-services-nais",
-    "ENHET_V1_URL": "https://ereg-services-q1.dev-fss-pub.nais.io/api/v1/",
+    "ENHET_V1_URL": "https://ereg-services.intern.dev.nav.no/api/v1/",
     "PDL_URL": "https://pdl-api.dev-fss-pub.nais.io/graphql",
     "PDL_API_TOKENX_AUDIENCE": "dev-fss:pdl:pdl-api",
     "PDL_API_AZURE_AUDIENCE": "api://dev-fss.pdl.pdl-api/.default"
