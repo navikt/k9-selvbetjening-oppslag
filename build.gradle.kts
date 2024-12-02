@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "5.0.11"
+val dusseldorfKtorVersion = "5.0.12"
 val ktorVersion = "2.3.13"
 val graphqlKotlinClientVersion = "8.2.1"
 val sifTilgangskontrollVersion = "5.0.3"
-val tokenSupportVersion = "5.0.11"
+val tokenSupportVersion = "5.0.13"
 val mockOauth2ServerVersion = "2.1.10"
 
 val mockkVersion = "1.13.13"
@@ -15,8 +15,8 @@ val fuelVersion = "2.3.1"
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "2.0.21"
-    id("org.sonarqube") version "6.0.0.5145"
+    kotlin("jvm") version "2.1.0"
+    id("org.sonarqube") version "6.0.1.5171"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
