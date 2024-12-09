@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 val dusseldorfKtorVersion = "5.0.14"
 val ktorVersion = "2.3.13"
 val graphqlKotlinClientVersion = "8.2.1"
-val sifTilgangskontrollVersion = "5.0.5"
+val sifTilgangskontrollVersion = "5.1.0"
 val tokenSupportVersion = "5.0.13"
 val mockOauth2ServerVersion = "2.1.10"
 
