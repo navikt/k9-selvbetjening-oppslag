@@ -46,11 +46,11 @@ internal class OppslagService(
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
-        inkluderAlleAnsettelsesperiode: Boolean,
+        inkluderAlleAnsettelsesperioder: Boolean,
         ytelse: Ytelse,
     ): OppslagResultat {
 
-        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, inkluderAlleAnsettelsesperiode, attributter)
+        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, inkluderAlleAnsettelsesperioder, attributter)
 
         val meg = megOppslag.meg(
             ident = ident,

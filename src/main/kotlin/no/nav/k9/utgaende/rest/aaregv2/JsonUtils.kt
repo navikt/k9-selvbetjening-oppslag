@@ -9,7 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 
-internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperiode: Boolean): List<OrganisasjonArbeidsgivere> {
+internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperioder: Boolean): List<OrganisasjonArbeidsgivere> {
     val alleArbeidsforhold: Sequence<OrganisasjonArbeidsgivere> = hentArbeidsgivereMedAnsettelseperiodeV2()
         .filterNot { it.erFrilansaktivitet() }
         .filter { it.arbeidstedErUnderenhet() }
@@ -26,7 +26,7 @@ internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: Local
         .sortedBy { it.ansattFom }
 
     return when {
-        inkluderAlleAnsettelsesperiode -> alleArbeidsforhold.toList()
+        inkluderAlleAnsettelsesperioder -> alleArbeidsforhold.toList()
         else -> alleArbeidsforhold.distinctBy { it.organisasjonsnummer }.toList()
     }
 }

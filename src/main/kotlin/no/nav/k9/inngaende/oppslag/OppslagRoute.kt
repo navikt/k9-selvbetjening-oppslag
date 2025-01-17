@@ -41,7 +41,7 @@ internal fun Route.OppslagRoute(
         } else {
             val idToken = call.idToken()
             val fraOgMedTilOgMed = call.hentFraOgMedTilOgMed()
-            val inkluderAlleAnsettelsesperiode = call.inkluderAlleAnsettelsesperioder()
+            val inkluderAlleAnsettelsesperioder = call.inkluderAlleAnsettelsesperioder()
 
             try {
                 val oppslagResultat: OppslagResultat = withContext(requestContextService.getCoroutineContext(
@@ -54,7 +54,7 @@ internal fun Route.OppslagRoute(
                         attributter = attributter,
                         fraOgMed = fraOgMedTilOgMed.first,
                         tilOgMed = fraOgMedTilOgMed.second,
-                        inkluderAlleAnsettelsesperiode,
+                        inkluderAlleAnsettelsesperioder = inkluderAlleAnsettelsesperioder,
                         ytelse = ytelse
                     )
                 }

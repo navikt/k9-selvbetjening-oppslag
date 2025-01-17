@@ -24,7 +24,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterGateway(
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
-        inkluderAlleAnsettelsesperiode: Boolean,
+        inkluderAlleAnsettelsesperioder: Boolean,
         attributter: Set<Attributt>
     ): Arbeidsgivere? {
         if (!attributter.any { it in støttedeAttributter }) return null
@@ -32,7 +32,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterGateway(
             ident = ident,
             fraOgMed = fraOgMed,
             tilOgMed = tilOgMed,
-            inkluderAlleAnsettelsesperiode
+            inkluderAlleAnsettelsesperioder
         )
     }
 }

@@ -44,7 +44,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
-        inkluderAlleAnsettelsesperiode: Boolean
+        inkluderAlleAnsettelsesperioder: Boolean
     ) : Arbeidsgivere{
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(aaregTokenxAudience),
@@ -93,7 +93,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         )
 
         return Arbeidsgivere(
-            organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed, inkluderAlleAnsettelsesperiode),
+            organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed, inkluderAlleAnsettelsesperioder),
             privateArbeidsgivere = json.hentPrivateArbeidsgivereV2(fraOgMed, tilOgMed),
             frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
         )
