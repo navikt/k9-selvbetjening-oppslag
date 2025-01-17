@@ -46,10 +46,11 @@ internal class OppslagService(
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
+        inkluderAlleAnsettelsesperiode: Boolean,
         ytelse: Ytelse,
     ): OppslagResultat {
 
-        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, attributter)
+        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, inkluderAlleAnsettelsesperiode, attributter)
 
         val meg = megOppslag.meg(
             ident = ident,
@@ -88,7 +89,7 @@ internal class OppslagService(
         val arbeidsgivere = Arbeidsgivere(
             organisasjoner = organisasjoner
                 .map { OrganisasjonArbeidsgivere(it) }
-                .toSet()
+                .toList()
         )
 
         return OppslagResultat(

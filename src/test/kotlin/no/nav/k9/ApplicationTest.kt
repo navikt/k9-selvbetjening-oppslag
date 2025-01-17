@@ -835,6 +835,46 @@ class ApplicationTest {
     }
 
     @Test
+    fun `Forventer flere ansettelsesperioder hos arbeidsgiver`() {
+        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
+        with(engine) {
+            handleRequest(
+                HttpMethod.Get,
+                "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode&inkluderAlleAnsettelsesperioder=true&fom=2014-01-01"
+            ) {
+                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
+                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
+                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                val expectedResponse = """
+                    {
+                      "arbeidsgivere": {
+                        "organisasjoner": [
+                          {
+                            "navn": "DNB, FORSIKRING",
+                            "organisasjonsnummer": "123456789",
+                            "ansatt_fom": "2015-01-01",
+                            "ansatt_tom": "2019-12-31"
+                          },
+                          {
+                            "navn": "DNB, FORSIKRING",
+                            "organisasjonsnummer": "123456789",
+                            "ansatt_fom": "2020-01-01",
+                            "ansatt_tom": "2029-02-28"
+                          }
+                        ]
+                      }
+                    }
+                    """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+            }
+        }
+    }
+
+
+    @Test
     fun `Teste oppslag av frilans oppdrag`() {
         val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_MED_FRILANS_OPPDRAG)
         with(engine) {

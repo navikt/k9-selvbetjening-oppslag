@@ -22,6 +22,7 @@ import java.time.ZoneId
 private const val ATTRIBUTT_QUERY_NAVN = "a"
 private const val FRA_OG_MED_QUERY_NAVN = "fom"
 private const val TIL_OG_MED_QUERY_NAVN = "tom"
+private const val INKLUDER_ALLE_ANSETTELSESPERIODER = "inkluderAlleAnsettelsesperioder"
 private const val ORGANISASJONER = "org"
 private val tomJson = JSONObject()
 
@@ -40,6 +41,7 @@ internal fun Route.OppslagRoute(
         } else {
             val idToken = call.idToken()
             val fraOgMedTilOgMed = call.hentFraOgMedTilOgMed()
+            val inkluderAlleAnsettelsesperiode = call.inkluderAlleAnsettelsesperioder()
 
             try {
                 val oppslagResultat: OppslagResultat = withContext(requestContextService.getCoroutineContext(
@@ -52,6 +54,7 @@ internal fun Route.OppslagRoute(
                         attributter = attributter,
                         fraOgMed = fraOgMedTilOgMed.first,
                         tilOgMed = fraOgMedTilOgMed.second,
+                        inkluderAlleAnsettelsesperiode,
                         ytelse = ytelse
                     )
                 }
@@ -133,6 +136,10 @@ private fun ApplicationCall.hentFraOgMedTilOgMed(): Pair<LocalDate, LocalDate> {
         first = if (fomQuery == null) iDag() else fomQuery.somLocalDate(FRA_OG_MED_QUERY_NAVN),
         second = if (tomQuery == null) iDag() else tomQuery.somLocalDate(TIL_OG_MED_QUERY_NAVN)
     )
+}
+
+private fun ApplicationCall.inkluderAlleAnsettelsesperioder(): Boolean {
+    return request.queryParameters[INKLUDER_ALLE_ANSETTELSESPERIODER]?.toBoolean() == true
 }
 
 private fun ApplicationCall.ytelse(): Ytelse = ytelseFraHeader()

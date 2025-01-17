@@ -4,7 +4,7 @@ import no.nav.k9.utgaende.rest.aaregv2.TypeArbeidssted
 import java.time.LocalDate
 
 internal data class Arbeidsgivere(
-    internal val organisasjoner: Set<OrganisasjonArbeidsgivere>,
+    internal val organisasjoner: List<OrganisasjonArbeidsgivere>,
     internal val privateArbeidsgivere: Set<PrivatArbeidsgiver> = emptySet(),
     internal val frilansoppdrag: Set<Frilansoppdrag> = emptySet()
 )

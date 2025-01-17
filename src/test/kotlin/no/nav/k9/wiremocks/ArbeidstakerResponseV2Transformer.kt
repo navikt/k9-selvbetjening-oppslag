@@ -30,6 +30,7 @@ class ArbeidstakerResponseV2Transformer : ResponseTransformerV2 {
 private fun getResponse(navIdent: String) : String {
     val jsonRespons = JSONArray()
     val ansettelsesperiode = JSONObject().apply { put("startdato","2020-01-01"); put("sluttdato", "2029-02-28") }
+    val ansettelsesperiode2 = JSONObject().apply { put("startdato","2015-01-01"); put("sluttdato", "2019-12-31") }
     val identerOrg = JSONArray().apply { put(JSONObject().apply { put("ident", "123456789"); put("type", "ORGANISASJONSNUMMER") }) }
     val identerFolkeregistrert = JSONArray().apply { put(JSONObject().apply { put("ident", "28837996386"); put("type", "FOLKEREGISTERIDENT") }) }
     val arbeidsstedUnderenhet = JSONObject().apply { put("type", "Underenhet"); put("identer", identerOrg) }
@@ -76,11 +77,17 @@ private fun getResponse(navIdent: String) : String {
             }.toString()
         }
         PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER -> {
+            val organisasjonMedToAnsettelsesperioder = JSONObject().apply {
+                put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold") })
+                put("ansettelsesperiode", ansettelsesperiode2)
+                put("arbeidssted", arbeidsstedUnderenhet)
+            }
+
             return jsonRespons.apply {
                 put(privatArbeidsgiverPerson)
                 put(privatArbeidsgiverPerson)
                 put(organisasjon)
-                put(organisasjon)
+                put(organisasjonMedToAnsettelsesperioder)
             }.toString()
         }
         else -> {
