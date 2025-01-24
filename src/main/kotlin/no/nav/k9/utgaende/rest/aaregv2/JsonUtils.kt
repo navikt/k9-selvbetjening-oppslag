@@ -9,8 +9,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
 
-internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<OrganisasjonArbeidsgivere> =
-    hentArbeidsgivereMedAnsettelseperiodeV2()
+internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperioder: Boolean): List<OrganisasjonArbeidsgivere> {
+    val alleArbeidsforhold: Sequence<OrganisasjonArbeidsgivere> = hentArbeidsgivereMedAnsettelseperiodeV2()
         .filterNot { it.erFrilansaktivitet() }
         .filter { it.arbeidstedErUnderenhet() }
         .map { ansettelsesforhold ->
@@ -24,8 +24,13 @@ internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: Local
         }
         .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
         .sortedBy { it.ansattFom }
-        .distinctBy { it.organisasjonsnummer }
-        .toSet()
+
+    return when {
+        inkluderAlleAnsettelsesperioder -> alleArbeidsforhold.toList()
+        else -> alleArbeidsforhold.distinctBy { it.organisasjonsnummer }.toList()
+    }
+}
+
 
 internal fun JSONArray.hentFrilansoppdragV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<Frilansoppdrag> =
     hentArbeidsgivereMedAnsettelseperiodeV2()

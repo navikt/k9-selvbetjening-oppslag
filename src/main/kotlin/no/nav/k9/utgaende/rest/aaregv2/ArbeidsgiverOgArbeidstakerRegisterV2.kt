@@ -43,7 +43,8 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     internal suspend fun arbeidsgivere(
         ident: Ident,
         fraOgMed: LocalDate,
-        tilOgMed: LocalDate
+        tilOgMed: LocalDate,
+        inkluderAlleAnsettelsesperioder: Boolean
     ) : Arbeidsgivere{
         val exchangeToken = cachedAccessTokenClient.getAccessToken(
             scopes = setOf(aaregTokenxAudience),
@@ -86,13 +87,13 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         logger.logResponse(json)
 
         if (json.isEmpty) return Arbeidsgivere(
-            organisasjoner = emptySet(),
+            organisasjoner = emptyList(),
             privateArbeidsgivere = emptySet(),
             frilansoppdrag = emptySet()
         )
 
         return Arbeidsgivere(
-            organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed),
+            organisasjoner = json.hentOrganisasjonerV2(fraOgMed, tilOgMed, inkluderAlleAnsettelsesperioder),
             privateArbeidsgivere = json.hentPrivateArbeidsgivereV2(fraOgMed, tilOgMed),
             frilansoppdrag = json.hentFrilansoppdragV2(fraOgMed, tilOgMed)
         )
