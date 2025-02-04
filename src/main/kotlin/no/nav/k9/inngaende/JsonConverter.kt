@@ -21,8 +21,8 @@ internal class JsonConverter : ContentConverter {
         contentType: ContentType,
         charset: Charset,
         typeInfo: TypeInfo,
-        value: Any,
-    ): OutgoingContent {
+        value: Any
+    ): OutgoingContent? {
         val json = when(value) {
             is Map<*, *> -> JSONObject(value).toString()
             is List<*> -> JSONArray(value).toString()
