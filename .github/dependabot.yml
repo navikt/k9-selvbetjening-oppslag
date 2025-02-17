@@ -22,10 +22,17 @@ updates:
     registries:
       - dusseldorf-ktor
     groups:
+      ktor-deps:
+        patterns:
+          - "*ktor*"
+          - "*dusseldorf*"
       gradle:
         patterns:
           - "*"
-
+        exclude-patterns:
+          - "*ktor*"
+          - "*dusseldorf*"
+        
   - package-ecosystem: docker
     directory: "/"
     schedule:
