@@ -3,12 +3,12 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val dusseldorfKtorVersion = "5.0.19"
 val ktorVersion = "2.3.13"
-val graphqlKotlinClientVersion = "8.2.1"
+val graphqlKotlinClientVersion = "8.3.0"
 val sifTilgangskontrollVersion = "5.1.0"
 val tokenSupportVersion = "5.0.16"
 val mockOauth2ServerVersion = "2.1.10"
 
-val mockkVersion = "1.13.16"
+val mockkVersion = "1.13.17"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
@@ -23,7 +23,7 @@ plugins {
 
 configurations.all {
     resolutionStrategy {
-        force("org.yaml:snakeyaml:2.3")
+        force("org.yaml:snakeyaml:2.4")
     }
 }
 
