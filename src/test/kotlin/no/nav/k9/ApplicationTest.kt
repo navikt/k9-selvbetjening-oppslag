@@ -1,6 +1,7 @@
 package no.nav.k9
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
@@ -69,14 +70,9 @@ class ApplicationTest {
         }
 
 
-        val engine = TestApplicationEngine(createTestEnvironment {
-            config = getConfig()
-        })
-
         @BeforeAll
         @JvmStatic
         fun buildUp() {
-            engine.start(wait = true)
         }
 
         @AfterAll
@@ -92,27 +88,33 @@ class ApplicationTest {
 
     @Test
     fun `test isready, isalive og metrics`() {
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/isready") {}.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                handleRequest(HttpMethod.Get, "/isalive") {}.apply {
-                    assertEquals(HttpStatusCode.OK, response.status())
-                    handleRequest(HttpMethod.Get, "/metrics") {}.apply {
-                        assertEquals(HttpStatusCode.OK, response.status())
-                    }
-                }
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/isready").apply {
+                assertEquals(HttpStatusCode.OK, status)
+            }
+            client.get("/isalive").apply {
+                assertEquals(HttpStatusCode.OK, status)
+            }
+            client.get("/metrics").apply {
+                assertEquals(HttpStatusCode.OK, status)
             }
         }
     }
 
     @Test
     fun `test oppslag uten idToken gir unauthorized`() {
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertEquals(HttpStatusCode.Unauthorized, status)
             }
         }
     }
