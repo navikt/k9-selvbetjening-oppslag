@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlin.coroutines.coroutineContext
 
 private const val ATTRIBUTT_QUERY_NAVN = "a"
 private const val FRA_OG_MED_QUERY_NAVN = "fom"

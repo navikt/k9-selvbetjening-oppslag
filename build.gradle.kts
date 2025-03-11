@@ -40,7 +40,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
 
-    implementation ("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
+    implementation ("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     testImplementation ("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
 
     implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")
