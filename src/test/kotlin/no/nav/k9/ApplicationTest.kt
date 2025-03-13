@@ -126,6 +126,22 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test oppslag uten XCorrelationId gir BadRequest`() {
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+            }
+        }
+    }
+
+    @Test
     fun `test megOppslag aktoerId`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
         testApplication {
@@ -167,6 +183,38 @@ class ApplicationTest {
                 header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
                 assertEquals(HttpStatusCode.Unauthorized, status)
+            }
+        }
+    }
+
+    @Test
+    fun `test systemoppslag uten XCorrelationId gir BadRequest`() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.post("/system/hent-identer") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
+                //language=json
+                setBody(
+                    """
+                    {
+                        "identer": ["$PERSON_1_MED_BARN"],
+                        "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
+                    }
+                """.trimIndent()
+                )
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
             }
         }
     }
