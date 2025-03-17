@@ -11,6 +11,7 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.objectMapper
 import no.nav.k9.ytelseFraHeader
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
+import kotlin.coroutines.coroutineContext
 
 internal fun Route.SystemOppslagRoute(
     requestContextService: RequestContextService,

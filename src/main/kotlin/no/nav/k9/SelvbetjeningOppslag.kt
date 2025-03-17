@@ -15,7 +15,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.callid.*
-import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.routing.*
@@ -43,9 +43,9 @@ import no.nav.k9.utgaende.gateway.PDLProxyGateway
 import no.nav.k9.utgaende.rest.aaregv2.ArbeidsgiverOgArbeidstakerRegisterV2
 import no.nav.k9.utgaende.rest.EnhetsregisterV1
 import no.nav.k9.utgaende.rest.NavHeaders
-import no.nav.security.token.support.v2.RequiredClaims
-import no.nav.security.token.support.v2.asIssuerProps
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.RequiredClaims
+import no.nav.security.token.support.v3.asIssuerProps
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import org.slf4j.LoggerFactory
@@ -104,8 +104,6 @@ fun Application.SelvbetjeningOppslag() {
         AuthStatusPages()
     }
 
-    install(CallIdRequired)
-
     val tokenxExchangeTokenClient = CachedAccessTokenClient(accessTokenClientResolver.tokenxExchangeTokenClient)
     val cachedAzureSystemTokenClient = CachedAccessTokenClient(accessTokenClientResolver.azureSystemTokenClient)
 
@@ -132,7 +130,7 @@ fun Application.SelvbetjeningOppslag() {
         pdlApiAzureAudience = environment.config.pdlApiAzureAudience(),
         cachedSystemTokenClient = cachedAzureSystemTokenClient
     )
-    install(Routing) {
+    routing {
         authenticate(
             configurations = allIssuers.filter { issuer -> issuer != "azure" }.toTypedArray()
         ) {

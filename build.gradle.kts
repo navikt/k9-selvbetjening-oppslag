@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "5.0.19"
-val ktorVersion = "2.3.13"
+val dusseldorfKtorVersion = "6.1.1"
+val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.2.1"
 val sifTilgangskontrollVersion = "5.1.0"
-val tokenSupportVersion = "5.0.16"
+val tokenSupportVersion = "5.0.19"
 val mockOauth2ServerVersion = "2.1.10"
 
 val mockkVersion = "1.13.16"
@@ -40,7 +40,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
     }
 
-    implementation ("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
+    implementation ("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     testImplementation ("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
 
     implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")

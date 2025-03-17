@@ -16,19 +16,18 @@ internal class JsonConverter : ContentConverter {
         return content.toInputStream().bufferedReader().readText()
     }
 
-    @Deprecated("Deprecated in io.ktor.serialization.ContentConverter")
     override suspend fun serialize(
         contentType: ContentType,
         charset: Charset,
         typeInfo: TypeInfo,
-        value: Any
-    ): OutgoingContent? {
-        val json = when(value) {
+        value: Any?
+    ): OutgoingContent {
+        val json = when (value) {
             is Map<*, *> -> JSONObject(value).toString()
             is List<*> -> JSONArray(value).toString()
             is JSONObject -> value.toString()
             is JSONArray -> value.toString()
-            else -> throw IllegalStateException("Ikke støttet type ${value.javaClass}")
+            else -> throw IllegalStateException("Ikke støttet type ${value?.javaClass}")
         }
         return TextContent(json, contentType.withCharset(Charsets.UTF_8))
     }

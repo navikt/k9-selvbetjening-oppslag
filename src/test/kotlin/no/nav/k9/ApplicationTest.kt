@@ -1,6 +1,8 @@
 package no.nav.k9
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
@@ -19,7 +21,10 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.TokenUtils.hentToken
 import no.nav.k9.utgaende.rest.NavHeaders
 import no.nav.k9.utgaende.rest.aaregv2.erAnsattIPerioden
-import no.nav.k9.wiremocks.*
+import no.nav.k9.wiremocks.k9SelvbetjeningOppslagConfig
+import no.nav.k9.wiremocks.stubArbeidsgiverOgArbeidstakerRegisterV2
+import no.nav.k9.wiremocks.stubEnhetsRegister
+import no.nav.k9.wiremocks.stubPDLRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
@@ -31,7 +36,7 @@ import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate.*
+import java.time.LocalDate.parse
 import java.util.*
 import kotlin.test.assertFalse
 
@@ -59,24 +64,21 @@ class ApplicationTest {
         fun getConfig(): ApplicationConfig {
 
             val fileConfig = ConfigFactory.load()
-            val testConfig = ConfigFactory.parseMap(TestConfiguration.asMap(
-                wireMockServer = wireMockServer,
-                mockOAuth2Server = mockOAuth2Server
-            ))
+            val testConfig = ConfigFactory.parseMap(
+                TestConfiguration.asMap(
+                    wireMockServer = wireMockServer,
+                    mockOAuth2Server = mockOAuth2Server
+                )
+            )
             val mergedConfig = testConfig.withFallback(fileConfig)
 
             return HoconApplicationConfig(mergedConfig)
         }
 
 
-        val engine = TestApplicationEngine(createTestEnvironment {
-            config = getConfig()
-        })
-
         @BeforeAll
         @JvmStatic
         fun buildUp() {
-            engine.start(wait = true)
         }
 
         @AfterAll
@@ -92,27 +94,49 @@ class ApplicationTest {
 
     @Test
     fun `test isready, isalive og metrics`() {
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/isready") {}.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                handleRequest(HttpMethod.Get, "/isalive") {}.apply {
-                    assertEquals(HttpStatusCode.OK, response.status())
-                    handleRequest(HttpMethod.Get, "/metrics") {}.apply {
-                        assertEquals(HttpStatusCode.OK, response.status())
-                    }
-                }
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/isready").apply {
+                assertEquals(HttpStatusCode.OK, status)
+            }
+            client.get("/isalive").apply {
+                assertEquals(HttpStatusCode.OK, status)
+            }
+            client.get("/metrics").apply {
+                assertEquals(HttpStatusCode.OK, status)
             }
         }
     }
 
     @Test
     fun `test oppslag uten idToken gir unauthorized`() {
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-uten-id-token")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertEquals(HttpStatusCode.Unauthorized, status)
+            }
+        }
+    }
+
+    @Test
+    fun `test oppslag uten XCorrelationId gir BadRequest`() {
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
             }
         }
     }
@@ -120,18 +144,21 @@ class ApplicationTest {
     @Test
     fun `test megOppslag aktoerId`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { "aktør_id": "12345" }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -146,13 +173,48 @@ class ApplicationTest {
             claims = mapOf("role" to "access_as_application")
         ).serialize()
 
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
-                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertEquals(HttpStatusCode.Unauthorized, status)
+            }
+        }
+    }
+
+    @Test
+    fun `test systemoppslag uten XCorrelationId gir BadRequest`() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.post("/system/hent-identer") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
+                //language=json
+                setBody(
+                    """
+                    {
+                        "identer": ["$PERSON_1_MED_BARN"],
+                        "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
+                    }
+                """.trimIndent()
+                )
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
             }
         }
     }
@@ -166,21 +228,26 @@ class ApplicationTest {
             claims = mapOf("roles" to "access_as_application")
         ).serialize()
 
-        with(engine) {
-            handleRequest(HttpMethod.Post, "/system/hent-identer") {
-                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
-                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-identer")
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.ContentType, "application/json")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.post("/system/hent-identer") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.XCorrelationId, "systemoppslag-hent-identer")
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
                 //language=json
-                setBody("""
+                setBody(
+                    """
                     {
                         "identer": ["$PERSON_1_MED_BARN"],
                         "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
                     }
-                """.trimIndent())
+                """.trimIndent()
+                )
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(HttpStatusCode.OK, status)
                 //language=json
                 val expectedResponse = """
                     [
@@ -196,7 +263,7 @@ class ApplicationTest {
                       }
                     ]
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -210,21 +277,26 @@ class ApplicationTest {
             claims = mapOf("roles" to "access_as_application")
         ).serialize()
 
-        with(engine) {
-            handleRequest(HttpMethod.Post, "/system/hent-barn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
-                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-barn")
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.ContentType, "application/json")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.post("/system/hent-barn") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.XCorrelationId, "systemoppslag-hent-barn")
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
                 //language=json
-                setBody("""
+                setBody(
+                    """
                     {
                         "identer": ["${BarnFødselsnummer.BARN_TIL_PERSON_1}"]
                     }
-                """.trimIndent())
+                """.trimIndent()
+                )
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(HttpStatusCode.OK, status)
                 //language=json
                 val expectedResponse = """
                     [
@@ -244,7 +316,7 @@ class ApplicationTest {
                       }
                     ]
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -258,21 +330,26 @@ class ApplicationTest {
             claims = mapOf("roles" to "access_as_application")
         ).serialize()
 
-        with(engine) {
-            handleRequest(HttpMethod.Post, "/system/hent-barn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $azureToken")
-                addHeader(HttpHeaders.XCorrelationId, "systemoppslag-hent-adresebeskyttet-barn")
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.ContentType, "application/json")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.post("/system/hent-barn") {
+                header(HttpHeaders.Authorization, "Bearer $azureToken")
+                header(HttpHeaders.XCorrelationId, "systemoppslag-hent-adresebeskyttet-barn")
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
                 //language=json
-                setBody("""
+                setBody(
+                    """
                     {
                         "identer": ["${BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3}"]
                     }
-                """.trimIndent())
+                """.trimIndent()
+                )
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(HttpStatusCode.OK, status)
                 //language=json
                 val expectedResponse = """
                     [
@@ -297,7 +374,7 @@ class ApplicationTest {
                       }
                     ]
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -305,34 +382,40 @@ class ApplicationTest {
     @Test
     fun `test megOppslag aktør_id og fornavn`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-fornavn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id&a=fornavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-fornavn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { "aktør_id": "23456",
                  "fornavn": "ARNE"}
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test megOppslag aktør_id og navn og fødselsdato`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-navn-foedselsdato")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-aktoer-id-navn-foedselsdato")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "aktør_id": "23456",
@@ -342,22 +425,25 @@ class ApplicationTest {
                     "fødselsdato": "1990-01-02"
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test megOppslag navn har ikke mellomnavn`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = "01010067894")
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-har-ikke-mellomnavn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = "01010067894")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-har-ikke-mellomnavn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 {
                     "fornavn": "CATO",
@@ -365,35 +451,41 @@ class ApplicationTest {
                     "etternavn": "NILSEN"
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `gitt oppslag av død person, forvent feil`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = DØD_PERSON)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = DØD_PERSON)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.InternalServerError, response.status())
+                assertEquals(HttpStatusCode.InternalServerError, status)
             }
         }
     }
 
     @Test
     fun `gitt oppslag av person under myndighetsalder (18), forvent feil`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_UNDER_MYNDIGHETS_ALDER)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=fornavn&a=mellomnavn&a=etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_UNDER_MYNDIGHETS_ALDER)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=fornavn&a=mellomnavn&a=etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.InternalServerError, response.status())
+                assertEquals(HttpStatusCode.InternalServerError, status)
             }
         }
     }
@@ -401,14 +493,17 @@ class ApplicationTest {
     @Test
     fun `test barnOppslag aktoerId`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].aktør_id") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=barn[].aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-aktoer-id")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[
@@ -418,7 +513,7 @@ class ApplicationTest {
                 """.trimIndent()
                 JSONAssert.assertEquals(
                     expectedResponse,
-                    response.content!!,
+                    bodyAsText(),
                     true
                 ) //feiler. AktørId for barn blir satt til forelders aktørId
             }
@@ -427,18 +522,20 @@ class ApplicationTest {
 
     @Test
     fun `test barnOppslag navn og fødselsdato`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_2_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-navn-foedselsdato")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 // Første barn har totalt navn over > 24 tegn, så gjøres eget oppslag på navnet, den andre unngår oppslag da den er <= 24 tegn
                 //language=json
                 val expectedResponse = """
@@ -453,22 +550,25 @@ class ApplicationTest {
                     ]
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test barnOppslag navn har ikke mellomnavn`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[
@@ -479,7 +579,7 @@ class ApplicationTest {
                     ]
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -487,77 +587,89 @@ class ApplicationTest {
     @Test
     fun `gitt barn med strengt fortrolig adresse, forvent tom liste`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_3_MED_SKJERMET_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn": []
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `gitt død barn, forvent tom liste`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_4_MED_DØD_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_4_MED_DØD_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-har-ikke-mellomnavn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn": []
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test barnOppslag ingenBarn`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_UTEN_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "barn-oppslag-ingen-barn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_UTEN_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "barn-oppslag-ingen-barn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 { 
                     "barn":[]
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag orgnr`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 {
                     "arbeidsgivere": {
@@ -569,25 +681,27 @@ class ApplicationTest {
                     }
                  }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag orgnr og navn`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
             {
                 "arbeidsgivere": {
@@ -600,24 +714,26 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `Forvent organiasjon uten navn, gitt at navn ikke er funnet`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=11111111"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 //language=json
                 val expectedResponse = """
             {
@@ -630,24 +746,26 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `Forvent 1 organisasjon med navn, gitt organisasjonsnummer`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 //language=json
                 val expectedResponse = """
             {
@@ -661,24 +779,26 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `Forvent 2 organisasjoner med navn, gitt organisasjonsnummer`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&org=981585216&org=67564534"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 //language=json
                 val expectedResponse = """
             {
@@ -696,25 +816,27 @@ class ApplicationTest {
                 }
              }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag orgnr, navn, fom og tom`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?fom=2019-02-02&tom=2023-10-10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-orgnr-navn")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 //language=json
                 val expectedResponse = """
                     {
@@ -730,26 +852,28 @@ class ApplicationTest {
                       }
                     }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag med ingen arbeidsgivere`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_UTEN_ARBEIDSGIVER)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_UTEN_ARBEIDSGIVER)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
                         "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-ingen-arbeidsgiver")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
             {
                 "arbeidsgivere":{
@@ -758,25 +882,27 @@ class ApplicationTest {
                 }
             }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `tester oppslag av private arbeidsgivere`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-private-arbeidsgivere")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-private-arbeidsgivere")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
@@ -790,26 +916,28 @@ class ApplicationTest {
                       }
                     }
                     """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `Forventer å kun få unike arbeidsgivere selvom man har flere arbeidsforhold hos en arbeidsgiver`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
                         "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
@@ -829,25 +957,27 @@ class ApplicationTest {
                       }
                     }
                     """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `Forventer flere ansettelsesperioder hos arbeidsgiver`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn&a=arbeidsgivere[].organisasjoner[].ansettelsesperiode&inkluderAlleAnsettelsesperioder=true&fom=2014-01-01"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-arbeidsgivere")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
@@ -868,7 +998,7 @@ class ApplicationTest {
                       }
                     }
                     """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -876,18 +1006,20 @@ class ApplicationTest {
 
     @Test
     fun `Teste oppslag av frilans oppdrag`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_MED_FRILANS_OPPDRAG)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_MED_FRILANS_OPPDRAG)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?a=frilansoppdrag[]"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-frilans-oppdrag")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "arbeidsgiver-oppslag-frilans-oppdrag")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                     {
                       "arbeidsgivere": {
@@ -909,7 +1041,7 @@ class ApplicationTest {
                       }
                     }
                     """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
@@ -917,20 +1049,23 @@ class ApplicationTest {
     @Test
     fun `test oppslag alle attributter`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get, "/meg?fom=2019-09-09&tom=2022-10-10" +
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
+                "/meg?fom=2019-09-09&tom=2022-10-10" +
                         "&a=aktør_id&a=fornavn&a=mellomnavn&a=etternavn&a=fødselsdato" +
                         "&a=barn[].fornavn&a=barn[].mellomnavn&a=barn[].etternavn&a=barn[].fødselsdato&a=barn[].har_samme_adresse&a=barn[].identitetsnummer" +
                         "&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn" +
                         "&a=private_arbeidsgivere[].offentlig_ident&a=private_arbeidsgivere[].ansettelsesperiode&a=frilansoppdrag[]"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-alle-attrib")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                     {
                       "mellomnavn": "LANGEMANN",
@@ -978,41 +1113,47 @@ class ApplicationTest {
                       "aktør_id": "12345"
                     }
             """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test oppslag ingen attributter skal returnere tom JSON`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-ingen-attrib")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-ingen-attrib")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/json; charset=UTF-8", response.contentType().toString())
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("application/json; charset=UTF-8", contentType().toString())
                 val expectedResponse = """
                 {}
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test oppslag bare ugyldig attributt - bad request`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=ugyldigAttrib") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=ugyldigAttrib") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-ugyldig-attrib")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, status)
+                assertEquals("application/problem+json", contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -1025,22 +1166,25 @@ class ApplicationTest {
                     "status":400
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test oppslag ugyldige attributt - bad request`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id&a=ugyldigattrib&a=fornavn&a=annetugyldigattrib") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, status)
+                assertEquals("application/problem+json", contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -1054,22 +1198,25 @@ class ApplicationTest {
                     "status":400
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `gitt oppslag av søker under myndighetsalder, forvent 451 Unavailable For Legal Reasons`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_UNDER_MYNDIGHETS_ALDER)
-        with(engine) {
-            handleRequest(HttpMethod.Get, "/meg?a=aktør_id") {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_UNDER_MYNDIGHETS_ALDER)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-ugyldige-attrib")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(451, response.status()!!.value)
-                assertEquals("application/problem+json", response.contentType().toString())
+                assertEquals(451, status.value)
+                assertEquals("application/problem+json", contentType().toString())
                 //language=json
                 val expectedResponse = """
                 {
@@ -1080,25 +1227,27 @@ class ApplicationTest {
                     "status": 451
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag feil format fom`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?fom=2019/02/02&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-feil-format-fom")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, status)
+                assertEquals("application/problem+json", contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -1111,25 +1260,27 @@ class ApplicationTest {
                     "status":400
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
     fun `test arbeidsgiverOppslag feil format tom`() {
-        val idToken: String =  mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
-        with(engine) {
-            handleRequest(
-                HttpMethod.Get,
+        val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        testApplication {
+            environment {
+                config = getConfig()
+            }
+            client.get(
                 "/meg?fom=2019-02-02&tom=2019.10.10&a=arbeidsgivere[].organisasjoner[].organisasjonsnummer"
             ) {
-                addHeader(HttpHeaders.Authorization, "Bearer $idToken")
-                addHeader(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
-                addHeader(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "oppslag-feil-format-tom")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals("application/problem+json", response.contentType().toString())
+                assertEquals(HttpStatusCode.BadRequest, status)
+                assertEquals("application/problem+json", contentType().toString())
                 val expectedResponse = """
                 {
                     "detail":"Requesten inneholder ugyldige paramtere.",
@@ -1142,13 +1293,13 @@ class ApplicationTest {
                     "status":400
                 }
                 """.trimIndent()
-                JSONAssert.assertEquals(expectedResponse, response.content!!, true)
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
-    fun `Test av erAnsattIPerioden`(){
+    fun `Test av erAnsattIPerioden`() {
         val mandag = parse("2022-01-07")
         val tirsdag = mandag.plusDays(1)
         val onsdag = tirsdag.plusDays(1)
@@ -1156,7 +1307,7 @@ class ApplicationTest {
         val fredag = torsdag.plusDays(1)
 
         val ansattFOM = tirsdag
-        var ansattTOM = torsdag
+        val ansattTOM = torsdag
 
         assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, tirsdag, torsdag)) //Samme dato
         assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, tirsdag, fredag)) //En dag ekstra TOM
@@ -1167,7 +1318,6 @@ class ApplicationTest {
         assertFalse(erAnsattIPerioden(ansattFOM, ansattTOM, mandag, mandag)) //En dag før
         assertFalse(erAnsattIPerioden(ansattFOM, ansattTOM, fredag, fredag)) //En dag etter
 
-        ansattTOM = null
-        assertTrue(erAnsattIPerioden(ansattFOM, ansattTOM, fredag, fredag)) //Har ingen TOM
+        assertTrue(erAnsattIPerioden(ansattFOM, null, fredag, fredag)) //Har ingen TOM
     }
 }
