@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val dusseldorfKtorVersion = "6.1.1"
+val dusseldorfKtorVersion = "6.1.2"
 val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.4.0"
 val sifTilgangskontrollVersion = "5.1.0"
