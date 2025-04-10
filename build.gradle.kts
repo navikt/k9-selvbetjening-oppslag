@@ -8,7 +8,7 @@ val sifTilgangskontrollVersion = "5.1.1"
 val tokenSupportVersion = "5.0.24"
 val mockOauth2ServerVersion = "2.1.10"
 
-val mockkVersion = "1.13.17"
+val mockkVersion = "1.14.0"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
