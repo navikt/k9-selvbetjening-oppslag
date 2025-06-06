@@ -6,7 +6,7 @@ val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.7.0"
 val sifTilgangskontrollVersion = "5.2.1"
 val tokenSupportVersion = "5.0.27"
-val mockOauth2ServerVersion = "2.1.11"
+val mockOauth2ServerVersion = "2.2.0"
 
 val mockkVersion = "1.14.2"
 val jsonassertVersion = "1.5.3"
