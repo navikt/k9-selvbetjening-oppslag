@@ -3,19 +3,19 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val dusseldorfKtorVersion = "6.1.4"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "8.8.0"
+val graphqlKotlinClientVersion = "8.8.1"
 val sifTilgangskontrollVersion = "5.2.1"
 val tokenSupportVersion = "5.0.29"
 val mockOauth2ServerVersion = "2.2.1"
 
-val mockkVersion = "1.14.2"
+val mockkVersion = "1.14.4"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.0"
     id("org.sonarqube") version "6.2.0.5505"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
