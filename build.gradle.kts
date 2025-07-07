@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val dusseldorfKtorVersion = "6.1.4"
+val dusseldorfKtorVersion = "7.0.1"
 val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.8.1"
-val sifTilgangskontrollVersion = "5.2.1"
+val sifTilgangskontrollVersion = "5.2.3"
 val tokenSupportVersion = "5.0.29"
 val mockOauth2ServerVersion = "2.2.1"
 
@@ -83,7 +84,7 @@ java {
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "21"
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
     }
 
     withType<Test> {
