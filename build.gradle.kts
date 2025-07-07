@@ -1,21 +1,22 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val dusseldorfKtorVersion = "6.1.4"
+val dusseldorfKtorVersion = "7.0.1"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "8.8.0"
-val sifTilgangskontrollVersion = "5.2.1"
+val graphqlKotlinClientVersion = "8.8.1"
+val sifTilgangskontrollVersion = "5.2.3"
 val tokenSupportVersion = "5.0.29"
 val mockOauth2ServerVersion = "2.2.1"
 
-val mockkVersion = "1.14.2"
+val mockkVersion = "1.14.4"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.0"
     id("org.sonarqube") version "6.2.0.5505"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -83,7 +84,7 @@ java {
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "21"
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
     }
 
     withType<Test> {
