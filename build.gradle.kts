@@ -16,7 +16,7 @@ val fuelVersion = "2.3.1"
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.10"
     id("org.sonarqube") version "6.2.0.5505"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
