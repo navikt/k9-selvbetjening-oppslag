@@ -7,7 +7,7 @@ val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.8.1"
 val sifTilgangskontrollVersion = "5.2.3"
 val tokenSupportVersion = "5.0.34"
-val mockOauth2ServerVersion = "2.2.1"
+val mockOauth2ServerVersion = "2.3.0"
 
 val mockkVersion = "1.14.5"
 val jsonassertVersion = "1.5.3"
@@ -16,15 +16,15 @@ val fuelVersion = "2.3.1"
 val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
 
 plugins {
-    kotlin("jvm") version "2.2.0"
-    id("org.sonarqube") version "6.2.0.5505"
+    kotlin("jvm") version "2.2.10"
+    id("org.sonarqube") version "6.3.1.5724"
     jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 configurations.all {
     resolutionStrategy {
-        force("org.yaml:snakeyaml:2.4")
+        force("org.yaml:snakeyaml:2.5")
     }
 }
 
