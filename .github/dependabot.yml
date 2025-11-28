@@ -5,6 +5,7 @@ registries:
     url: https://maven.pkg.github.com/navikt/dusseldorf-ktor
     username: x-access-token
     password: ${{secrets.READER_TOKEN}}
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -19,6 +20,10 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
+      exclude:
+        - "no.nav.*"
     registries:
       - dusseldorf-ktor
     groups:
@@ -37,3 +42,5 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
