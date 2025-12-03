@@ -6,6 +6,12 @@ registries:
     username: x-access-token
     password: ${{secrets.READER_TOKEN}}
 
+  ghcr:
+    type: docker-registry
+    url: ghcr.io
+    username: x-access-token
+    password: ${{secrets.READER_TOKEN}}
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -42,5 +48,5 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    cooldown:
-      default-days: 7
+    registries:
+      - ghcr
