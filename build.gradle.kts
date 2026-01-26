@@ -1,30 +1,45 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "7.0.2"
 val ktorVersion = "3.1.0"
 val graphqlKotlinClientVersion = "8.8.1"
-val sifTilgangskontrollVersion = "5.2.3"
-val tokenSupportVersion = "5.0.34"
+val sifTilgangskontrollVersion = "5.3.0"
+val tokenSupportVersion = "6.0.0"
 val mockOauth2ServerVersion = "2.3.0"
 
 val mockkVersion = "1.14.5"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
-val mainClass = "no.nav.k9.SelvbetjeningOppslagKt"
+val mainClassName = "no.nav.k9.SelvbetjeningOppslagKt"
+
+val useMocks = project.hasProperty("mocks")
+
 
 plugins {
-    kotlin("jvm") version "2.2.10"
+    kotlin("jvm") version "2.3.0"
     id("org.sonarqube") version "6.3.1.5724"
     jacoco
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.0"
+    application
 }
 
+application {
+    mainClass.set(mainClassName)
+}
 configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.5")
+        // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
+        force("org.junit.jupiter:junit-jupiter:5.12.2")
+        force("org.junit.jupiter:junit-jupiter-api:5.12.2")
+        force("org.junit.jupiter:junit-jupiter-engine:5.12.2")
+        force("org.junit.jupiter:junit-jupiter-params:5.12.2")
+        force("org.junit.platform:junit-platform-commons:1.12.2")
+        force("org.junit.platform:junit-platform-engine:1.12.2")
+        force("org.junit.platform:junit-platform-launcher:1.12.2")
     }
 }
 
@@ -59,7 +74,14 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5") {
+        exclude(group = "org.junit.jupiter")
+        exclude(group = "org.junit.platform")
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
+
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     implementation(kotlin("stdlib-jdk8"))
@@ -67,6 +89,7 @@ dependencies {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
@@ -103,34 +126,21 @@ tasks {
     withType<ShadowJar> {
         archiveBaseName.set("app")
         archiveClassifier.set("")
-        manifest {
-            attributes(
-                mapOf(
-                    "Main-Class" to mainClass
-                )
+        mergeServiceFiles()
+        if (useMocks) {
+            from(sourceSets.main.get().output, sourceSets.test.get().output)
+            configurations = listOf(
+                project.configurations.runtimeClasspath.get(),
+                project.configurations.testRuntimeClasspath.get()
             )
-        }
-    }
-
-    register<ShadowJar>("shadowJarWithMocks") {
-        archiveBaseName.set("app")
-        archiveClassifier.set("")
-        from(sourceSets.main.get().output, sourceSets.test.get().output)
-        configurations = mutableListOf(
-            project.configurations.runtimeClasspath.get(),
-            project.configurations.testRuntimeClasspath.get()
-        ) as List<FileCollection>?
-        manifest {
-            attributes(
-                mapOf(
-                    "Main-Class" to "no.nav.k9.ApplicationWithMocks"
-                )
-            )
+            manifest {
+                attributes("Main-Class" to "no.nav.k9.ApplicationWithMocks")
+            }
         }
     }
 
     withType<Wrapper> {
-        gradleVersion = "8.5"
+        gradleVersion = "9.3.0"
     }
 }
 
