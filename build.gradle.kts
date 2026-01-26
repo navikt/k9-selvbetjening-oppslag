@@ -19,7 +19,7 @@ plugins {
     kotlin("jvm") version "2.3.0"
     id("org.sonarqube") version "6.3.1.5724"
     jacoco
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.0"
 }
 
 configurations.all {
@@ -132,10 +132,10 @@ tasks {
         archiveBaseName.set("app")
         archiveClassifier.set("")
         from(sourceSets.main.get().output, sourceSets.test.get().output)
-        configurations = mutableListOf(
+        configurations = listOf(
             project.configurations.runtimeClasspath.get(),
             project.configurations.testRuntimeClasspath.get()
-        ) as List<FileCollection>?
+        )
         manifest {
             attributes(
                 mapOf(
