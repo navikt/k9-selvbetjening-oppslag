@@ -465,16 +465,28 @@ class ApplicationTest {
             }
             client.get("/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 header(HttpHeaders.Authorization, "Bearer $idToken")
-                header(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-dod-person")
                 header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.InternalServerError, status)
+                assertEquals(451, status.value)
+                assertEquals("application/problem+json", contentType().toString())
+                //language=json
+                val expectedResponse = """
+                {
+                    "detail": "Policy decision: DENY - Reason: (NAV-bruker er ikke lenger i live AND NAV-bruker er myndig)",
+                    "instance": "/meg",
+                    "type": "/problem-details/tilgangskontroll-feil",
+                    "title": "tilgangskontroll-feil",
+                    "status": 451
+                }
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
     }
 
     @Test
-    fun `gitt oppslag av person under myndighetsalder (18), forvent feil`() {
+    fun `gitt oppslag av person under myndighetsalder (18), forvent 451 Unavailable For Legal Reasons`() {
         val idToken: String = mockOAuth2Server.hentToken(subject = PERSON_UNDER_MYNDIGHETS_ALDER)
         testApplication {
             environment {
@@ -482,11 +494,23 @@ class ApplicationTest {
             }
             client.get("/meg?a=fornavn&a=mellomnavn&a=etternavn") {
                 header(HttpHeaders.Authorization, "Bearer $idToken")
-                header(HttpHeaders.XCorrelationId, "meg-oppslag-død-person")
+                header(HttpHeaders.XCorrelationId, "meg-oppslag-under-myndighet")
                 header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             }.apply {
-                assertEquals(HttpStatusCode.InternalServerError, status)
-            }
+            assertEquals(451, status.value)
+            assertEquals("application/problem+json", contentType().toString())
+            //language=json
+            val expectedResponse = """
+                {
+                    "detail": "Policy decision: DENY - Reason: (NAV-bruker er i live AND NAV-bruker er ikke myndig)",
+                    "instance": "/meg",
+                    "type": "/problem-details/tilgangskontroll-feil",
+                    "title": "tilgangskontroll-feil",
+                    "status": 451
+                }
+                """.trimIndent()
+            JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
+        }
         }
     }
 
