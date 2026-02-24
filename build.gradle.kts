@@ -33,13 +33,13 @@ configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.5")
         // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
-        force("org.junit.jupiter:junit-jupiter:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-api:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-engine:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-params:6.0.2")
-        force("org.junit.platform:junit-platform-commons:6.0.2")
-        force("org.junit.platform:junit-platform-engine:6.0.2")
-        force("org.junit.platform:junit-platform-launcher:6.0.2")
+        force("org.junit.jupiter:junit-jupiter:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-api:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-params:6.0.3")
+        force("org.junit.platform:junit-platform-commons:6.0.3")
+        force("org.junit.platform:junit-platform-engine:6.0.3")
+        force("org.junit.platform:junit-platform-launcher:6.0.3")
     }
 }
 
@@ -79,8 +79,8 @@ dependencies {
         exclude(group = "org.junit.jupiter")
         exclude(group = "org.junit.platform")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
