@@ -1,6 +1,6 @@
 package no.nav.k9
 
-import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.*
 import no.nav.k9.utgaende.rest.NavHeaders.XK9Ytelse
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 
@@ -19,7 +19,8 @@ enum class Ytelse {
     DINE_PLEIEPENGER,
     ENDRINGSMELDING_PLEIEPENGER_SYKT_BARN,
     OPPLARINGSPENGER,
-    UNGDOMSYTELSE
+    UNGDOMSYTELSE,
+    AKTIVITETSPENGER
     ;
 
     fun somBehandling(): Behandling = when (this) {
@@ -30,6 +31,7 @@ enum class Ytelse {
         ETTERSENDING -> Behandling.PLEIEPENGER_SYKT_BARN
         OPPLARINGSPENGER -> Behandling.OPPLÆRINGSPENGER
         UNGDOMSYTELSE -> Behandling.UNGDOMSYTELSEN
+        AKTIVITETSPENGER -> Behandling.UNGDOMSYTELSEN
     }
 }
 
