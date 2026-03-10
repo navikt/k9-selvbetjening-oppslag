@@ -70,7 +70,8 @@ internal fun Route.OppslagRoute(
                             status = 451,
                             instance = URI(call.request.path()),
                             detail = "Policy decision: ${e.policyException.decision} - Reason: ${e.policyException.reason}"
-                        )
+                        ),
+                        cause = e
                     )
                     else -> throw e
                 }
