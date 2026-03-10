@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "7.0.2"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "8.8.1"
+val graphqlKotlinClientVersion = "9.0.0"
 val sifTilgangskontrollVersion = "5.3.0"
 val tokenSupportVersion = "6.0.0"
 val mockOauth2ServerVersion = "3.0.1"
@@ -22,7 +22,7 @@ plugins {
     kotlin("jvm") version "2.3.10"
     id("org.sonarqube") version "7.2.2.6593"
     jacoco
-    id("com.gradleup.shadow") version "9.3.1"
+    id("com.gradleup.shadow") version "9.3.2"
     application
 }
 
@@ -31,15 +31,15 @@ application {
 }
 configurations.all {
     resolutionStrategy {
-        force("org.yaml:snakeyaml:2.5")
+        force("org.yaml:snakeyaml:2.6")
         // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
-        force("org.junit.jupiter:junit-jupiter:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-api:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-engine:6.0.2")
-        force("org.junit.jupiter:junit-jupiter-params:6.0.2")
-        force("org.junit.platform:junit-platform-commons:6.0.2")
-        force("org.junit.platform:junit-platform-engine:6.0.2")
-        force("org.junit.platform:junit-platform-launcher:6.0.2")
+        force("org.junit.jupiter:junit-jupiter:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-api:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+        force("org.junit.jupiter:junit-jupiter-params:6.0.3")
+        force("org.junit.platform:junit-platform-commons:6.0.3")
+        force("org.junit.platform:junit-platform-engine:6.0.3")
+        force("org.junit.platform:junit-platform-launcher:6.0.3")
     }
 }
 
@@ -79,8 +79,8 @@ dependencies {
         exclude(group = "org.junit.jupiter")
         exclude(group = "org.junit.platform")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
