@@ -20,9 +20,9 @@ val useMocks = project.hasProperty("mocks")
 
 plugins {
     kotlin("jvm") version "2.3.10"
-    id("org.sonarqube") version "7.2.2.6593"
+    id("org.sonarqube") version "7.2.3.7755"
     jacoco
-    id("com.gradleup.shadow") version "9.3.2"
+    id("com.gradleup.shadow") version "9.4.0"
     application
 }
 
