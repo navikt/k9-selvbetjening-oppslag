@@ -71,6 +71,8 @@ Correlation ID blir propagert videre, og har ikke nødvendigvis sitt opphav hos 
 Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. Kan settes om `X-Request-ID`-header
 
 ## Bygge lokalt
+Krever Java 25.
+
 Ved bygg kreves det at naisdevice er tilkoblet slik at introspect mot graphql kjører.
 Dette generer de nødvendige query klassene basert på `src/main/resources/pdl`.
 

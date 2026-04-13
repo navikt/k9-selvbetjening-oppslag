@@ -20,7 +20,7 @@ jobs:
     secrets: inherit
     with:
       readertoken: false
-      javaversion: 21
+      javaversion: 25
 
   test:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-test.yml@main
@@ -29,7 +29,7 @@ jobs:
     secrets: inherit
     with:
       readertoken: false
-      javaversion: 21
+      javaversion: 25
 
   codeql:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-codeql.yml@main
@@ -43,7 +43,7 @@ jobs:
       readertoken: false
       package-command: './gradlew clean build -x test'
       branch: master
-      javaversion: 21
+      javaversion: 25
 
   build:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-build.yml@main
@@ -55,7 +55,7 @@ jobs:
     with:
       team: dusseldorf
       readertoken: false
-      javaversion: 21
+      javaversion: 25
 
   trivy:
     needs: [ build ]
