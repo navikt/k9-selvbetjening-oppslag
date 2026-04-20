@@ -68,7 +68,7 @@ private fun getResponse(navIdent: String) : String {
                       }
                     },
                     "arbeidsgiver":{
-                       "offentligIdent":"10047206508",
+                       "offentligIdent":"01017000299",
                        "aktoerId":"2142740417741",
                        "type":"Person"
                     }
@@ -83,7 +83,7 @@ private fun getResponse(navIdent: String) : String {
                       }
                     },
                     "arbeidsgiver":{
-                       "offentligIdent":"10047206508",
+                       "offentligIdent":"01017000299",
                        "aktoerId":"2142740417741",
                        "type":"Person"
                     }
@@ -135,7 +135,7 @@ private fun getResponse(navIdent: String) : String {
                 "navArbeidsforholdId": 34977713,
                 "arbeidsforholdId": "1012-20000424-1",
                 "arbeidstaker": {
-                  "offentligIdent": "12107548740",
+                  "offentligIdent": "01010010006",
                   "aktoerId": "1000036350643",
                   "type": "Person"
                 },
@@ -155,12 +155,12 @@ private fun getResponse(navIdent: String) : String {
                    }
                 },
                 "arbeidsgiver":{
-                   "offentligIdent":"10047206508",
+                   "offentligIdent":"01017000299",
                    "aktoerId":"2142740417741",
                    "type":"Person"
                 },
                 "arbeidstaker":{
-                   "offentligIdent":"14026223262",
+                   "offentligIdent":"01010010007",
                    "aktoerId":"2885922102245",
                    "type":"Person"
                 }
