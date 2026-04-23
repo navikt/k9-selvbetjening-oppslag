@@ -68,7 +68,7 @@ private fun getResponse(navIdent: String) : String {
                       }
                     },
                     "arbeidsgiver":{
-                       "offentligIdent":"01017000299",
+                       "offentligIdent":"23500180528",
                        "aktoerId":"2142740417741",
                        "type":"Person"
                     }
@@ -83,7 +83,7 @@ private fun getResponse(navIdent: String) : String {
                       }
                     },
                     "arbeidsgiver":{
-                       "offentligIdent":"01017000299",
+                       "offentligIdent":"23500180528",
                        "aktoerId":"2142740417741",
                        "type":"Person"
                     }
@@ -155,7 +155,7 @@ private fun getResponse(navIdent: String) : String {
                    }
                 },
                 "arbeidsgiver":{
-                   "offentligIdent":"01017000299",
+                   "offentligIdent":"23500180528",
                    "aktoerId":"2142740417741",
                    "type":"Person"
                 },
