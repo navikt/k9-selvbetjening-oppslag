@@ -115,7 +115,7 @@ private fun getResponse(navIdent: String) : String {
                 "arbeidstaker": {
                   "type": "Person",
                   "aktoerId": 1234567890,
-                  "offentligIdent": 31126700000
+                  "offentligIdent": 24420167209
                 },
                 "type": "ordinaertArbeidsforhold"
               },

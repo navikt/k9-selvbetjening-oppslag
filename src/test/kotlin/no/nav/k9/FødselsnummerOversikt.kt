@@ -2,7 +2,7 @@ package no.nav.k9
 
 object PersonFødselsnummer {
     const val PERSON_1_MED_BARN = "01019012345"
-    const val PERSON_2_MED_BARN = "01010010000"
+    const val PERSON_2_MED_BARN = "17420373147"
     const val PERSON_3_MED_SKJERMET_BARN = "01010010001"
     const val PERSON_4_MED_DØD_BARN = "01010010002"
     const val PERSON_UTEN_BARN = "01010010003"
