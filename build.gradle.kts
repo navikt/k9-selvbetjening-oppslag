@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "7.0.8"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.0"
-val sifTilgangskontrollVersion = "5.3.0"
+val graphqlKotlinClientVersion = "10.0.0"
+val sifTilgangskontrollVersion = "5.3.1"
 val tokenSupportVersion = "6.0.7"
-val mockOauth2ServerVersion = "3.0.1"
+val mockOauth2ServerVersion = "4.0.0"
 
-val mockkVersion = "1.14.9"
+val mockkVersion = "1.14.11"
 val jsonassertVersion = "1.5.3"
 val fuelVersion = "2.3.1"
 
@@ -19,10 +19,10 @@ val useMocks = project.hasProperty("mocks")
 
 
 plugins {
-    kotlin("jvm") version "2.3.20"
-    id("org.sonarqube") version "7.2.3.7755"
+    kotlin("jvm") version "2.3.21"
+    id("org.sonarqube") version "7.3.0.8198"
     jacoco
-    id("com.gradleup.shadow") version "9.4.1"
+    id("com.gradleup.shadow") version "9.4.2"
     application
 }
 
@@ -33,13 +33,13 @@ configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.6")
         // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
-        force("org.junit.jupiter:junit-jupiter:6.0.3")
-        force("org.junit.jupiter:junit-jupiter-api:6.0.3")
-        force("org.junit.jupiter:junit-jupiter-engine:6.0.3")
-        force("org.junit.jupiter:junit-jupiter-params:6.0.3")
-        force("org.junit.platform:junit-platform-commons:6.0.3")
-        force("org.junit.platform:junit-platform-engine:6.0.3")
-        force("org.junit.platform:junit-platform-launcher:6.0.3")
+        force("org.junit.jupiter:junit-jupiter:6.1.0")
+        force("org.junit.jupiter:junit-jupiter-api:6.1.0")
+        force("org.junit.jupiter:junit-jupiter-engine:6.1.0")
+        force("org.junit.jupiter:junit-jupiter-params:6.1.0")
+        force("org.junit.platform:junit-platform-commons:6.1.0")
+        force("org.junit.platform:junit-platform-engine:6.1.0")
+        force("org.junit.platform:junit-platform-launcher:6.1.0")
     }
 }
 
@@ -79,8 +79,8 @@ dependencies {
         exclude(group = "org.junit.jupiter")
         exclude(group = "org.junit.platform")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.0")
 
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
