@@ -2,11 +2,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dusseldorfKtorVersion = "7.0.8"
+val dusseldorfKtorVersion = "7.0.9"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.0"
+val graphqlKotlinClientVersion = "10.0.0"
 val sifTilgangskontrollVersion = "5.3.0"
-val tokenSupportVersion = "6.0.7"
+val tokenSupportVersion = "6.0.10"
 val mockOauth2ServerVersion = "3.0.1"
 
 val mockkVersion = "1.14.9"
