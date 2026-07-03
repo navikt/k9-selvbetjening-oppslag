@@ -4,10 +4,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "7.0.9"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.1"
+val graphqlKotlinClientVersion = "10.1.0"
 val sifTilgangskontrollVersion = "5.3.1"
 val tokenSupportVersion = "6.0.10"
-val mockOauth2ServerVersion = "4.0.0"
+val mockOauth2ServerVersion = "5.0.2"
 
 val mockkVersion = "1.14.11"
 val jsonassertVersion = "1.5.3"
@@ -19,10 +19,10 @@ val useMocks = project.hasProperty("mocks")
 
 
 plugins {
-    kotlin("jvm") version "2.3.21"
-    id("org.sonarqube") version "7.3.0.8198"
+    kotlin("jvm") version "2.4.0"
+    id("org.sonarqube") version "7.3.1.8318"
     jacoco
-    id("com.gradleup.shadow") version "9.4.2"
+    id("com.gradleup.shadow") version "9.4.3"
     application
 }
 
