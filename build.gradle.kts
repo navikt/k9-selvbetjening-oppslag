@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "8.0.0"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "10.0.1"
+val graphqlKotlinClientVersion = "9.2.1"
 val sifTilgangskontrollVersion = "5.3.1"
 val tokenSupportVersion = "6.0.11"
 val mockOauth2ServerVersion = "4.0.0"
