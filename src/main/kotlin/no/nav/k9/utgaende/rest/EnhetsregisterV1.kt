@@ -2,8 +2,8 @@ package no.nav.k9.utgaende.rest
 
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
-import io.ktor.http.HttpHeaders
-import io.ktor.http.Url
+import io.ktor.http.*
+import kotlinx.coroutines.currentCoroutineContext
 import no.nav.helse.dusseldorf.ktor.client.buildURL
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
-import kotlin.coroutines.coroutineContext
 
 internal class EnhetsregisterV1(
     private val baseUrl: URI
@@ -37,7 +36,7 @@ internal class EnhetsregisterV1(
             .header(
                 HttpHeaders.Accept to "application/json",
                 NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.CallId to coroutineContext.correlationId().value
+                NavHeaders.CallId to currentCoroutineContext().correlationId().value
             )
 
         logger.restKall(url.replace(organisasjonsnummer, "{organisasjonsnummer}"))

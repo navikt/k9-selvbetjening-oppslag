@@ -2,8 +2,8 @@ package no.nav.k9.utgaende.rest.aaregv2
 
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
-import io.ktor.http.HttpHeaders
-import io.ktor.http.Url
+import io.ktor.http.*
+import kotlinx.coroutines.currentCoroutineContext
 import no.nav.helse.dusseldorf.ktor.client.buildURL
 import no.nav.helse.dusseldorf.ktor.core.Retry
 import no.nav.helse.dusseldorf.ktor.metrics.Operation
@@ -12,14 +12,11 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.utgaende.rest.*
-import no.nav.k9.utgaende.rest.NavHeaderValues
-import no.nav.k9.utgaende.rest.NavHeaders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Duration
 import java.time.LocalDate
-import kotlin.coroutines.coroutineContext
 
 /**
  * @see <a href="https://aareg-services.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2#/arbeidstaker/finnArbeidsforholdPrArbeidstaker">Aareg-services swagger docs</a>
@@ -46,9 +43,9 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         tilOgMed: LocalDate,
         inkluderAlleAnsettelsesperioder: Boolean
     ) : Arbeidsgivere{
-        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+        val exchangeToken = cachedAccessTokenClient.getOnBehalfOfAccessToken(
             scopes = setOf(aaregTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value
+            onBehalfOf = currentCoroutineContext().idToken().value
         )
 
         val httpRequest = arbeidsforholdPerArbeidstakerUrl.toString()
@@ -56,7 +53,7 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
             .header(
                 HttpHeaders.Authorization to "Bearer ${exchangeToken.token}",
                 HttpHeaders.Accept to "application/json",
-                NavHeaders.CallId to coroutineContext.correlationId().value,
+                NavHeaders.CallId to currentCoroutineContext().correlationId().value,
                 NavHeaders.PersonIdent to ident.value
             )
 
