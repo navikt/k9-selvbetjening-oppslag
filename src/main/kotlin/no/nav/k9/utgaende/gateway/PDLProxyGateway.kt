@@ -1,5 +1,6 @@
 package no.nav.k9.utgaende.gateway
 
+import kotlinx.coroutines.currentCoroutineContext
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.Ytelse
 import no.nav.k9.inngaende.correlationId
@@ -18,7 +19,6 @@ import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
 import no.nav.siftilgangskontroll.policy.spesification.PolicyEvaluation
 import no.nav.siftilgangskontroll.policy.spesification.isDeny
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.coroutineContext
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person as PdlBarn
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person as PdlPerson
 
@@ -35,12 +35,12 @@ class PDLProxyGateway(
 
     @Throws(TilgangNektetException::class)
     internal suspend fun person(ytelse: Ytelse): PdlPerson {
-        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+        val exchangeToken = cachedAccessTokenClient.getOnBehalfOfAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value
+            onBehalfOf = currentCoroutineContext().idToken().value
         )
 
-        val callId = coroutineContext.correlationId().value
+        val callId = currentCoroutineContext().correlationId().value
 
         val tilgangResponse = tilgangService.hentPerson(
             bearerToken = exchangeToken.token,
@@ -61,14 +61,14 @@ class PDLProxyGateway(
         ytelse: Ytelse,
     ): List<PdlBarn> {
         val identListe = identer.map { it.value }
-        val exchangeToken = cachedAccessTokenClient.getAccessToken(
+        val exchangeToken = cachedAccessTokenClient.getOnBehalfOfAccessToken(
             scopes = setOf(pdlApiTokenxAudience),
-            onBehalfOf = coroutineContext.idToken().value
+            onBehalfOf = currentCoroutineContext().idToken().value
         )
 
-        val callId = coroutineContext.correlationId().value
+        val callId = currentCoroutineContext().correlationId().value
 
-        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+        val systemToken = cachedSystemTokenClient.getClientCredentialsAccessToken(setOf(pdlApiAzureAudience))
         val tilgangResponse =
             tilgangService.hentBarn(
                 barnTilgangForespørsel = BarnTilgangForespørsel(identListe),
@@ -99,8 +99,8 @@ class PDLProxyGateway(
         identGrupper: List<IdentGruppe>,
     ): List<HentIdenterBolkResult> {
 
-        val callId = coroutineContext.correlationId().value
-        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+        val callId = currentCoroutineContext().correlationId().value
+        val systemToken = cachedSystemTokenClient.getClientCredentialsAccessToken(setOf(pdlApiAzureAudience))
 
         val identerBolkResults = tilgangService.hentIdenter(
             identer = identer,
@@ -116,8 +116,8 @@ class PDLProxyGateway(
         ytelse: Ytelse,
     ): List<BarnResponse> {
 
-        val callId = coroutineContext.correlationId().value
-        val systemToken = cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
+        val callId = currentCoroutineContext().correlationId().value
+        val systemToken = cachedSystemTokenClient.getClientCredentialsAccessToken(setOf(pdlApiAzureAudience))
 
         val barn = tilgangService.slåOppBarn(
             barnTilgangForespørsel = BarnTilgangForespørsel(identer),
@@ -135,14 +135,14 @@ class PDLProxyGateway(
     ): AktørId? {
 
         val token = when (system) {
-            true -> cachedSystemTokenClient.getAccessToken(setOf(pdlApiAzureAudience))
-            false -> cachedAccessTokenClient.getAccessToken(
+            true -> cachedSystemTokenClient.getClientCredentialsAccessToken(setOf(pdlApiAzureAudience))
+            false -> cachedAccessTokenClient.getOnBehalfOfAccessToken(
                 scopes = setOf(pdlApiTokenxAudience),
-                onBehalfOf = coroutineContext.idToken().value
+                onBehalfOf = currentCoroutineContext().idToken().value
             )
         }
 
-        val callId = coroutineContext.correlationId().value
+        val callId = currentCoroutineContext().correlationId().value
 
         val aktørId = tilgangService.hentAktørId(
             ident = ident.value,
