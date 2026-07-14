@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "8.0.2"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.1"
+val graphqlKotlinClientVersion = "10.1.2"
 val sifTilgangskontrollVersion = "5.3.1"
 val tokenSupportVersion = "6.0.11"
 val mockOauth2ServerVersion = "5.0.2"
@@ -21,7 +21,7 @@ plugins {
     kotlin("jvm") version "2.4.0"
     id("org.sonarqube") version "7.3.1.8318"
     jacoco
-    id("com.gradleup.shadow") version "9.4.3"
+    id("com.gradleup.shadow") version "9.5.1"
     application
 }
 
