@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "8.0.2"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.1"
+val graphqlKotlinClientVersion = "10.1.2"
 val sifTilgangskontrollVersion = "5.3.1"
 val tokenSupportVersion = "6.0.11"
 val mockOauth2ServerVersion = "5.0.2"
@@ -21,7 +21,7 @@ plugins {
     kotlin("jvm") version "2.4.0"
     id("org.sonarqube") version "7.3.1.8318"
     jacoco
-    id("com.gradleup.shadow") version "9.4.3"
+    id("com.gradleup.shadow") version "9.5.1"
     application
 }
 
@@ -32,13 +32,13 @@ configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.6")
         // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
-        force("org.junit.jupiter:junit-jupiter:6.1.1")
-        force("org.junit.jupiter:junit-jupiter-api:6.1.1")
-        force("org.junit.jupiter:junit-jupiter-engine:6.1.1")
-        force("org.junit.jupiter:junit-jupiter-params:6.1.1")
-        force("org.junit.platform:junit-platform-commons:6.1.1")
-        force("org.junit.platform:junit-platform-engine:6.1.1")
-        force("org.junit.platform:junit-platform-launcher:6.1.1")
+        force("org.junit.jupiter:junit-jupiter:6.1.2")
+        force("org.junit.jupiter:junit-jupiter-api:6.1.2")
+        force("org.junit.jupiter:junit-jupiter-engine:6.1.2")
+        force("org.junit.jupiter:junit-jupiter-params:6.1.2")
+        force("org.junit.platform:junit-platform-commons:6.1.2")
+        force("org.junit.platform:junit-platform-engine:6.1.2")
+        force("org.junit.platform:junit-platform-launcher:6.1.2")
     }
 }
 
@@ -78,8 +78,8 @@ dependencies {
         exclude(group = "org.junit.jupiter")
         exclude(group = "org.junit.platform")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter:6.1.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.2")
 
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
