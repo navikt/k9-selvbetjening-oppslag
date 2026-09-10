@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val dusseldorfKtorVersion = "8.0.5"
 val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.1"
+val graphqlKotlinClientVersion = "10.2.2"
 val sifTilgangskontrollVersion = "5.3.2"
 val tokenSupportVersion = "6.0.12"
 val mockOauth2ServerVersion = "6.0.2"
@@ -19,7 +19,7 @@ val useMocks = project.hasProperty("mocks")
 
 plugins {
     kotlin("jvm") version "2.4.10"
-    id("org.sonarqube") version "7.4.0.8496"
+    id("org.sonarqube") version "7.5.0.8588"
     jacoco
     id("com.gradleup.shadow") version "9.6.1"
     application
@@ -30,7 +30,7 @@ application {
 }
 configurations.all {
     resolutionStrategy {
-        force("org.yaml:snakeyaml:2.6")
+        force("org.yaml:snakeyaml:2.7")
         // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
         force("org.junit.jupiter:junit-jupiter:6.1.3")
         force("org.junit.jupiter:junit-jupiter-api:6.1.3")
