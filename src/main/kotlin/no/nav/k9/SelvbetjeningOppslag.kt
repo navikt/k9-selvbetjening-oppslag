@@ -73,7 +73,8 @@ fun Application.SelvbetjeningOppslag() {
                     config = applicationConfig,
                     requiredClaims = RequiredClaims(
                         issuer = issuer,
-                        claimMap = arrayOf("acr=Level4")
+                        claimMap = arrayOf("acr=Level4", "acr=idporten-loa-high"),
+                        combineWithOr = true
                     )
                 )
             }
