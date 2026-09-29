@@ -37,7 +37,9 @@ internal val jsonUtf8: MediaType = MediaType("application", "json", Charsets.UTF
  * Tokenkonteksten til token-support ligger på tråden, og token-client-spring trenger den for token exchange.
  */
 @RestController
-@RequiredIssuers(ProtectedWithClaims(issuer = Issuers.TOKEN_X, claimMap = ["acr=Level4"]))
+@RequiredIssuers(
+    ProtectedWithClaims(issuer = Issuers.TOKEN_X, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
+)
 internal class OppslagController(
     private val oppslagService: OppslagService,
     private val tokenValidationContextHolder: TokenValidationContextHolder,

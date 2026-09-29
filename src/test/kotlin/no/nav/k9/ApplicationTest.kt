@@ -163,6 +163,40 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test megOppslag med acr idporten-loa-high`() {
+        val idToken: String = mockOAuth2Server.hentToken(
+            subject = PERSON_1_MED_BARN,
+            claims = mapOf("acr" to "idporten-loa-high")
+        )
+        app {
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $idToken")
+                header(X_CORRELATION_ID, "meg-oppslag-idporten-loa-high")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatus.OK, status)
+            }
+        }
+    }
+
+    @Test
+    fun `test megOppslag med utilstrekkelig acr gir unauthorized`() {
+        val idToken: String = mockOAuth2Server.hentToken(
+            subject = PERSON_1_MED_BARN,
+            claims = mapOf("acr" to "Level3")
+        )
+        app {
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $idToken")
+                header(X_CORRELATION_ID, "meg-oppslag-for-lav-acr")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatus.UNAUTHORIZED, status)
+            }
+        }
+    }
+
+    @Test
     fun `megOppslag med azure token skal gi 401 feil`() {
 
         val azureToken = mockOAuth2Server.issueToken(
