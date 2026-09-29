@@ -104,12 +104,12 @@ class ApplicationTest {
     private fun testApplication(block: () -> Unit) = block()
 
     @Test
-    fun `test isready, isalive og metrics`() {
+    fun `test readiness, liveness og metrics`() {
         app {
-            client.get("/isready").apply {
+            client.get("/health/readiness").apply {
                 assertEquals(HttpStatus.OK, status)
             }
-            client.get("/isalive").apply {
+            client.get("/health/liveness").apply {
                 assertEquals(HttpStatus.OK, status)
             }
             client.get("/metrics").apply {
@@ -1237,22 +1237,6 @@ class ApplicationTest {
             "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
         }
     """.trimIndent()
-
-    @Test
-    fun `isalive og isready gir tekst uten autentisering`() = app {
-        client.get("/isalive").apply {
-            assertEquals(HttpStatus.OK, status)
-            assertEquals("ALIVE", body)
-            assertEquals("text", contentType?.type)
-            assertEquals("plain", contentType?.subtype)
-        }
-        client.get("/isready").apply {
-            assertEquals(HttpStatus.OK, status)
-            assertEquals("READY", body)
-            assertEquals("text", contentType?.type)
-            assertEquals("plain", contentType?.subtype)
-        }
-    }
 
     @Test
     fun `ukjent path gir 404 og feil metode gir 405`() = app {

@@ -11,7 +11,7 @@ import java.util.*
 private const val MDC_CORRELATION_ID = "correlation_id"
 private const val MDC_REQUEST_ID = "request_id"
 private const val X_REQUEST_ID = "X-Request-ID"
-private val ekskluderteStier = setOf("/metrics", "/isready", "/isalive", "/health", "/internal/pre-stop", "/favicon.ico")
+private val ekskluderteStier = setOf("/metrics", "/health/liveness", "/health/readiness", "/health", "/internal/pre-stop", "/favicon.ico")
 
 internal class RequestLoggingFilter : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
