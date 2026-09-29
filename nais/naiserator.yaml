@@ -8,19 +8,21 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  startup:
+    path: /health/liveness
+    initialDelay: 30
+    periodSeconds: 5
+    failureThreshold: 60
   liveness:
     path: /health/liveness
-    initialDelay: 60
     timeout: 1
     periodSeconds: 5
     failureThreshold: 10
   readiness:
     path: /health/readiness
-    initialDelay: 60
     timeout: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1024Mi
     requests:
       cpu: 200m
