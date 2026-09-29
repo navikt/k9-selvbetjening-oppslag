@@ -1,11 +1,11 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.utgaende.gateway.EnhetsregisterV1Gateway
-import no.nav.k9.utgaende.rest.Arbeidsgivere
+import no.nav.k9.integrasjon.aareg.Arbeidsgivere
+import no.nav.k9.integrasjon.enhetsregister.EnhetsregisterService
 import java.time.LocalDate
 
 internal class ArbeidsgivereOppslag(
-    private val enhetsregisterV1Gateway: EnhetsregisterV1Gateway,
+    private val enhetsregisterService: EnhetsregisterService,
 ) {
 
     internal suspend fun organisasjoner(
@@ -33,7 +33,7 @@ internal class ArbeidsgivereOppslag(
         organisasjonsnummer: String,
         attributter: Set<Attributt>,
     ) = try {
-        enhetsregisterV1Gateway.enhet(
+        enhetsregisterService.enhet(
             attributter = attributter,
             organisasjonsnummer = organisasjonsnummer
         )?.navn

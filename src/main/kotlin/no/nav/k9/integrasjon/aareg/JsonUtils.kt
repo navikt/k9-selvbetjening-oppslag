@@ -1,10 +1,7 @@
-package no.nav.k9.utgaende.rest.aaregv2
+package no.nav.k9.integrasjon.aareg
 
-import no.nav.k9.utgaende.rest.Frilansoppdrag
-import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
-import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
-import no.nav.k9.utgaende.rest.aaregv2.TypeArbeidssted.Companion.somTypeArbeidssted
-import no.nav.k9.utgaende.rest.getStringOrNull
+import no.nav.k9.integrasjon.aareg.TypeArbeidssted.Companion.somTypeArbeidssted
+import no.nav.k9.integrasjon.common.getStringOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate

@@ -1,5 +1,6 @@
-package no.nav.k9.utgaende.rest
+package no.nav.k9.integrasjon.aareg
 
+import no.nav.k9.integrasjon.common.somJsonArray
 import org.json.JSONArray
 import org.json.JSONException
 import org.junit.jupiter.api.Test

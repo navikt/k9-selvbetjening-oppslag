@@ -3,7 +3,7 @@ package no.nav.k9.wiremocks
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 
 class BrregProxyV1ResponseTransformer : ResponseTransformerV2 {
     override fun getName(): String {

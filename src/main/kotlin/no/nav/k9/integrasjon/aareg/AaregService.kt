@@ -1,37 +1,44 @@
-package no.nav.k9.utgaende.rest.aaregv2
+package no.nav.k9.integrasjon.aareg
 
 import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.inngaende.correlationId
+import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
-import no.nav.k9.utgaende.auth.AaregAuthService
-import no.nav.k9.utgaende.rest.*
+import no.nav.k9.integrasjon.common.logResponse
+import no.nav.k9.integrasjon.common.restKall
+import no.nav.k9.integrasjon.common.somJsonArray
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
-import org.springframework.retry.support.RetryTemplate
-import org.springframework.web.client.RestClient
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import java.net.URI
 import java.time.LocalDate
 
 /**
  * @see <a href="https://aareg-services.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2#/arbeidstaker/finnArbeidsforholdPrArbeidstaker">Aareg-services swagger docs</a>
  */
-
-internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
-    baseUrl: URI,
-    restClientBuilder: RestClient.Builder,
-    private val retryTemplate: RetryTemplate,
+@Service
+internal class AaregService(
+    private val aaregRetryClient: AaregRetryClient,
     private val aaregAuthService: AaregAuthService,
+    @Value("\${nav.register-urls.arbeidsgiver-og-arbeidstaker-v2}") baseUrl: URI,
 ) {
     private companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(AaregService::class.java)
         private const val ARBEIDSFORHOLD_PATH =
             "/arbeidstaker/arbeidsforhold?arbeidsforholdtype={arbeidsforholdtype}&arbeidsforholdstatus={arbeidsforholdstatus}"
+
+        private val støttedeAttributter = setOf(
+            Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer,
+            Attributt.arbeidsgivereOrganisasjonerNavn,
+            Attributt.privateArbeidsgivereAnsettelseperiode,
+            Attributt.privateArbeidsgivereOffentligIdent,
+            Attributt.frilansoppdrag
+        )
     }
 
     private val baseUrl = baseUrl.toString().trimEnd('/')
-    private val restClient = restClientBuilder.baseUrl(this.baseUrl).build()
     private val queryVariabler = mapOf(
         "arbeidsforholdtype" to ArbeidsforholdType.values().joinToString(",") { it.type },
         "arbeidsforholdstatus" to ArbeidsforholdStatus.somQueryParameters()
@@ -41,25 +48,18 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
-        inkluderAlleAnsettelsesperioder: Boolean
-    ) : Arbeidsgivere{
+        inkluderAlleAnsettelsesperioder: Boolean,
+        attributter: Set<Attributt>
+    ): Arbeidsgivere? {
+        if (!attributter.any { it in støttedeAttributter }) return null
+
         val exchangeToken = aaregAuthService.borgerToken()
         val callId = currentCoroutineContext().correlationId().value
 
         logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH", true)
 
-        val json = retryTemplate.execute<JSONArray, RuntimeException> {
-            restClient.get()
-                .uri(ARBEIDSFORHOLD_PATH, queryVariabler)
-                .headers { it.setBearerAuth(exchangeToken) }
-                .accept(MediaType.APPLICATION_JSON)
-                .header(NavHeaders.CallId, callId)
-                .header(NavHeaders.PersonIdent, ident.value)
-                .retrieve()
-                .body(String::class.java)
-                ?.somJsonArray()
-                ?: throw IllegalStateException("Tom respons ved henting av arbeidsforhold per arbeidstaker")
-        }
+        val json = aaregRetryClient.arbeidsforhold(ARBEIDSFORHOLD_PATH, queryVariabler, exchangeToken, callId, ident)
+            .somJsonArray()
 
         logger.logResponse(json)
 

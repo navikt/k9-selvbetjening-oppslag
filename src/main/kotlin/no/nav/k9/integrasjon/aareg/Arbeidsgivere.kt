@@ -1,6 +1,5 @@
-package no.nav.k9.utgaende.rest
+package no.nav.k9.integrasjon.aareg
 
-import no.nav.k9.utgaende.rest.aaregv2.TypeArbeidssted
 import java.time.LocalDate
 
 internal data class Arbeidsgivere(

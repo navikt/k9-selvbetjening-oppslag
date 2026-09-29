@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.gateway
+package no.nav.k9.integrasjon.common
 
 private object MetricsFriendly {
     internal val METRIC_FRIENDLY = "[^A-Z0-9]".toRegex()

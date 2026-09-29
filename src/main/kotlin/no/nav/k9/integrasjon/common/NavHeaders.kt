@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.rest
+package no.nav.k9.integrasjon.common
 
 
 internal object NavHeaders {

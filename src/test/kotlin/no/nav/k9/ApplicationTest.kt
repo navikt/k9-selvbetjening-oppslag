@@ -17,8 +17,8 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_ARBEIDSGIVER
 import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_BARN
 import no.nav.k9.TokenUtils.hentToken
-import no.nav.k9.utgaende.rest.NavHeaders
-import no.nav.k9.utgaende.rest.aaregv2.erAnsattIPerioden
+import no.nav.k9.integrasjon.common.NavHeaders
+import no.nav.k9.integrasjon.aareg.erAnsattIPerioden
 import no.nav.k9.wiremocks.getArbeidsgiverOgArbeidstakerV2RegisterUrl
 import no.nav.k9.wiremocks.getEnhetsregisterUrl
 import no.nav.k9.wiremocks.getPdlUrl
@@ -65,6 +65,7 @@ class ApplicationTest {
         @JvmStatic
         @DynamicPropertySource
         fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.rest.retry.initialDelay") { "10" }
             registry.add("nav.register-urls.pdl-url") { wireMockServer.getPdlUrl() }
             registry.add("nav.register-urls.enhetsregister-v1") { wireMockServer.getEnhetsregisterUrl() }
             registry.add("nav.register-urls.arbeidsgiver-og-arbeidstaker-v2") { wireMockServer.getArbeidsgiverOgArbeidstakerV2RegisterUrl() }
@@ -1527,6 +1528,34 @@ class ApplicationTest {
                 3,
                 WireMock.getRequestedFor(WireMock.urlPathMatching("/arbeidsgiver-og-arbeidstaker-register-v2-mock/arbeidstaker/arbeidsforhold.*"))
                     .withHeader(NavHeaders.PersonIdent, WireMock.equalTo(fnr))
+            )
+        } finally {
+            wireMockServer.removeStub(stub)
+        }
+    }
+
+    @Test
+    fun `aareg som svarer 4xx retryes ikke`() = app {
+        val fnr = "01010010099"
+        val urlPattern = WireMock.urlPathMatching("/arbeidsgiver-og-arbeidstaker-register-v2-mock/arbeidstaker/arbeidsforhold.*")
+        val stub = wireMockServer.stubFor(
+            WireMock.get(urlPattern)
+                .withHeader(NavHeaders.PersonIdent, WireMock.equalTo(fnr))
+                .atPriority(1)
+                .willReturn(WireMock.aResponse().withStatus(403))
+        )
+        try {
+            val idToken = mockOAuth2Server.hentToken(subject = fnr)
+            client.get("/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $idToken")
+                header(X_CORRELATION_ID, "aareg-403")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, status)
+            }
+            wireMockServer.verify(
+                1,
+                WireMock.getRequestedFor(urlPattern).withHeader(NavHeaders.PersonIdent, WireMock.equalTo(fnr))
             )
         } finally {
             wireMockServer.removeStub(stub)

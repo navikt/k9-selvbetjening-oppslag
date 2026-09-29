@@ -1,15 +1,10 @@
-package no.nav.k9.utgaende.auth
+package no.nav.k9.integrasjon.pdl
 
-import no.nav.security.token.support.client.core.ClientProperties
+import no.nav.k9.integrasjon.common.registrering
+import no.nav.k9.integrasjon.common.token
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import org.springframework.stereotype.Service
-
-private fun ClientConfigurationProperties.registrering(navn: String): ClientProperties =
-    registration[navn] ?: throw IllegalStateException("Fant ikke oauth2-klientkonfigurasjon for $navn")
-
-private fun OAuth2AccessTokenService.token(properties: ClientProperties, navn: String): String =
-    getAccessToken(properties).access_token ?: throw IllegalStateException("Kunne ikke hente access token for $navn")
 
 /**
  * Tokens mot PDL. Registreringsnavnene følger sif-tilgangskontroll.
@@ -29,19 +24,5 @@ class PdlAuthService(
     private companion object {
         private const val TOKENX_PDL_API = "tokenx-pdl-api"
         private const val AZURE_PDL_API = "azure-pdl-api"
-    }
-}
-
-@Service
-class AaregAuthService(
-    oauth2Config: ClientConfigurationProperties,
-    private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-) {
-    private val tokenxAaregProperties = oauth2Config.registrering(TOKENX_AAREG)
-
-    fun borgerToken(): String = oAuth2AccessTokenService.token(tokenxAaregProperties, TOKENX_AAREG)
-
-    private companion object {
-        private const val TOKENX_AAREG = "tokenx-aareg"
     }
 }

@@ -8,6 +8,12 @@ server:
 spring:
   application:
     name: k9-selvbetjening-oppslag
+  rest:
+    retry:
+      multiplier: 2
+      initialDelay: 1000
+      maxDelay: 4000
+      maxRetries: 2
   lifecycle:
     timeout-per-shutdown-phase: 20s
   http:

@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 

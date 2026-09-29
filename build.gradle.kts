@@ -15,7 +15,6 @@ val tokenSupportVersion = "6.0.12"
 val sifTilgangskontrollVersion = "5.3.2"
 // Må følge versjonen sif-tilgangskontroll core er bygget mot
 val graphqlKotlinVersion = "8.8.1"
-val retryVersion = "2.0.13"
 val orgJsonVersion = "20260719"
 val jsonSmartVersion = "2.6.0"
 val logstashLogbackEncoderVersion = "9.0"
@@ -39,7 +38,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-jackson2")
-    implementation("org.springframework.retry:spring-retry:$retryVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
 
     // NAV

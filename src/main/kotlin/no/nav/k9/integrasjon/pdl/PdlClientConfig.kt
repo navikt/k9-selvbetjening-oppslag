@@ -1,9 +1,10 @@
-package no.nav.k9.config
+package no.nav.k9.integrasjon.pdl
 
 import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import io.netty.channel.ChannelOption
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.config.k9ObjectMapper
+import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
 import org.springframework.beans.factory.annotation.Value

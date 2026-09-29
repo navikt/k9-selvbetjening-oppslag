@@ -1,6 +1,6 @@
 package no.nav.k9.http
 
-import no.nav.k9.utgaende.gateway.TilgangNektetException
+import no.nav.k9.integrasjon.pdl.TilgangNektetException
 import no.nav.security.token.support.core.exceptions.JwtTokenMissingException
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException

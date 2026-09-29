@@ -7,7 +7,7 @@ import no.nav.k9.http.ParameterType
 import no.nav.k9.http.ValidationErrorResponseException
 import no.nav.k9.http.Violation
 import no.nav.k9.inngaende.oppslag.*
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.k9.ytelseFraHeader
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.RequiredIssuers

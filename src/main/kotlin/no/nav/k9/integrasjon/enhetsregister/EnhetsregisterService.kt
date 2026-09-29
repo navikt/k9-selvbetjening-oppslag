@@ -1,44 +1,47 @@
-package no.nav.k9.utgaende.rest
+package no.nav.k9.integrasjon.enhetsregister
 
 import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.inngaende.correlationId
+import no.nav.k9.inngaende.oppslag.Attributt
+import no.nav.k9.integrasjon.common.getStringOrNull
+import no.nav.k9.integrasjon.common.logResponse
+import no.nav.k9.integrasjon.common.restKall
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
-import org.springframework.retry.support.RetryTemplate
-import org.springframework.web.client.RestClient
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import java.net.URI
 import java.time.LocalDate
 
-internal class EnhetsregisterV1(
-    private val baseUrl: URI,
-    restClientBuilder: RestClient.Builder,
-    private val retryTemplate: RetryTemplate,
+@Service
+internal class EnhetsregisterService(
+    private val retryClient: EnhetsregisterRetryClient,
+    @Value("\${nav.register-urls.enhetsregister-v1}") private val baseUrl: URI,
 ) {
     private companion object {
-        private val logger: Logger = LoggerFactory.getLogger(EnhetsregisterV1::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(EnhetsregisterService::class.java)
         private const val NØKKELINFO_PATH = "/organisasjon/{organisasjonsnummer}/noekkelinfo"
+
+        private val støttedeAttributter = setOf(
+            Attributt.arbeidsgivereOrganisasjonerNavn
+        )
     }
 
-    private val restClient = restClientBuilder.baseUrl(baseUrl.toString().trimEnd('/')).build()
+    internal suspend fun enhet(
+        organisasjonsnummer: String,
+        attributter: Set<Attributt>
+    ): Enhet? {
+        if (!attributter.any { it in støttedeAttributter }) return null
+        return nøkkelinfo(organisasjonsnummer)
+    }
 
-    internal suspend fun nøkkelinfo(organisasjonsnummer: String) : Enhet {
+    private suspend fun nøkkelinfo(organisasjonsnummer: String): Enhet {
         val callId = currentCoroutineContext().correlationId().value
 
         logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")
 
-        val json = retryTemplate.execute<JSONObject, RuntimeException> {
-            val response = restClient.get()
-                .uri(NØKKELINFO_PATH, organisasjonsnummer)
-                .accept(MediaType.APPLICATION_JSON)
-                .header(NavHeaders.ConsumerId, NavHeaderValues.ConsumerId)
-                .header(NavHeaders.CallId, callId)
-                .retrieve()
-                .body(String::class.java)
-                ?: throw IllegalStateException("Tom respons ved henting av Nøkkelinfo for organisasjon $organisasjonsnummer")
-            JSONObject(response)
-        }
+        val json = JSONObject(retryClient.nøkkelinfo(NØKKELINFO_PATH, organisasjonsnummer, callId))
 
         logger.logResponse(json)
 
@@ -80,11 +83,3 @@ internal class EnhetsregisterV1(
         return LocalDate.parse(stringValue)
     }
 }
-
-internal data class Enhet(
-    internal val organisasjonsnummer: String,
-    internal val navn: String?,
-    internal val enhetstype: String?,
-    internal val opphørsdato: LocalDate?
-)
-

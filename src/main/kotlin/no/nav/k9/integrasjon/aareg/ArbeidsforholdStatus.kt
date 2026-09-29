@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.rest.aaregv2
+package no.nav.k9.integrasjon.aareg
 
 internal enum class ArbeidsforholdStatus(){
     AKTIV,

@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.gateway
+package no.nav.k9.integrasjon.pdl
 
 import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.Ytelse
@@ -6,7 +6,6 @@ import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
-import no.nav.k9.utgaende.auth.PdlAuthService
 import no.nav.siftilgangskontroll.core.pdl.AktørId
 import no.nav.siftilgangskontroll.core.tilgang.BarnResponse
 import no.nav.siftilgangskontroll.core.tilgang.BarnTilgangForespørsel
@@ -18,15 +17,17 @@ import no.nav.siftilgangskontroll.policy.spesification.PolicyDecision
 import no.nav.siftilgangskontroll.policy.spesification.PolicyEvaluation
 import no.nav.siftilgangskontroll.policy.spesification.isDeny
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Person as PdlBarn
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person as PdlPerson
 
-class PDLProxyGateway(
+@Service
+class PdlProxyService(
     private val tilgangService: TilgangService,
     private val pdlAuthService: PdlAuthService,
 ) {
     private companion object {
-        private val logger = LoggerFactory.getLogger(PDLProxyGateway::class.java)
+        private val logger = LoggerFactory.getLogger(PdlProxyService::class.java)
     }
 
     @Throws(TilgangNektetException::class)

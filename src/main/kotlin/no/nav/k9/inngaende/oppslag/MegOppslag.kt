@@ -1,14 +1,14 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.Ytelse
-import no.nav.k9.utgaende.gateway.PDLProxyGateway
+import no.nav.k9.integrasjon.pdl.PdlProxyService
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.Person
 import java.lang.IllegalStateException
 import java.time.LocalDate
 
 internal class MegOppslag(
-    private val pdlProxyGateway: PDLProxyGateway,
+    private val pdlProxyService: PdlProxyService,
 ) {
 
     internal suspend fun meg(
@@ -16,9 +16,9 @@ internal class MegOppslag(
         attributter: Set<Attributt>,
         ytelse: Ytelse,
     ): Meg {
-        val pdlPerson = pdlProxyGateway.person(ytelse = ytelse)
+        val pdlPerson = pdlProxyService.person(ytelse = ytelse)
 
-        val aktørId = pdlProxyGateway.aktørId(
+        val aktørId = pdlProxyService.aktørId(
             ident = ident,
             attributter = attributter
         )

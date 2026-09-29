@@ -1,6 +1,6 @@
 package no.nav.k9
 
-import no.nav.k9.utgaende.rest.NavHeaders.XK9Ytelse
+import no.nav.k9.integrasjon.common.NavHeaders.XK9Ytelse
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 
 enum class Ytelse {

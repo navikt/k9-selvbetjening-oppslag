@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
 import no.nav.k9.config.k9ObjectMapper
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.k9.ytelseFraHeader
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.RequiredIssuers

@@ -1,4 +1,4 @@
-package no.nav.k9.utgaende.gateway
+package no.nav.k9.integrasjon.common
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
