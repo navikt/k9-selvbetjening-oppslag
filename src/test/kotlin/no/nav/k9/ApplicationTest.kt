@@ -1,5 +1,6 @@
 package no.nav.k9
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.typesafe.config.ConfigFactory
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -8,6 +9,7 @@ import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import io.prometheus.client.CollectorRegistry
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
+import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.DØD_PERSON
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
 import no.nav.k9.PersonFødselsnummer.PERSON_2_MED_BARN
@@ -1320,6 +1322,374 @@ class ApplicationTest {
                 JSONAssert.assertEquals(expectedResponse, bodyAsText(), true)
             }
         }
+    }
+
+    // ---- Karakteriseringstester: låser dagens oppførsel før migrering til Spring Boot ----
+
+    private fun app(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
+        environment { config = getConfig() }
+        block()
+    }
+
+    private fun azureToken(claims: Map<String, String> = mapOf("roles" to "access_as_application")) =
+        mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = claims
+        ).serialize()
+
+    private val hentIdenterBody = """
+        {
+            "identer": ["$PERSON_1_MED_BARN"],
+            "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
+        }
+    """.trimIndent()
+
+    @Test
+    fun `isalive og isready gir tekst uten autentisering`() = app {
+        client.get("/isalive").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("ALIVE", bodyAsText())
+            assertEquals("text/plain", contentType()?.withoutParameters().toString())
+        }
+        client.get("/isready").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("READY", bodyAsText())
+            assertEquals("text/plain", contentType()?.withoutParameters().toString())
+        }
+    }
+
+    @Test
+    fun `ukjent path gir 404 og feil metode gir 405`() = app {
+        assertEquals(HttpStatusCode.NotFound, client.get("/finnes-ikke").status)
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.post("/meg") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "feil-metode-meg")
+        }.apply {
+            assertEquals(HttpStatusCode.MethodNotAllowed, status)
+        }
+    }
+
+    @Test
+    fun `meg uten X-K9-Ytelse gir 500`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg?a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "meg-uten-ytelse")
+        }.apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+            assertEquals("application/problem+json", contentType().toString())
+        }
+    }
+
+    @Test
+    fun `meg med ugyldig X-K9-Ytelse gir 500`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg?a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "meg-ugyldig-ytelse")
+            header(NavHeaders.XK9Ytelse, "IKKE_EN_YTELSE")
+        }.apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+            assertEquals("application/problem+json", contentType().toString())
+        }
+    }
+
+    @Test
+    fun `meg uten attributter og uten X-K9-Ytelse gir 500 fordi ytelse leses først`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "meg-uten-attributter-uten-ytelse")
+        }.apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+        }
+    }
+
+    @Test
+    fun `ugyldig format på X-Correlation-ID gir 400`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        listOf("abc", "har mellomrom", "ugyldig!tegn").forEach { correlationId ->
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, correlationId)
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status, "Correlation-ID '$correlationId'")
+                assertEquals("application/problem+json", contentType().toString())
+            }
+        }
+    }
+
+    @Test
+    fun `meg uten token og uten correlation-id gir 400 fordi correlation-id sjekkes før autentisering`() = app {
+        client.get("/meg?a=aktør_id") {
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    @Test
+    fun `system uten token og uten correlation-id gir 400 fordi correlation-id sjekkes før autentisering`() = app {
+        client.post("/system/hent-identer") {
+            header(HttpHeaders.ContentType, "application/json")
+            setBody(hentIdenterBody)
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    @Test
+    fun `meg med tokenx-token uten acr Level4 gir 401`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN, claims = mapOf("acr" to "Level3"))
+        client.get("/meg?a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "meg-uten-level4")
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+        val utenAcr = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN, claims = emptyMap())
+        client.get("/meg?a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $utenAcr")
+            header(HttpHeaders.XCorrelationId, "meg-uten-acr")
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `arbeidsgivere med azure-token gir 401`() = app {
+        client.get("/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+            header(HttpHeaders.Authorization, "Bearer ${azureToken()}")
+            header(HttpHeaders.XCorrelationId, "arbeidsgivere-azure")
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `system med tokenx-token gir 401`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.post("/system/hent-identer") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "system-med-tokenx")
+            header(HttpHeaders.ContentType, "application/json")
+            setBody(hentIdenterBody)
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `system med azure-token uten rollen access_as_application gir 401`() = app {
+        client.post("/system/hent-identer") {
+            header(HttpHeaders.Authorization, "Bearer ${azureToken(claims = emptyMap())}")
+            header(HttpHeaders.XCorrelationId, "system-uten-rolle")
+            header(HttpHeaders.ContentType, "application/json")
+            setBody(hentIdenterBody)
+        }.apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `system med ugyldig eller tom body gir 500`() = app {
+        listOf("ikke json", "", "{}").forEach { body ->
+            client.post("/system/hent-identer") {
+                header(HttpHeaders.Authorization, "Bearer ${azureToken()}")
+                header(HttpHeaders.XCorrelationId, "system-ugyldig-body")
+                header(HttpHeaders.ContentType, "application/json")
+                setBody(body)
+            }.apply {
+                assertEquals(HttpStatusCode.InternalServerError, status, "Body '$body'")
+                assertEquals("application/problem+json", contentType().toString())
+            }
+        }
+    }
+
+    @Test
+    fun `system hent-barn uten X-K9-Ytelse gir 500`() = app {
+        client.post("/system/hent-barn") {
+            header(HttpHeaders.Authorization, "Bearer ${azureToken()}")
+            header(HttpHeaders.XCorrelationId, "system-hent-barn-uten-ytelse")
+            header(HttpHeaders.ContentType, "application/json")
+            setBody("""{ "identer": ["$BARN_TIL_PERSON_1"] }""")
+        }.apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+        }
+    }
+
+    @Test
+    fun `system ignorerer ukjente felter i request body`() = app {
+        client.post("/system/hent-identer") {
+            header(HttpHeaders.Authorization, "Bearer ${azureToken()}")
+            header(HttpHeaders.XCorrelationId, "system-ukjent-felt")
+            header(HttpHeaders.ContentType, "application/json")
+            setBody(
+                """
+                {
+                    "identer": ["$PERSON_1_MED_BARN"],
+                    "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"],
+                    "ukjentFelt": "ignoreres"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `attributter er case-insensitive, blanke filtreres bort og duplikater fjernes`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg?a=&a=%20&a=AKTØR_ID&a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "attributter-case")
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            JSONAssert.assertEquals("""{ "aktør_id": "12345" }""", bodyAsText(), true)
+        }
+    }
+
+    @Test
+    fun `prosentenkodet query gir samme svar som ukodet`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg?a=akt%C3%B8r_id&a=arbeidsgivere%5B%5D.organisasjoner%5B%5D.organisasjonsnummer") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "prosentenkodet-query")
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            JSONAssert.assertEquals(
+                """{ "aktør_id": "12345", "arbeidsgivere": { "organisasjoner": [ { "organisasjonsnummer": "123456789" } ] } }""",
+                bodyAsText(),
+                true
+            )
+        }
+    }
+
+    @Test
+    fun `arbeidsgivere-endepunktet gir organisasjoner`() = app {
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/arbeidsgivere?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&org=981585216") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "arbeidsgivere-endepunkt")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("application/json; charset=UTF-8", contentType().toString())
+            JSONAssert.assertEquals(
+                """{ "arbeidsgivere": { "organisasjoner": [ { "organisasjonsnummer": "981585216" } ] } }""",
+                bodyAsText(),
+                true
+            )
+        }
+    }
+
+    @Test
+    fun `aareg som svarer 500 gir 500 etter retry`() = app {
+        val fnr = "01010010098"
+        val stub = wireMockServer.stubFor(
+            WireMock.get(WireMock.urlPathMatching("/arbeidsgiver-og-arbeidstaker-register-v2-mock/arbeidstaker/arbeidsforhold.*"))
+                .withHeader(NavHeaders.PersonIdent, WireMock.equalTo(fnr))
+                .atPriority(1)
+                .willReturn(WireMock.aResponse().withStatus(500).withBody("""{"feil":"aareg nede"}"""))
+        )
+        try {
+            val idToken = mockOAuth2Server.hentToken(subject = fnr)
+            client.get("/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "aareg-500")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.InternalServerError, status)
+                assertEquals("application/problem+json", contentType().toString())
+                assertFalse(bodyAsText().contains("aareg nede"), "Feilmeldingen fra aareg skal ikke lekke ut")
+            }
+            wireMockServer.verify(
+                3,
+                WireMock.getRequestedFor(WireMock.urlPathMatching("/arbeidsgiver-og-arbeidstaker-register-v2-mock/arbeidstaker/arbeidsforhold.*"))
+                    .withHeader(NavHeaders.PersonIdent, WireMock.equalTo(fnr))
+            )
+        } finally {
+            wireMockServer.removeStub(stub)
+        }
+    }
+
+    @Test
+    fun `ereg som svarer 500 gir organisasjon uten navn`() = app {
+        val stub = wireMockServer.stubFor(
+            WireMock.get(WireMock.urlPathMatching("/enhets-register-mock/organisasjon/123456789/noekkelinfo"))
+                .atPriority(1)
+                .willReturn(WireMock.aResponse().withStatus(500))
+        )
+        try {
+            val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+            client.get("/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer&a=arbeidsgivere[].organisasjoner[].navn") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "ereg-500")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.OK, status)
+                JSONAssert.assertEquals(
+                    """{ "arbeidsgivere": { "organisasjoner": [ { "organisasjonsnummer": "123456789" } ] } }""",
+                    bodyAsText(),
+                    true
+                )
+            }
+        } finally {
+            wireMockServer.removeStub(stub)
+        }
+    }
+
+    @Test
+    fun `PDL som returnerer errors gir 500`() = app {
+        val fnr = "01010010097"
+        val stub = wireMockServer.stubFor(
+            WireMock.post(WireMock.urlPathMatching("/graphql"))
+                .withRequestBody(WireMock.matchingJsonPath("$.variables.ident", WireMock.equalTo(fnr)))
+                .atPriority(1)
+                .willReturn(
+                    WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("""{ "errors": [ { "message": "pdl feil" } ], "data": null }""")
+                )
+        )
+        try {
+            val idToken = mockOAuth2Server.hentToken(subject = fnr)
+            client.get("/meg?a=aktør_id") {
+                header(HttpHeaders.Authorization, "Bearer $idToken")
+                header(HttpHeaders.XCorrelationId, "pdl-errors")
+                header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            }.apply {
+                assertEquals(HttpStatusCode.InternalServerError, status)
+                assertFalse(bodyAsText().contains("pdl feil"), "Feilmeldingen fra PDL skal ikke lekke ut")
+            }
+        } finally {
+            wireMockServer.removeStub(stub)
+        }
+    }
+
+    @Test
+    fun `utgående kall til PDL bærer Nav-Call-Id fra X-Correlation-ID`() = app {
+        wireMockServer.resetRequests()
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get("/meg?a=aktør_id") {
+            header(HttpHeaders.Authorization, "Bearer $idToken")
+            header(HttpHeaders.XCorrelationId, "call-id-propagering")
+            header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+        wireMockServer.verify(
+            WireMock.postRequestedFor(WireMock.urlPathMatching("/graphql"))
+                .withHeader(NavHeaders.CallId, WireMock.equalTo("call-id-propagering"))
+                .withHeader(NavHeaders.Tema, WireMock.equalTo("OMS"))
+        )
     }
 
     @Test
