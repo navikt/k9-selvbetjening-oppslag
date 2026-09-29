@@ -5,7 +5,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 object TokenUtils {
     fun MockOAuth2Server.hentToken(
         subject: String,
-        issuerId: String = "tokendings",
+        issuerId: String = "tokenx",
         audience: String = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
         claims: Map<String, String> = mapOf("acr" to "Level4")
     ): String {

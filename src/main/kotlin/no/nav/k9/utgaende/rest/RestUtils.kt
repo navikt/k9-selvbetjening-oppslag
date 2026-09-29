@@ -1,13 +1,23 @@
 package no.nav.k9.utgaende.rest
 
 import net.minidev.json.parser.JSONParser
-import no.nav.helse.dusseldorf.ktor.core.templateQueryParameters
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 
 private object RestUtils {
     internal val parser = JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE)
+}
+
+internal fun String.templateQueryParameters(): String {
+    val urlParts = split("?")
+    if (urlParts.size < 2) return this
+
+    val query = urlParts[1].split("&").joinToString("&") {
+        it.replaceAfter("=", "{${it.substringBefore("=")}}")
+    }
+
+    return urlParts[0] + "?" + query
 }
 
 internal fun Logger.restKall(url: String, urlTemplate: Boolean = false) = info("Utgående kall til ${if (urlTemplate) url.templateQueryParameters() else url}")

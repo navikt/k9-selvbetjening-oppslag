@@ -1,13 +1,5 @@
 # k9-selvbetjening-oppslag
 
-![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=ncloc)
-![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=alert_status)
-![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=coverage)
-![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=code_smells)
-![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=sqale_index)
-![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=duplicated_lines_density)
-![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_k9-selvbetjening-oppslag&metric=bugs)
-
 Oppslagstjeneste for selvbetjeningsløsninger for Kapittel 9-ytelser. Sykdom i familien.
 
 ## API
@@ -70,11 +62,18 @@ Correlation ID blir propagert videre, og har ikke nødvendigvis sitt opphav hos 
 
 Request ID blir ikke propagert videre, og skal ha sitt opphav hos konsumenten. Kan settes om `X-Request-ID`-header
 
-## Bygge lokalt
+## Teknologi
+Spring Boot 4 (Spring MVC), Kotlin, Gradle (Kotlin DSL) og Java 25.
+Innkommende autentisering og token exchange bruker `token-support` (TokenX for `/meg` og Azure AD for `/system/*`).
+
+## Bygge og teste lokalt
 Krever Java 25.
 
-Ved bygg kreves det at naisdevice er tilkoblet slik at introspect mot graphql kjører.
-Dette generer de nødvendige query klassene basert på `src/main/resources/pdl`.
+- Bygge og kjøre alle tester: `./gradlew build`
+- Bare tester: `./gradlew test`
+
+Testene starter appen med `@SpringBootTest`, `MockOAuth2Server` og WireMock, så de trenger ikke naisdevice.
+Avhengigheter fra GitHub Packages krever at Gradle-egenskapen `gpr.key` eller miljøvariabelen `GITHUB_TOKEN` er satt til et token med `read:packages`.
 
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.

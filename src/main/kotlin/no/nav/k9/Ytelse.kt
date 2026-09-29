@@ -1,6 +1,5 @@
 package no.nav.k9
 
-import io.ktor.server.application.*
 import no.nav.k9.utgaende.rest.NavHeaders.XK9Ytelse
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 
@@ -36,7 +35,7 @@ enum class Ytelse {
 }
 
 
-fun ApplicationCall.ytelseFraHeader(): Ytelse {
-    val ytelseFraHeader = request.headers[XK9Ytelse] ?: throw IllegalArgumentException("Mangler header $XK9Ytelse")
+fun ytelseFraHeader(header: String?): Ytelse {
+    val ytelseFraHeader = header ?: throw IllegalArgumentException("Mangler header $XK9Ytelse")
     return Ytelse.valueOf(ytelseFraHeader)
 }

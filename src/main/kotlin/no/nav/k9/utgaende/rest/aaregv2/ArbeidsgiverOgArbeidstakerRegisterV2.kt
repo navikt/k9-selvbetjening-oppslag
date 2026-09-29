@@ -1,21 +1,17 @@
 package no.nav.k9.utgaende.rest.aaregv2
 
-import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
-import com.github.kittinunf.fuel.httpGet
-import io.ktor.http.*
 import kotlinx.coroutines.currentCoroutineContext
-import no.nav.helse.dusseldorf.ktor.client.buildURL
-import no.nav.helse.dusseldorf.ktor.core.Retry
-import no.nav.helse.dusseldorf.ktor.metrics.Operation
-import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.k9.inngaende.correlationId
-import no.nav.k9.inngaende.idToken
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.utgaende.auth.AaregAuthService
 import no.nav.k9.utgaende.rest.*
+import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.MediaType
+import org.springframework.retry.support.RetryTemplate
+import org.springframework.web.client.RestClient
 import java.net.URI
-import java.time.Duration
 import java.time.LocalDate
 
 /**
@@ -24,17 +20,21 @@ import java.time.LocalDate
 
 internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
     baseUrl: URI,
-    private val cachedAccessTokenClient: CachedAccessTokenClient,
-    private val aaregTokenxAudience: String
+    restClientBuilder: RestClient.Builder,
+    private val retryTemplate: RetryTemplate,
+    private val aaregAuthService: AaregAuthService,
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
-    private val arbeidsforholdPerArbeidstakerUrl = Url.buildURL(
-        baseUrl = baseUrl,
-        pathParts = listOf("arbeidstaker", "arbeidsforhold"),
-        queryParameters = mapOf(
-            "arbeidsforholdtype" to listOf(ArbeidsforholdType.values().joinToString(",") { it.type}),
-            "arbeidsforholdstatus" to listOf(ArbeidsforholdStatus.somQueryParameters())
-        )
+    private companion object {
+        private val logger: Logger = LoggerFactory.getLogger(ArbeidsgiverOgArbeidstakerRegisterV2::class.java)
+        private const val ARBEIDSFORHOLD_PATH =
+            "/arbeidstaker/arbeidsforhold?arbeidsforholdtype={arbeidsforholdtype}&arbeidsforholdstatus={arbeidsforholdstatus}"
+    }
+
+    private val baseUrl = baseUrl.toString().trimEnd('/')
+    private val restClient = restClientBuilder.baseUrl(this.baseUrl).build()
+    private val queryVariabler = mapOf(
+        "arbeidsforholdtype" to ArbeidsforholdType.values().joinToString(",") { it.type },
+        "arbeidsforholdstatus" to ArbeidsforholdStatus.somQueryParameters()
     )
 
     internal suspend fun arbeidsgivere(
@@ -43,42 +43,22 @@ internal class ArbeidsgiverOgArbeidstakerRegisterV2 (
         tilOgMed: LocalDate,
         inkluderAlleAnsettelsesperioder: Boolean
     ) : Arbeidsgivere{
-        val exchangeToken = cachedAccessTokenClient.getOnBehalfOfAccessToken(
-            scopes = setOf(aaregTokenxAudience),
-            onBehalfOf = currentCoroutineContext().idToken().value
-        )
+        val exchangeToken = aaregAuthService.borgerToken()
+        val callId = currentCoroutineContext().correlationId().value
 
-        val httpRequest = arbeidsforholdPerArbeidstakerUrl.toString()
-            .httpGet()
-            .header(
-                HttpHeaders.Authorization to "Bearer ${exchangeToken.token}",
-                HttpHeaders.Accept to "application/json",
-                NavHeaders.CallId to currentCoroutineContext().correlationId().value,
-                NavHeaders.PersonIdent to ident.value
-            )
+        logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH", true)
 
-        logger.restKall(arbeidsforholdPerArbeidstakerUrl.toString(), true)
-
-        val json = Retry.retry(
-            operation = "hente-arbeidsforhold-per-arbeidstaker",
-            initialDelay = Duration.ofMillis(200),
-            factor = 2.0,
-            logger = logger
-        ) {
-            val (request,_, result) = Operation.monitored(
-                app = NavHeaderValues.ConsumerId,
-                operation = "hente-arbeidsforhold-per-arbeidstaker",
-                resultResolver = { 200 == it.second.statusCode }
-            ) { httpRequest.awaitStringResponseResult() }
-
-            result.fold(
-                { success -> success.somJsonArray() },
-                { error ->
-                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
-                    logger.error(error.toString())
-                    throw IllegalStateException("Feil ved henting av arbeidsforhold per arbeidstaker")
-                }
-            )
+        val json = retryTemplate.execute<JSONArray, RuntimeException> {
+            restClient.get()
+                .uri(ARBEIDSFORHOLD_PATH, queryVariabler)
+                .headers { it.setBearerAuth(exchangeToken) }
+                .accept(MediaType.APPLICATION_JSON)
+                .header(NavHeaders.CallId, callId)
+                .header(NavHeaders.PersonIdent, ident.value)
+                .retrieve()
+                .body(String::class.java)
+                ?.somJsonArray()
+                ?: throw IllegalStateException("Tom respons ved henting av arbeidsforhold per arbeidstaker")
         }
 
         logger.logResponse(json)

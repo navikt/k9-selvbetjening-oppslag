@@ -1,8 +1,8 @@
 version: 2
 registries:
-  dusseldorf-ktor:
+  github-packages:
     type: maven-repository
-    url: https://maven.pkg.github.com/navikt/dusseldorf-ktor
+    url: https://maven.pkg.github.com/navikt/sif-tilgangskontroll
     username: x-access-token
     password: ${{secrets.READER_TOKEN}}
 
@@ -31,19 +31,25 @@ updates:
       exclude:
         - "no.nav.*"
     registries:
-      - dusseldorf-ktor
+      - github-packages
+    ignore:
+      # Versjonen følger sif-tilgangskontroll `core`, som er bygd mot graphql-kotlin 8.x
+      - dependency-name: "com.expediagroup:graphql-kotlin-*"
+        update-types: ["version-update:semver-major"]
     groups:
-      ktor-deps:
+      spring-deps:
         patterns:
-          - "*ktor*"
-          - "*dusseldorf*"
+          - "org.springframework*"
+      nav-deps:
+        patterns:
+          - "no.nav*"
       gradle:
         patterns:
           - "*"
         exclude-patterns:
-          - "*ktor*"
-          - "*dusseldorf*"
-        
+          - "org.springframework*"
+          - "no.nav*"
+
   - package-ecosystem: docker
     directory: "/"
     schedule:

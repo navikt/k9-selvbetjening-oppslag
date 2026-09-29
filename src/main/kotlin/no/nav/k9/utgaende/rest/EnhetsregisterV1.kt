@@ -1,66 +1,43 @@
 package no.nav.k9.utgaende.rest
 
-import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
-import com.github.kittinunf.fuel.httpGet
-import io.ktor.http.*
 import kotlinx.coroutines.currentCoroutineContext
-import no.nav.helse.dusseldorf.ktor.client.buildURL
-import no.nav.helse.dusseldorf.ktor.core.Retry
-import no.nav.helse.dusseldorf.ktor.metrics.Operation
 import no.nav.k9.inngaende.correlationId
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.MediaType
+import org.springframework.retry.support.RetryTemplate
+import org.springframework.web.client.RestClient
 import java.net.URI
-import java.time.Duration
 import java.time.LocalDate
 
 internal class EnhetsregisterV1(
-    private val baseUrl: URI
+    private val baseUrl: URI,
+    restClientBuilder: RestClient.Builder,
+    private val retryTemplate: RetryTemplate,
 ) {
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(EnhetsregisterV1::class.java)
-        private const val Operation_HenteOrganisasjonNøkkelinfo = "hente-organisasjon-noekkelinfo"
+        private const val NØKKELINFO_PATH = "/organisasjon/{organisasjonsnummer}/noekkelinfo"
     }
 
-    private fun nøkkelInfoUrl(organisasjonsnummer: String) = Url.buildURL(
-        baseUrl = baseUrl,
-        pathParts = listOf("organisasjon", organisasjonsnummer, "noekkelinfo")
-    ).toString()
-
+    private val restClient = restClientBuilder.baseUrl(baseUrl.toString().trimEnd('/')).build()
 
     internal suspend fun nøkkelinfo(organisasjonsnummer: String) : Enhet {
-        val url = nøkkelInfoUrl(organisasjonsnummer)
-        val httpRequest = url
-            .httpGet()
-            .header(
-                HttpHeaders.Accept to "application/json",
-                NavHeaders.ConsumerId to NavHeaderValues.ConsumerId,
-                NavHeaders.CallId to currentCoroutineContext().correlationId().value
-            )
+        val callId = currentCoroutineContext().correlationId().value
 
-        logger.restKall(url.replace(organisasjonsnummer, "{organisasjonsnummer}"))
+        logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")
 
-        val json = Retry.retry(
-            operation = Operation_HenteOrganisasjonNøkkelinfo,
-            initialDelay = Duration.ofMillis(200),
-            factor = 2.0,
-            logger = logger
-        ) {
-            val (request,_, result) = Operation.monitored(
-                app = NavHeaderValues.ConsumerId,
-                operation = Operation_HenteOrganisasjonNøkkelinfo,
-                resultResolver = { 200 == it.second.statusCode }
-            ) { httpRequest.awaitStringResponseResult() }
-
-            result.fold(
-                { success -> JSONObject(success) },
-                { error ->
-                    logger.error("Error response = '${error.response.body().asString("text/plain")}' fra '${request.url}'")
-                    logger.error(error.toString())
-                    throw IllegalStateException("Feil ved henting av Nøkkelinfo for organisasjon ${organisasjonsnummer}")
-                }
-            )
+        val json = retryTemplate.execute<JSONObject, RuntimeException> {
+            val response = restClient.get()
+                .uri(NØKKELINFO_PATH, organisasjonsnummer)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(NavHeaders.ConsumerId, NavHeaderValues.ConsumerId)
+                .header(NavHeaders.CallId, callId)
+                .retrieve()
+                .body(String::class.java)
+                ?: throw IllegalStateException("Tom respons ved henting av Nøkkelinfo for organisasjon $organisasjonsnummer")
+            JSONObject(response)
         }
 
         logger.logResponse(json)
