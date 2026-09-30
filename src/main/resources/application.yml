@@ -11,8 +11,8 @@ spring:
   rest:
     retry:
       multiplier: 2
-      initialDelay: 1000
-      maxDelay: 4000
+      initialDelay: 200
+      maxDelay: 1000
       maxRetries: 2
   lifecycle:
     timeout-per-shutdown-phase: 20s

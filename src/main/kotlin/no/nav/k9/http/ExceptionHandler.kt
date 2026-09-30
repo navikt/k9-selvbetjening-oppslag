@@ -29,7 +29,7 @@ internal class ExceptionHandler : ResponseEntityExceptionHandler() {
         log.error("Uventet feil ved ${request.request.method} ${request.request.requestURI}", exception)
         return request.respondProblemDetails(
             status = HttpStatus.INTERNAL_SERVER_ERROR,
-            title = "Et uventet feil har oppstått",
+            title = "En uventet feil har oppstått",
             type = URI("/problem-details/internal-server-error"),
             detail = "Det oppstod en uventet feil ved behandling av forespørselen."
         )
@@ -72,7 +72,7 @@ internal class ExceptionHandler : ResponseEntityExceptionHandler() {
     ): ProblemDetail {
         val problemDetails = request.respondProblemDetails(
             status = HttpStatus.FORBIDDEN,
-            title = "Ikke uautorisert",
+            title = "Ikke autorisert",
             type = URI("/problem-details/uautorisert-forespørsel"),
             detail = exception.message ?: ""
         )

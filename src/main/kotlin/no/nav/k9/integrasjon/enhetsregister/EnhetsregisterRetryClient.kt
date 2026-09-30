@@ -7,15 +7,11 @@ import org.springframework.http.MediaType
 import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClient
 
 @Component
 @Retryable(
-    excludes = [
-        ResourceAccessException::class,
-        HttpClientErrorException::class,
-    ],
+    excludes = [HttpClientErrorException::class],
     maxRetriesString = "\${spring.rest.retry.maxRetries}",
     delayString = "\${spring.rest.retry.initialDelay}",
     multiplierString = "\${spring.rest.retry.multiplier}",
