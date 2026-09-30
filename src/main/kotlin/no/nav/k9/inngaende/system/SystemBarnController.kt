@@ -1,6 +1,5 @@
 package no.nav.k9.inngaende.system
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.k9.config.Issuers
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.integrasjon.common.NavHeaders
@@ -17,16 +16,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequiredIssuers(ProtectedWithClaims(issuer = Issuers.AZURE, claimMap = ["roles=access_as_application"]))
 internal class SystemBarnController(
     private val systemOppslagService: SystemOppslagService,
-    private val objectMapper: ObjectMapper,
 ) {
-    // Body leses som streng og parses her, slik at tom eller ugyldig body gir 500 som før (ikke Springs 400).
     @PostMapping("/system/hent-barn")
     fun hentBarn(
         @RequestHeader(NavHeaders.XK9Ytelse, required = false) ytelseHeader: String?,
-        @RequestBody(required = false) body: String?,
+        @RequestBody forespørsel: HentBarnForespørsel,
     ): List<SystemBarnResponse> {
         val ytelse = ytelseFraHeader(ytelseHeader)
-        val forespørsel = objectMapper.readValue(body ?: "", HentBarnForespørsel::class.java)
 
         val resultat = systemOppslagService.hentBarn(
             identer = forespørsel.identer,

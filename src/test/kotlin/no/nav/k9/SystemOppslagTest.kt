@@ -227,7 +227,7 @@ class SystemOppslagTest : ApplicationTestBase() {
     }
 
     @Test
-    fun `system med ugyldig eller tom body gir 500`() {
+    fun `system med ugyldig eller tom body gir 400`() {
         listOf("ikke json", "", "{}").forEach { body ->
             client.post().uri("/system/hent-identer")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer ${azureToken()}")
@@ -235,7 +235,7 @@ class SystemOppslagTest : ApplicationTestBase() {
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(body)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
                 .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
         }
     }

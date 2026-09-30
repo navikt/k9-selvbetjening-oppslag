@@ -1,6 +1,5 @@
 package no.nav.k9.inngaende.system
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.k9.config.Issuers
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -16,15 +15,11 @@ import org.springframework.web.bind.annotation.RestController
 @RequiredIssuers(ProtectedWithClaims(issuer = Issuers.AZURE, claimMap = ["roles=access_as_application"]))
 internal class SystemIdenterController(
     private val systemOppslagService: SystemOppslagService,
-    private val objectMapper: ObjectMapper,
 ) {
-    // Body leses som streng og parses her, slik at tom eller ugyldig body gir 500 som før (ikke Springs 400).
     @PostMapping("/system/hent-identer")
     fun hentIdenter(
-        @RequestBody(required = false) body: String?,
+        @RequestBody forespørsel: HentIdenterForespørsel,
     ): List<IdenterBolkResponse> {
-        val forespørsel = objectMapper.readValue(body ?: "", HentIdenterForespørsel::class.java)
-
         val resultat = systemOppslagService.hentIdenter(
             identer = forespørsel.identer,
             identGrupper = forespørsel.identGrupper
