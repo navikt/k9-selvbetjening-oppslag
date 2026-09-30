@@ -18,12 +18,12 @@ class SystemOppslagService(
         private val logger = LoggerFactory.getLogger(SystemOppslagService::class.java)
     }
 
-    suspend fun hentIdenter(identer: List<String>, identGrupper: List<IdentGruppe>): List<HentIdenterBolkResult> {
+    fun hentIdenter(identer: List<String>, identGrupper: List<IdentGruppe>): List<HentIdenterBolkResult> {
         logger.info("Henter identer med systemkall.")
         return pdlProxyService.hentIdenter(identer, identGrupper)
     }
 
-    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<SystemoppslagBarn> {
+    fun hentBarn(identer: List<String>, ytelse: Ytelse): List<SystemoppslagBarn> {
         logger.info("Henter barn med systemkall.")
         return pdlProxyService.hentBarn(identer, ytelse).map { br: BarnResponse ->
             val aktørId = pdlProxyService.aktørId(

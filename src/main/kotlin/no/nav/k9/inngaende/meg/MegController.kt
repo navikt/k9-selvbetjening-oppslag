@@ -1,7 +1,6 @@
 package no.nav.k9.inngaende.meg
 
 import jakarta.servlet.http.HttpServletRequest
-import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.INKLUDER_ALLE_ANSETTELSESPERIODER
@@ -22,10 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * Controllerne kjører på request-tråden, og domenet kalles med runBlocking uten å bytte dispatcher.
- * Tokenkonteksten til token-support ligger på tråden, og token-client-spring trenger den for token exchange.
- */
 @RestController
 @RequiredIssuers(
     ProtectedWithClaims(issuer = Issuers.TOKEN_X, claimMap = ["acr=Level4", "acr=idporten-loa-high"], combineWithOr = true)
@@ -48,16 +43,14 @@ internal class MegController(
         val inkluderAlleAnsettelsesperioder = request.getParameter(INKLUDER_ALLE_ANSETTELSESPERIODER)?.toBoolean() == true
         val ident = Ident(tokenValidationContextHolder.personIdent())
 
-        val oppslagResultat = runBlocking {
-            oppslagService.oppslag(
-                ident = ident,
-                attributter = attributter,
-                fraOgMed = fraOgMed,
-                tilOgMed = tilOgMed,
-                inkluderAlleAnsettelsesperioder = inkluderAlleAnsettelsesperioder,
-                ytelse = ytelse
-            )
-        }
+        val oppslagResultat = oppslagService.oppslag(
+            ident = ident,
+            attributter = attributter,
+            fraOgMed = fraOgMed,
+            tilOgMed = tilOgMed,
+            inkluderAlleAnsettelsesperioder = inkluderAlleAnsettelsesperioder,
+            ytelse = ytelse
+        )
         return json(oppslagResultat.somResponse(attributter))
     }
 }

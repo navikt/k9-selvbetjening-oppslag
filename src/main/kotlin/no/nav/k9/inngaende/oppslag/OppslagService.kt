@@ -41,7 +41,7 @@ internal class OppslagService(
         )
     }
 
-    internal suspend fun oppslag(
+    internal fun oppslag(
         ident: Ident,
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
@@ -81,7 +81,7 @@ internal class OppslagService(
         )
     }
 
-    internal suspend fun arbeidsgivere(
+    internal fun arbeidsgivere(
         attributter: Set<Attributt>,
         organisasjoner: Set<String>,
     ): OppslagResultat {

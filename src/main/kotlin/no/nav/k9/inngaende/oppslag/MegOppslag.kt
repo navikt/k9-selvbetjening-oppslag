@@ -11,7 +11,7 @@ internal class MegOppslag(
     private val pdlProxyService: PdlProxyService,
 ) {
 
-    internal suspend fun meg(
+    internal fun meg(
         ident: Ident,
         attributter: Set<Attributt>,
         ytelse: Ytelse,

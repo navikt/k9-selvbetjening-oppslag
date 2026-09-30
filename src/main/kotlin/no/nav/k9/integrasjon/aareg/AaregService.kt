@@ -43,7 +43,7 @@ internal class AaregService(
         "arbeidsforholdstatus" to ArbeidsforholdStatus.somQueryParameters()
     )
 
-    internal suspend fun arbeidsgivere(
+    internal fun arbeidsgivere(
         ident: Ident,
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,

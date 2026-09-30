@@ -30,7 +30,7 @@ class PdlProxyService(
     }
 
     @Throws(TilgangNektetException::class)
-    internal suspend fun person(ytelse: Ytelse): PdlPerson {
+    internal fun person(ytelse: Ytelse): PdlPerson {
         val exchangeToken = pdlAuthService.borgerToken()
 
         val callId = currentCorrelationId().value
@@ -49,7 +49,7 @@ class PdlProxyService(
         }
     }
 
-    internal suspend fun barn(
+    internal fun barn(
         identer: List<Ident>,
         ytelse: Ytelse,
     ): List<PdlBarn> {
@@ -84,7 +84,7 @@ class PdlProxyService(
         return barn
     }
 
-    internal suspend fun hentIdenter(
+    internal fun hentIdenter(
         identer: List<String>,
         identGrupper: List<IdentGruppe>,
     ): List<HentIdenterBolkResult> {
@@ -101,7 +101,7 @@ class PdlProxyService(
         return identerBolkResults
     }
 
-    internal suspend fun hentBarn(
+    internal fun hentBarn(
         identer: List<String>,
         ytelse: Ytelse,
     ): List<BarnResponse> {
@@ -118,7 +118,7 @@ class PdlProxyService(
         return barn
     }
 
-    internal suspend fun aktørId(
+    internal fun aktørId(
         ident: Ident,
         attributter: Set<Attributt>,
         system: Boolean = false,

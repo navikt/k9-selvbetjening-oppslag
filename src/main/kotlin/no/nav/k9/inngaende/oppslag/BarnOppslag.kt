@@ -9,7 +9,7 @@ internal class BarnOppslag(
     private val pdlProxyService: PdlProxyService,
 ) {
 
-    internal suspend fun barn(
+    internal fun barn(
         barnasIdenter: List<Ident>,
         attributter: Set<Attributt>,
         ytelse: Ytelse,

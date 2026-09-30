@@ -30,7 +30,7 @@ internal class EnhetsregisterService(
         )
     }
 
-    internal suspend fun enhet(
+    internal fun enhet(
         organisasjonsnummer: String,
         attributter: Set<Attributt>
     ): Enhet? {
@@ -38,7 +38,7 @@ internal class EnhetsregisterService(
         return nøkkelinfo(organisasjonsnummer)
     }
 
-    private suspend fun nøkkelinfo(organisasjonsnummer: String): Enhet {
+    private fun nøkkelinfo(organisasjonsnummer: String): Enhet {
         val callId = currentCorrelationId().value
 
         logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")

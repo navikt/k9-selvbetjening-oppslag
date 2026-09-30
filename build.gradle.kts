@@ -54,8 +54,6 @@ dependencies {
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
 
     // Diverse
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")

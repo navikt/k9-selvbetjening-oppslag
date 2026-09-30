@@ -5,7 +5,7 @@ import org.springframework.web.context.request.ServletRequestAttributes
 
 /**
  * Correlation-id for requesten som behandles på denne tråden. Verdien er validert av CallIdInterceptor.
- * Fungerer i suspending functions fordi controllerne kaller domenet med runBlocking på request-tråden.
+ * Leser fra tråden requesten kjører på, som også token-client-spring gjør for token exchange.
  */
 internal fun currentCorrelationId(): CorrelationId {
     val request = (RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes)?.request

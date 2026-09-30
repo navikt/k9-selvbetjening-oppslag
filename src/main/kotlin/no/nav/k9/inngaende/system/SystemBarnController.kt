@@ -1,7 +1,6 @@
 package no.nav.k9.inngaende.system
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
@@ -15,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * Kun for systemkall (azure). Se MegController om hvorfor runBlocking brukes uten å bytte dispatcher.
- */
+// Kun for systemkall (azure).
 @RestController
 @RequiredIssuers(ProtectedWithClaims(issuer = Issuers.AZURE, claimMap = ["roles=access_as_application"]))
 internal class SystemBarnController(
@@ -33,12 +30,10 @@ internal class SystemBarnController(
         val ytelse = ytelseFraHeader(ytelseHeader)
         val forespørsel = objectMapper.readValue(body ?: "", HentBarnForespørsel::class.java)
 
-        val resultat = runBlocking {
-            systemOppslagService.hentBarn(
-                identer = forespørsel.identer,
-                ytelse = ytelse
-            )
-        }
+        val resultat = systemOppslagService.hentBarn(
+            identer = forespørsel.identer,
+            ytelse = ytelse
+        )
         return json(resultat.map { it.somResponse() })
     }
 }

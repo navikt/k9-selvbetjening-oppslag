@@ -8,7 +8,7 @@ internal class ArbeidsgivereOppslag(
     private val enhetsregisterService: EnhetsregisterService,
 ) {
 
-    internal suspend fun organisasjoner(
+    internal fun organisasjoner(
         attributter: Set<Attributt>,
         arbeidsgivere: Arbeidsgivere?,
     ): Set<ArbeidsgiverOrganisasjon>? {
@@ -29,7 +29,7 @@ internal class ArbeidsgivereOppslag(
 
     }
 
-    suspend fun hentNavn(
+    fun hentNavn(
         organisasjonsnummer: String,
         attributter: Set<Attributt>,
     ) = try {
