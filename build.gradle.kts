@@ -20,7 +20,7 @@ val mockOauth2ServerVersion = "6.0.2"
 val mockkVersion = "1.14.11"
 val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
-val wiremockVersion = "3.13.2"
+val wiremockSpringVersion = "4.2.2"
 
 configurations.all {
     resolutionStrategy {
@@ -65,7 +65,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
-    testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
+    testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")

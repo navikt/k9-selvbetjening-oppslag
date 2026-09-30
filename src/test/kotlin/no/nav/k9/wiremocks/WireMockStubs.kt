@@ -6,7 +6,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
@@ -15,21 +14,6 @@ private const val arbeidsgiverOgArbeidstakerRegisterV2ServerPath = "/arbeidsgive
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val pdlServerPath = "/graphql"
 private const val AUTHORIZATION = "Authorization"
-
-internal fun k9SelvbetjeningOppslagWireMockServer(): WireMockServer = WireMockServer(
-    options()
-        .dynamicPort()
-        .extensions(
-            PdlAktoerIdResponseTransformer(),
-            PDLHentPersonBolkResponseTransformer(),
-            PDLPersonResponseTransformer(),
-            PDLHentIdentBolkResponseTransformer(),
-            ArbeidstakerResponseTransformer(),
-            ArbeidstakerResponseV2Transformer(),
-            EnhetsregResponseTransformer(),
-            BrregProxyV1ResponseTransformer()
-        )
-).apply { start() }
 
 internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMockServer {
     var behandlingsnummer = ""
@@ -96,10 +80,3 @@ internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
     )
     return this
 }
-
-
-internal fun WireMockServer.getArbeidsgiverOgArbeidstakerV2RegisterUrl() =
-    baseUrl() + arbeidsgiverOgArbeidstakerRegisterV2ServerPath
-
-internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
-internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath
