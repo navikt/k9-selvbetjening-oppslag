@@ -71,4 +71,25 @@ class UtgåendeKallTest : ApplicationTestBase() {
         val claims = com.nimbusds.jwt.SignedJWT.parse(kall.single().getHeader(HttpHeaders.AUTHORIZATION).removePrefix("Bearer ")).jwtClaimsSet
         assertEquals(listOf("dev-fss.arbeidsforhold.aareg-services-nais"), claims.audience)
     }
+
+    @Test
+    fun `utgående kall til aareg har query-parametre for type og status`() {
+        wireMockServer.resetRequests()
+        val idToken = mockOAuth2Server.hentToken(subject = PERSON_1_MED_BARN)
+        client.get().uri("/meg?a=arbeidsgivere[].organisasjoner[].organisasjonsnummer")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $idToken")
+            .header(X_CORRELATION_ID, "query-aareg")
+            .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.OK)
+
+        val kall = wireMockServer.findAll(
+            WireMock.getRequestedFor(WireMock.urlPathMatching("/arbeidsgiver-og-arbeidstaker-register-v2-mock/arbeidstaker/arbeidsforhold.*"))
+        ).single()
+        assertEquals(
+            "ordinaertArbeidsforhold,maritimtArbeidsforhold,forenkletOppgjoersordning,frilanserOppdragstakerHonorarPersonerMm",
+            kall.queryParameter("arbeidsforholdtype").firstValue()
+        )
+        assertEquals("AKTIV,AVSLUTTET,FREMTIDIG", kall.queryParameter("arbeidsforholdstatus").firstValue())
+    }
 }

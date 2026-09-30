@@ -25,8 +25,6 @@ internal class AaregService(
 ) {
     private companion object {
         private val logger: Logger = LoggerFactory.getLogger(AaregService::class.java)
-        private const val ARBEIDSFORHOLD_PATH =
-            "/arbeidstaker/arbeidsforhold?arbeidsforholdtype={arbeidsforholdtype}&arbeidsforholdstatus={arbeidsforholdstatus}"
 
         private val støttedeAttributter = setOf(
             Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer,
@@ -38,10 +36,6 @@ internal class AaregService(
     }
 
     private val baseUrl = baseUrl.toString().trimEnd('/')
-    private val queryVariabler = mapOf(
-        "arbeidsforholdtype" to ArbeidsforholdType.values().joinToString(",") { it.type },
-        "arbeidsforholdstatus" to ArbeidsforholdStatus.somQueryParameters()
-    )
 
     internal fun arbeidsgivere(
         ident: Ident,
@@ -55,9 +49,9 @@ internal class AaregService(
         val exchangeToken = aaregAuthService.borgerToken()
         val callId = currentCorrelationId().value
 
-        logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH", true)
+        logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH")
 
-        val respons = aaregRetryClient.arbeidsforhold(ARBEIDSFORHOLD_PATH, queryVariabler, exchangeToken, callId, ident)
+        val respons = aaregRetryClient.arbeidsforhold(exchangeToken, callId, ident)
         // Aareg kan returnere duplikate nøkler. Jackson bruker da den siste verdien i stedet for å feile.
         val json = objectMapper.readTree(respons)
         check(json.isArray) { "Forventet en liste med arbeidsforhold fra aareg." }
@@ -82,7 +76,11 @@ enum class ArbeidsforholdType(val type: String){
     ORDINÆRT("ordinaertArbeidsforhold"),
     MARITIMT("maritimtArbeidsforhold"),
     FORENKLET("forenkletOppgjoersordning"),
-    FRILANS("frilanserOppdragstakerHonorarPersonerMm")
+    FRILANS("frilanserOppdragstakerHonorarPersonerMm");
+
+    companion object {
+        internal fun somQueryParameters() = entries.joinToString(",") { it.type }
+    }
 }
 
 

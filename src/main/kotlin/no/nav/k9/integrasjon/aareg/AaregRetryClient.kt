@@ -10,6 +10,8 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClient
 
+internal const val ARBEIDSFORHOLD_PATH = "/arbeidstaker/arbeidsforhold"
+
 @Component
 @Retryable(
     excludes = [
@@ -25,14 +27,17 @@ internal class AaregRetryClient(
     @Qualifier("aaregKlient") private val restClient: RestClient,
 ) {
     fun arbeidsforhold(
-        path: String,
-        queryVariabler: Map<String, String>,
         token: String,
         callId: String,
         ident: Ident,
     ): String =
         restClient.get()
-            .uri(path, queryVariabler)
+            .uri {
+                it.path(ARBEIDSFORHOLD_PATH)
+                    .queryParam("arbeidsforholdtype", ArbeidsforholdType.somQueryParameters())
+                    .queryParam("arbeidsforholdstatus", ArbeidsforholdStatus.somQueryParameters())
+                    .build()
+            }
             .headers { it.setBearerAuth(token) }
             .accept(MediaType.APPLICATION_JSON)
             .header(NavHeaders.CallId, callId)
