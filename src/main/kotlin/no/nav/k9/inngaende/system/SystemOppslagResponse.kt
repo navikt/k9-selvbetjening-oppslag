@@ -1,4 +1,4 @@
-package no.nav.k9.inngaende
+package no.nav.k9.inngaende.system
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.k9.inngaende.oppslag.Ident
