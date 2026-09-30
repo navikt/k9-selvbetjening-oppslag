@@ -3,9 +3,6 @@ package no.nav.k9.inngaende.system
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.CoroutineRequestContext
-import no.nav.k9.inngaende.CorrelationId
-import no.nav.k9.inngaende.CorrelationIdVerifier
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.k9.integrasjon.common.NavHeaders
@@ -30,14 +27,13 @@ internal class SystemBarnController(
     // Body leses som streng og parses her, slik at tom eller ugyldig body gir 500 som før (ikke Springs 400).
     @PostMapping("/system/hent-barn")
     fun hentBarn(
-        @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
         @RequestHeader(NavHeaders.XK9Ytelse, required = false) ytelseHeader: String?,
         @RequestBody(required = false) body: String?,
     ): ResponseEntity<List<SystemBarnResponse>> {
         val ytelse = ytelseFraHeader(ytelseHeader)
         val forespørsel = objectMapper.readValue(body ?: "", HentBarnForespørsel::class.java)
 
-        val resultat = runBlocking(CoroutineRequestContext(CorrelationId(correlationId))) {
+        val resultat = runBlocking {
             systemOppslagService.hentBarn(
                 identer = forespørsel.identer,
                 ytelse = ytelse

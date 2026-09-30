@@ -1,8 +1,7 @@
 package no.nav.k9.integrasjon.aareg
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.currentCoroutineContext
-import no.nav.k9.inngaende.correlationId
+import no.nav.k9.inngaende.currentCorrelationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.integrasjon.common.logResponse
@@ -54,7 +53,7 @@ internal class AaregService(
         if (!attributter.any { it in støttedeAttributter }) return null
 
         val exchangeToken = aaregAuthService.borgerToken()
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
 
         logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH", true)
 

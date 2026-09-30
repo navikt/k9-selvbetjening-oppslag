@@ -3,9 +3,6 @@ package no.nav.k9.inngaende.arbeidsgivere
 import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.CoroutineRequestContext
-import no.nav.k9.inngaende.CorrelationId
-import no.nav.k9.inngaende.CorrelationIdVerifier
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.OppslagResponse
 import no.nav.k9.inngaende.oppslag.OppslagService
@@ -34,13 +31,12 @@ internal class ArbeidsgivereController(
     @GetMapping("/arbeidsgivere")
     fun arbeidsgivere(
         request: HttpServletRequest,
-        @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
     ): ResponseEntity<OppslagResponse> {
         val attributter = request.hentAttributter()
         if (attributter.isEmpty()) return json(OppslagResponse())
 
         val organisasjoner = request.hentOrganisasjoner()
-        val oppslagResultat = runBlocking(CoroutineRequestContext(CorrelationId(correlationId))) {
+        val oppslagResultat = runBlocking {
             oppslagService.arbeidsgivere(
                 attributter = attributter,
                 organisasjoner = organisasjoner

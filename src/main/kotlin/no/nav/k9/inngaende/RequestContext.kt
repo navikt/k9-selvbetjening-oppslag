@@ -1,17 +1,16 @@
 package no.nav.k9.inngaende
 
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
 
-// For bruk i suspending functions
-// https://blog.tpersson.io/2018/04/22/emulating-request-scoped-objects-with-kotlin-coroutines/
-internal class CoroutineRequestContext(
-    internal val correlationId: CorrelationId,
-) : AbstractCoroutineContextElement(Key) {
-    internal companion object Key : CoroutineContext.Key<CoroutineRequestContext>
+/**
+ * Correlation-id for requesten som behandles på denne tråden. Verdien er validert av CallIdInterceptor.
+ * Fungerer i suspending functions fordi controllerne kaller domenet med runBlocking på request-tråden.
+ */
+internal fun currentCorrelationId(): CorrelationId {
+    val request = (RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes)?.request
+        ?: throw IllegalStateException("Ingen aktiv request.")
+    val header = request.getHeader(CorrelationIdVerifier.HEADER)
+        ?: throw IllegalStateException("Request mangler ${CorrelationIdVerifier.HEADER}.")
+    return CorrelationId(header.trim())
 }
-
-private fun CoroutineContext.requestContext() =
-    get(CoroutineRequestContext.Key) ?: throw IllegalStateException("Request Context ikke satt.")
-
-internal fun CoroutineContext.correlationId() = requestContext().correlationId

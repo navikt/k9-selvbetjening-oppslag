@@ -2,8 +2,7 @@ package no.nav.k9.integrasjon.enhetsregister
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.currentCoroutineContext
-import no.nav.k9.inngaende.correlationId
+import no.nav.k9.inngaende.currentCorrelationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.integrasjon.common.getStringOrNull
 import no.nav.k9.integrasjon.common.logResponse
@@ -40,7 +39,7 @@ internal class EnhetsregisterService(
     }
 
     private suspend fun nøkkelinfo(organisasjonsnummer: String): Enhet {
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
 
         logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")
 

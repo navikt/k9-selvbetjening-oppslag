@@ -3,9 +3,6 @@ package no.nav.k9.inngaende.meg
 import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.CoroutineRequestContext
-import no.nav.k9.inngaende.CorrelationId
-import no.nav.k9.inngaende.CorrelationIdVerifier
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.INKLUDER_ALLE_ANSETTELSESPERIODER
 import no.nav.k9.inngaende.oppslag.Ident
@@ -41,7 +38,6 @@ internal class MegController(
     @GetMapping("/meg")
     fun meg(
         request: HttpServletRequest,
-        @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
         @RequestHeader(NavHeaders.XK9Ytelse, required = false) ytelseHeader: String?,
     ): ResponseEntity<OppslagResponse> {
         val attributter = request.hentAttributter()
@@ -52,7 +48,7 @@ internal class MegController(
         val inkluderAlleAnsettelsesperioder = request.getParameter(INKLUDER_ALLE_ANSETTELSESPERIODER)?.toBoolean() == true
         val ident = Ident(tokenValidationContextHolder.personIdent())
 
-        val oppslagResultat = runBlocking(CoroutineRequestContext(CorrelationId(correlationId))) {
+        val oppslagResultat = runBlocking {
             oppslagService.oppslag(
                 ident = ident,
                 attributter = attributter,

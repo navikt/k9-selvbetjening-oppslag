@@ -3,9 +3,6 @@ package no.nav.k9.inngaende.system
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.CoroutineRequestContext
-import no.nav.k9.inngaende.CorrelationId
-import no.nav.k9.inngaende.CorrelationIdVerifier
 import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -29,12 +26,11 @@ internal class SystemIdenterController(
     // Body leses som streng og parses her, slik at tom eller ugyldig body gir 500 som før (ikke Springs 400).
     @PostMapping("/system/hent-identer")
     fun hentIdenter(
-        @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
         @RequestBody(required = false) body: String?,
     ): ResponseEntity<List<IdenterBolkResponse>> {
         val forespørsel = objectMapper.readValue(body ?: "", HentIdenterForespørsel::class.java)
 
-        val resultat = runBlocking(CoroutineRequestContext(CorrelationId(correlationId))) {
+        val resultat = runBlocking {
             systemOppslagService.hentIdenter(
                 identer = forespørsel.identer,
                 identGrupper = forespørsel.identGrupper

@@ -1,8 +1,7 @@
 package no.nav.k9.integrasjon.pdl
 
-import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.Ytelse
-import no.nav.k9.inngaende.correlationId
+import no.nav.k9.inngaende.currentCorrelationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.inngaende.oppslag.OppslagService.Companion.støttedeAttributter
@@ -34,7 +33,7 @@ class PdlProxyService(
     internal suspend fun person(ytelse: Ytelse): PdlPerson {
         val exchangeToken = pdlAuthService.borgerToken()
 
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
 
         val tilgangResponse = tilgangService.hentPerson(
             bearerToken = exchangeToken,
@@ -57,7 +56,7 @@ class PdlProxyService(
         val identListe = identer.map { it.value }
         val exchangeToken = pdlAuthService.borgerToken()
 
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
 
         val systemToken = pdlAuthService.systemToken()
         val tilgangResponse =
@@ -90,7 +89,7 @@ class PdlProxyService(
         identGrupper: List<IdentGruppe>,
     ): List<HentIdenterBolkResult> {
 
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
         val systemToken = pdlAuthService.systemToken()
 
         val identerBolkResults = tilgangService.hentIdenter(
@@ -107,7 +106,7 @@ class PdlProxyService(
         ytelse: Ytelse,
     ): List<BarnResponse> {
 
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
         val systemToken = pdlAuthService.systemToken()
 
         val barn = tilgangService.slåOppBarn(
@@ -130,7 +129,7 @@ class PdlProxyService(
             false -> pdlAuthService.borgerToken()
         }
 
-        val callId = currentCoroutineContext().correlationId().value
+        val callId = currentCorrelationId().value
 
         val aktørId = tilgangService.hentAktørId(
             ident = ident.value,
