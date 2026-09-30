@@ -294,6 +294,53 @@ class ApplicationTest {
     }
 
     @Test
+    fun `systemoppslag ignorerer ukjente felt i body`() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+
+        app {
+            client.post("/system/hent-identer") {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $azureToken")
+                header(X_CORRELATION_ID, "systemoppslag-ukjent-felt")
+                header(HttpHeaders.ACCEPT, "application/json")
+                header(HttpHeaders.CONTENT_TYPE, "application/json")
+                //language=json
+                body(
+                    """
+                    {
+                        "ukjentFelt": "verdi",
+                        "identer": ["$PERSON_1_MED_BARN"],
+                        "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
+                    }
+                """.trimIndent()
+                )
+            }.apply {
+                assertEquals(HttpStatus.OK, status)
+                //language=json
+                val expectedResponse = """
+                    [
+                      {
+                        "code": "ok",
+                        "ident": "$PERSON_1_MED_BARN",
+                        "identer": [
+                          {
+                            "ident": "$PERSON_1_MED_BARN",
+                            "gruppe": "${IdentGruppe.FOLKEREGISTERIDENT}"
+                          }
+                        ]
+                      }
+                    ]
+                """.trimIndent()
+                JSONAssert.assertEquals(expectedResponse, body, true)
+            }
+        }
+    }
+
+    @Test
     fun `systemoppslag for å hente barn `() {
         val azureToken = mockOAuth2Server.issueToken(
             issuerId = "azure",
@@ -1699,8 +1746,22 @@ class ApplicationTest {
             }
             socket.getOutputStream().apply { write(forespørsel.toByteArray(Charsets.UTF_8)); flush() }
             val svar = socket.getInputStream().readBytes().toString(Charsets.UTF_8)
-            svar.substringBefore("\r\n") to svar.substringAfter("\r\n\r\n")
+            val hode = svar.substringBefore("\r\n\r\n")
+            val kropp = svar.substringAfter("\r\n\r\n")
+            val erChunked = hode.lines().any { it.equals("Transfer-Encoding: chunked", ignoreCase = true) }
+            svar.substringBefore("\r\n") to if (erChunked) kropp.dekodChunked() else kropp
         }
+
+    private fun String.dekodChunked(): String = buildString {
+        var rest = this@dekodChunked
+        while (true) {
+            val lengde = rest.substringBefore("\r\n").trim().toInt(16)
+            if (lengde == 0) break
+            rest = rest.substringAfter("\r\n")
+            append(rest.substring(0, lengde))
+            rest = rest.substring(lengde).removePrefix("\r\n")
+        }
+    }
 
     @Test
     fun `Test av erAnsattIPerioden`() {

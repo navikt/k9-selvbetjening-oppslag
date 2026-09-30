@@ -15,8 +15,6 @@ val tokenSupportVersion = "6.0.12"
 val sifTilgangskontrollVersion = "5.3.2"
 // Må følge versjonen sif-tilgangskontroll core er bygget mot
 val graphqlKotlinVersion = "8.8.1"
-val orgJsonVersion = "20260719"
-val jsonSmartVersion = "2.6.0"
 val logstashLogbackEncoderVersion = "9.0"
 val mockOauth2ServerVersion = "6.0.2"
 val mockkVersion = "1.14.11"
@@ -60,8 +58,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
 
     // Diverse
-    implementation("org.json:json:$orgJsonVersion")
-    implementation("net.minidev:json-smart:$jsonSmartVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
 
     // Test

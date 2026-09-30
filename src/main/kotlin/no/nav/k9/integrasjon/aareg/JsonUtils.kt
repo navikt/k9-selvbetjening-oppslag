@@ -1,12 +1,12 @@
 package no.nav.k9.integrasjon.aareg
 
 import no.nav.k9.integrasjon.aareg.TypeArbeidssted.Companion.somTypeArbeidssted
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.k9.integrasjon.common.getStringOrNull
-import org.json.JSONArray
-import org.json.JSONObject
+import no.nav.k9.integrasjon.common.påkrevd
 import java.time.LocalDate
 
-internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperioder: Boolean): List<OrganisasjonArbeidsgivere> {
+internal fun JsonNode.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperioder: Boolean): List<OrganisasjonArbeidsgivere> {
     val alleArbeidsforhold: Sequence<OrganisasjonArbeidsgivere> = hentArbeidsgivereMedAnsettelseperiodeV2()
         .filterNot { it.erFrilansaktivitet() }
         .filter { it.arbeidstedErUnderenhet() }
@@ -29,7 +29,7 @@ internal fun JSONArray.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: Local
 }
 
 
-internal fun JSONArray.hentFrilansoppdragV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<Frilansoppdrag> =
+internal fun JsonNode.hentFrilansoppdragV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<Frilansoppdrag> =
     hentArbeidsgivereMedAnsettelseperiodeV2()
         .filter { it.erFrilansaktivitet() }
         .map { ansettelsesforhold ->
@@ -49,7 +49,7 @@ internal fun JSONArray.hentFrilansoppdragV2(fraOgMed: LocalDate, tilOgMed: Local
         .filter { erAnsattIPerioden(it.ansattFom, it.ansattTom, fraOgMed, tilOgMed) }
         .toSet()
 
-internal fun JSONArray.hentPrivateArbeidsgivereV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<PrivatArbeidsgiver> =
+internal fun JsonNode.hentPrivateArbeidsgivereV2(fraOgMed: LocalDate, tilOgMed: LocalDate): Set<PrivatArbeidsgiver> =
     hentArbeidsgivereMedAnsettelseperiodeV2()
         .filterNot { it.erFrilansaktivitet() }
         .filter { it.arbeidstedErPerson() }
@@ -67,33 +67,31 @@ internal fun JSONArray.hentPrivateArbeidsgivereV2(fraOgMed: LocalDate, tilOgMed:
         .distinctBy { it.offentligIdent }
         .toSet()
 
-private fun JSONArray.hentArbeidsgivereMedAnsettelseperiodeV2(): Sequence<JSONObject> = this
+private fun JsonNode.hentArbeidsgivereMedAnsettelseperiodeV2(): Sequence<JsonNode> = this
     .asSequence()
-    .map { it as JSONObject }
     .filter { it.has("arbeidssted") }
-    .filter { it.has("ansettelsesperiode") && it.getJSONObject("ansettelsesperiode").has("startdato") }
+    .filter { it.has("ansettelsesperiode") && it.get("ansettelsesperiode").has("startdato") }
 
-private fun JSONObject.hentStartdatoOgSluttdatoFraAnsettelseperiode(): Pair<String, String?> {
-    val ansettelsesperiode = this.getJSONObject("ansettelsesperiode")
-    return Pair(ansettelsesperiode.getString("startdato"), ansettelsesperiode.getStringOrNull("sluttdato"))
+private fun JsonNode.hentStartdatoOgSluttdatoFraAnsettelseperiode(): Pair<String, String?> {
+    val ansettelsesperiode = påkrevd("ansettelsesperiode")
+    return Pair(ansettelsesperiode.påkrevd("startdato").asText(), ansettelsesperiode.getStringOrNull("sluttdato"))
 }
 
-private fun JSONObject.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = this
-    .getJSONObject("arbeidssted")
-    .getJSONArray("identer")
-    .map { it as JSONObject }
-    .find { it.getString("type") == type.toString() }!!
-    .getString("ident")
+private fun JsonNode.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = påkrevd("arbeidssted")
+    .påkrevd("identer")
+    .find { it.påkrevd("type").asText() == type.toString() }!!
+    .påkrevd("ident")
+    .asText()
 
-private fun JSONObject.hentFolkeregistrertIdent() = hentIdentAvGittTypeFraArbeidssted(IdentType.FOLKEREGISTERIDENT)
-private fun JSONObject.hentOrganisasjonsnummer() = hentIdentAvGittTypeFraArbeidssted(IdentType.ORGANISASJONSNUMMER)
+private fun JsonNode.hentFolkeregistrertIdent() = hentIdentAvGittTypeFraArbeidssted(IdentType.FOLKEREGISTERIDENT)
+private fun JsonNode.hentOrganisasjonsnummer() = hentIdentAvGittTypeFraArbeidssted(IdentType.ORGANISASJONSNUMMER)
 
 private enum class IdentType { FOLKEREGISTERIDENT, ORGANISASJONSNUMMER }
 
-private fun JSONObject.erFrilansaktivitet() = getJSONObject("type").getString("kode").equals(ArbeidsforholdType.FRILANS.type)
-private fun JSONObject.arbeidsstedType() = getJSONObject("arbeidssted").getString("type")
-private fun JSONObject.arbeidstedErPerson() = arbeidsstedType().equals("Person")
-private fun JSONObject.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
+private fun JsonNode.erFrilansaktivitet() = påkrevd("type").påkrevd("kode").asText().equals(ArbeidsforholdType.FRILANS.type)
+private fun JsonNode.arbeidsstedType() = påkrevd("arbeidssted").påkrevd("type").asText()
+private fun JsonNode.arbeidstedErPerson() = arbeidsstedType().equals("Person")
+private fun JsonNode.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
 
 internal fun erAnsattIPerioden(ansattFom: LocalDate?, ansattTom: LocalDate?, fraOgMed: LocalDate, tilOgMed: LocalDate): Boolean {
     return ansattFom.erLikEllerFør(tilOgMed) && fraOgMed.erLikEllerFør(ansattTom)

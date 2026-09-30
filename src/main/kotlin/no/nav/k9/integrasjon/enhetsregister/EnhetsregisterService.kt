@@ -1,12 +1,14 @@
 package no.nav.k9.integrasjon.enhetsregister
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.integrasjon.common.getStringOrNull
 import no.nav.k9.integrasjon.common.logResponse
+import no.nav.k9.integrasjon.common.påkrevd
 import no.nav.k9.integrasjon.common.restKall
-import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -17,6 +19,7 @@ import java.time.LocalDate
 @Service
 internal class EnhetsregisterService(
     private val retryClient: EnhetsregisterRetryClient,
+    private val objectMapper: ObjectMapper,
     @Value("\${nav.register-urls.enhetsregister-v1}") private val baseUrl: URI,
 ) {
     private companion object {
@@ -41,7 +44,8 @@ internal class EnhetsregisterService(
 
         logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")
 
-        val json = JSONObject(retryClient.nøkkelinfo(NØKKELINFO_PATH, organisasjonsnummer, callId))
+        val json = objectMapper.readTree(retryClient.nøkkelinfo(NØKKELINFO_PATH, organisasjonsnummer, callId))
+        check(json.isObject) { "Forventet et objekt fra enhetsregisteret." }
 
         logger.logResponse(json)
 
@@ -54,7 +58,7 @@ internal class EnhetsregisterService(
                 opphørsdato = json.opphørsdato()
             )
         }
-        val navn = json.getJSONObject("navn")
+        val navn = json.påkrevd("navn")
 
         val navnlinjer = listOf(
             navn.navnlinje(1),
@@ -76,9 +80,9 @@ internal class EnhetsregisterService(
         )
     }
 
-    private fun JSONObject.navnlinje(nummer: Int) = getStringOrNull("navnelinje$nummer")
-    private fun JSONObject.enhetstype() = getStringOrNull("enhetstype")
-    private fun JSONObject.opphørsdato() : LocalDate? {
+    private fun JsonNode.navnlinje(nummer: Int) = getStringOrNull("navnelinje$nummer")
+    private fun JsonNode.enhetstype() = getStringOrNull("enhetstype")
+    private fun JsonNode.opphørsdato() : LocalDate? {
         val stringValue = getStringOrNull("opphoersdato") ?: return null
         return LocalDate.parse(stringValue)
     }

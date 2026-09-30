@@ -1,12 +1,11 @@
 package no.nav.k9.wiremocks
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.PersonFødselsnummer
 import no.nav.k9.integrasjon.common.NavHeaders
-import org.json.JSONArray
-import org.json.JSONObject
 
 class ArbeidstakerResponseV2Transformer : ResponseTransformerV2 {
 
@@ -27,71 +26,49 @@ class ArbeidstakerResponseV2Transformer : ResponseTransformerV2 {
     }
 }
 
-private fun getResponse(navIdent: String) : String {
-    val jsonRespons = JSONArray()
-    val ansettelsesperiode = JSONObject().apply { put("startdato","2020-01-01"); put("sluttdato", "2029-02-28") }
-    val ansettelsesperiode2 = JSONObject().apply { put("startdato","2015-01-01"); put("sluttdato", "2019-12-31") }
-    val identerOrg = JSONArray().apply { put(JSONObject().apply { put("ident", "123456789"); put("type", "ORGANISASJONSNUMMER") }) }
-    val identerFolkeregistrert = JSONArray().apply { put(JSONObject().apply { put("ident", "28837996386"); put("type", "FOLKEREGISTERIDENT") }) }
-    val arbeidsstedUnderenhet = JSONObject().apply { put("type", "Underenhet"); put("identer", identerOrg) }
-    val arbeidsstedPerson = JSONObject().apply { put("type", "Person"); put("identer", identerFolkeregistrert) }
-    val privatArbeidsgiverUnderenhet = JSONObject().apply {
-        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
-        put("ansettelsesperiode", ansettelsesperiode)
-        put("arbeidssted", arbeidsstedUnderenhet)
-    }
-    val privatArbeidsgiverPerson = JSONObject().apply {
-        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
-        put("ansettelsesperiode", ansettelsesperiode)
-        put("arbeidssted", arbeidsstedPerson)
-    }
-    val organisasjon = JSONObject().apply {
-        put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold")})
-        put("ansettelsesperiode", ansettelsesperiode)
-        put("arbeidssted", arbeidsstedUnderenhet)
-    }
-    val frilansoppdragPerson = JSONObject().apply {
-        put("type", JSONObject().apply { put("kode", "frilanserOppdragstakerHonorarPersonerMm")})
-        put("ansettelsesperiode", ansettelsesperiode)
-        put("arbeidssted", arbeidsstedPerson)
-    }
-    val frilansoppdragUnderenhet = JSONObject().apply {
-        put("type", JSONObject().apply { put("kode", "frilanserOppdragstakerHonorarPersonerMm")})
-        put("ansettelsesperiode", ansettelsesperiode)
-        put("arbeidssted", arbeidsstedUnderenhet)
-    }
-    when (navIdent) {
-        PersonFødselsnummer.PERSON_1_MED_BARN -> {
-            return jsonRespons.apply {
-                put(privatArbeidsgiverPerson)
-                put(privatArbeidsgiverUnderenhet)
-                put(organisasjon)
-                put(frilansoppdragPerson)
-                put(frilansoppdragUnderenhet)
-            }.toString()
-        }
-        PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG -> {
-            return jsonRespons.apply {
-                put(frilansoppdragPerson)
-                put(frilansoppdragUnderenhet)
-            }.toString()
-        }
-        PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER -> {
-            val organisasjonMedToAnsettelsesperioder = JSONObject().apply {
-                put("type", JSONObject().apply { put("kode", "ordinaertArbeidsforhold") })
-                put("ansettelsesperiode", ansettelsesperiode2)
-                put("arbeidssted", arbeidsstedUnderenhet)
-            }
+private val objectMapper = jacksonObjectMapper()
 
-            return jsonRespons.apply {
-                put(privatArbeidsgiverPerson)
-                put(privatArbeidsgiverPerson)
-                put(organisasjon)
-                put(organisasjonMedToAnsettelsesperioder)
-            }.toString()
-        }
-        else -> {
-            return jsonRespons.toString()
-        }
+private fun getResponse(navIdent: String): String {
+    val ansettelsesperiode = mapOf("startdato" to "2020-01-01", "sluttdato" to "2029-02-28")
+    val ansettelsesperiode2 = mapOf("startdato" to "2015-01-01", "sluttdato" to "2019-12-31")
+    val identerOrg = listOf(mapOf("ident" to "123456789", "type" to "ORGANISASJONSNUMMER"))
+    val identerFolkeregistrert = listOf(mapOf("ident" to "28837996386", "type" to "FOLKEREGISTERIDENT"))
+    val arbeidsstedUnderenhet = mapOf("type" to "Underenhet", "identer" to identerOrg)
+    val arbeidsstedPerson = mapOf("type" to "Person", "identer" to identerFolkeregistrert)
+
+    fun arbeidsforhold(type: String, ansettelsesperiode: Map<String, String>, arbeidssted: Map<String, Any>) = mapOf(
+        "type" to mapOf("kode" to type),
+        "ansettelsesperiode" to ansettelsesperiode,
+        "arbeidssted" to arbeidssted
+    )
+
+    val ordinært = "ordinaertArbeidsforhold"
+    val frilans = "frilanserOppdragstakerHonorarPersonerMm"
+    val privatArbeidsgiverUnderenhet = arbeidsforhold(ordinært, ansettelsesperiode, arbeidsstedUnderenhet)
+    val privatArbeidsgiverPerson = arbeidsforhold(ordinært, ansettelsesperiode, arbeidsstedPerson)
+    val organisasjon = arbeidsforhold(ordinært, ansettelsesperiode, arbeidsstedUnderenhet)
+    val frilansoppdragPerson = arbeidsforhold(frilans, ansettelsesperiode, arbeidsstedPerson)
+    val frilansoppdragUnderenhet = arbeidsforhold(frilans, ansettelsesperiode, arbeidsstedUnderenhet)
+
+    val respons = when (navIdent) {
+        PersonFødselsnummer.PERSON_1_MED_BARN -> listOf(
+            privatArbeidsgiverPerson,
+            privatArbeidsgiverUnderenhet,
+            organisasjon,
+            frilansoppdragPerson,
+            frilansoppdragUnderenhet
+        )
+
+        PersonFødselsnummer.PERSON_MED_FRILANS_OPPDRAG -> listOf(frilansoppdragPerson, frilansoppdragUnderenhet)
+
+        PersonFødselsnummer.PERSON_MED_FLERE_ARBEIDSFORHOLD_PER_ARBEIDSGIVER -> listOf(
+            privatArbeidsgiverPerson,
+            privatArbeidsgiverPerson,
+            organisasjon,
+            arbeidsforhold(ordinært, ansettelsesperiode2, arbeidsstedUnderenhet)
+        )
+
+        else -> emptyList()
     }
+    return objectMapper.writeValueAsString(respons)
 }

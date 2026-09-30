@@ -12,7 +12,6 @@ import no.nav.k9.ytelseFraHeader
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.RequiredIssuers
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
@@ -28,7 +27,6 @@ private const val FRA_OG_MED_QUERY_NAVN = "fom"
 private const val TIL_OG_MED_QUERY_NAVN = "tom"
 private const val INKLUDER_ALLE_ANSETTELSESPERIODER = "inkluderAlleAnsettelsesperioder"
 private const val ORGANISASJONER = "org"
-private val tomJson = JSONObject()
 
 internal val jsonUtf8: MediaType = MediaType("application", "json", Charsets.UTF_8)
 
@@ -51,10 +49,10 @@ internal class OppslagController(
         request: HttpServletRequest,
         @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
         @RequestHeader(NavHeaders.XK9Ytelse, required = false) ytelseHeader: String?,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<OppslagResponse> {
         val attributter = request.hentAttributter()
         val ytelse = ytelseFraHeader(ytelseHeader)
-        if (attributter.isEmpty()) return json(tomJson)
+        if (attributter.isEmpty()) return json(OppslagResponse())
 
         val (fraOgMed, tilOgMed) = request.hentFraOgMedTilOgMed()
         val inkluderAlleAnsettelsesperioder = request.getParameter(INKLUDER_ALLE_ANSETTELSESPERIODER)?.toBoolean() == true
@@ -70,7 +68,7 @@ internal class OppslagController(
                 ytelse = ytelse
             )
         }
-        return json(oppslagResultat.somJson(attributter))
+        return json(oppslagResultat.somResponse(attributter))
     }
 
     // TODO: Fjern når det er bekreftet at ingen konsumenter bruker /arbeidsgivere (fant ingen ved migreringen til Spring Boot).
@@ -78,9 +76,9 @@ internal class OppslagController(
     fun arbeidsgivere(
         request: HttpServletRequest,
         @RequestHeader(CorrelationIdVerifier.HEADER) correlationId: String,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<OppslagResponse> {
         val attributter = request.hentAttributter()
-        if (attributter.isEmpty()) return json(tomJson)
+        if (attributter.isEmpty()) return json(OppslagResponse())
 
         val organisasjoner = request.hentOrganisasjoner()
         val oppslagResultat = runBlocking(CoroutineRequestContext(CorrelationId(correlationId))) {
@@ -89,7 +87,7 @@ internal class OppslagController(
                 organisasjoner = organisasjoner
             )
         }
-        return json(oppslagResultat.somJson(attributter))
+        return json(oppslagResultat.somResponse(attributter))
     }
 
     private fun HttpServletRequest.hentAttributter(): Set<Attributt> {
@@ -153,7 +151,7 @@ internal class OppslagController(
     }
 }
 
-internal fun json(json: Any): ResponseEntity<String> =
-    ResponseEntity.ok().contentType(jsonUtf8).body(json.toString())
+internal fun <T : Any> json(body: T): ResponseEntity<T> =
+    ResponseEntity.ok().contentType(jsonUtf8).body(body)
 
 internal fun iDag(): LocalDate = LocalDate.now(ZoneId.of("Europe/Oslo"))

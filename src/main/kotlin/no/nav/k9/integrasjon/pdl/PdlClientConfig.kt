@@ -2,8 +2,8 @@ package no.nav.k9.integrasjon.pdl
 
 import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.netty.channel.ChannelOption
-import no.nav.k9.config.k9ObjectMapper
 import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.core.pdl.PdlService
 import no.nav.siftilgangskontroll.core.tilgang.TilgangService
@@ -22,13 +22,15 @@ private val pdlTimeout = Duration.ofSeconds(10)
 internal class PdlClientConfig {
 
     // PDL_URL peker på selve GraphQL-endepunktet og brukes som den er.
+    // Serializeren endrer mapperen den får, så vi gir den en kopi av Boots mapper.
     @Bean
     fun pdlClient(
         webClientBuilder: WebClient.Builder,
+        objectMapper: ObjectMapper,
         @Value("\${nav.register-urls.pdl-url}") pdlUrl: String,
     ) = GraphQLWebClient(
         url = pdlUrl,
-        serializer = GraphQLClientJacksonSerializer(k9ObjectMapper()),
+        serializer = GraphQLClientJacksonSerializer(objectMapper.copy()),
         builder = webClientBuilder
             .clientConnector(
                 ReactorClientHttpConnector(

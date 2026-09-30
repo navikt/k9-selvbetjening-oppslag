@@ -1,10 +1,8 @@
 package no.nav.k9.integrasjon.aareg
 
-import no.nav.k9.integrasjon.common.somJsonArray
-import org.json.JSONArray
-import org.json.JSONException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.skyscreamer.jsonassert.JSONAssert
 
 internal class DuplicateKeyTest {
@@ -24,14 +22,11 @@ internal class DuplicateKeyTest {
         """.trimIndent()
     }
 
-    @Test
-    internal fun `Direkte parsing til JSONArray feiler`() {
-        assertThrows<JSONException> { JSONArray(json) }
-    }
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
     @Test
-    internal fun `Parsing til JSONArray via utils fungerer`() {
-        val result = json.somJsonArray()
+    internal fun `Parsing av duplikate nøkler bruker siste verdi i stedet for å feile`() {
+        val result = objectMapper.readTree(json)
         JSONAssert.assertEquals("""
             [
                 {

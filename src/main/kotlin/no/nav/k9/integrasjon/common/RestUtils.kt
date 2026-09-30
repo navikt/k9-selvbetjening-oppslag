@@ -1,13 +1,7 @@
 package no.nav.k9.integrasjon.common
 
-import net.minidev.json.parser.JSONParser
-import org.json.JSONArray
-import org.json.JSONObject
+import com.fasterxml.jackson.databind.JsonNode
 import org.slf4j.Logger
-
-private object RestUtils {
-    internal val parser = JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE)
-}
 
 internal fun String.templateQueryParameters(): String {
     val urlParts = split("?")
@@ -22,12 +16,8 @@ internal fun String.templateQueryParameters(): String {
 
 internal fun Logger.restKall(url: String, urlTemplate: Boolean = false) = info("Utgående kall til ${if (urlTemplate) url.templateQueryParameters() else url}")
 internal fun Logger.logResponse(response: Any) = debug("Response = '$response'")
-internal fun JSONObject.getJsonObjectOrNull(key: String) = if (has(key) && !isNull(key)) getJSONObject(key) else null
-internal fun JSONObject.getJsonArrayOrEmpty(key: String) = if (has(key) && !isNull(key)) getJSONArray(key) else JSONArray()
+internal fun JsonNode.getStringOrNull(key: String): String? =
+    get(key)?.takeUnless { it.isNull }?.asText()?.takeUnless { it.isBlank() }
 
-internal fun JSONObject.getStringOrNull(key: String) = if (has(key) && !isNull(key) && !getString(key).isBlank()) getString(key) else null
-/**
- * ArbeidsgiverOgArbeidstakerRegisterV1 returnerer ugyldig json som gir org.json.JSONException: Duplicate key
- * org.json.simple håndterer dette med å ta sisste key istedenfor å feile. Wrapper håndteringen for å unngå denne feilen.
- */
-internal fun String.somJsonArray() = JSONArray((RestUtils.parser.parse(this) as net.minidev.json.JSONArray).toJSONString())
+internal fun JsonNode.påkrevd(key: String): JsonNode =
+    get(key)?.takeUnless { it.isNull } ?: throw IllegalStateException("Mangler '$key' i respons.")

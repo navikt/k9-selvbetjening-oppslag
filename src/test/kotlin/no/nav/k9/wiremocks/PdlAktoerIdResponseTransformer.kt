@@ -20,7 +20,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UTEN_FORETAK
 import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentIdenterResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentident.IdentInformasjon
-import org.json.JSONObject
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 
 private val identMap = mapOf(
@@ -52,9 +52,8 @@ class PdlAktoerIdResponseTransformer : ResponseTransformerV2 {
 
     override fun transform(response: Response, serveEvent: ServeEvent): Response {
 
-        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
-        val requestVariables = requestBody.getJSONObject("variables")
-        val ident = requestVariables.getString("ident")
+        val requestBody = jacksonObjectMapper().readTree(serveEvent.request.body.decodeToString())
+        val ident = requestBody["variables"]["ident"].asText()
         logger.info("Hentet ident fra request: {}", ident)
 
         return Response.Builder.like(response)

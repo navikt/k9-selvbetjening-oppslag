@@ -1,13 +1,12 @@
 package no.nav.k9.integrasjon.aareg
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.currentCoroutineContext
 import no.nav.k9.inngaende.correlationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.inngaende.oppslag.Ident
 import no.nav.k9.integrasjon.common.logResponse
 import no.nav.k9.integrasjon.common.restKall
-import no.nav.k9.integrasjon.common.somJsonArray
-import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -22,6 +21,7 @@ import java.time.LocalDate
 internal class AaregService(
     private val aaregRetryClient: AaregRetryClient,
     private val aaregAuthService: AaregAuthService,
+    private val objectMapper: ObjectMapper,
     @Value("\${nav.register-urls.arbeidsgiver-og-arbeidstaker-v2}") baseUrl: URI,
 ) {
     private companion object {
@@ -58,8 +58,10 @@ internal class AaregService(
 
         logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH", true)
 
-        val json = aaregRetryClient.arbeidsforhold(ARBEIDSFORHOLD_PATH, queryVariabler, exchangeToken, callId, ident)
-            .somJsonArray()
+        val respons = aaregRetryClient.arbeidsforhold(ARBEIDSFORHOLD_PATH, queryVariabler, exchangeToken, callId, ident)
+        // Aareg kan returnere duplikate nøkler. Jackson bruker da den siste verdien i stedet for å feile.
+        val json = objectMapper.readTree(respons)
+        check(json.isArray) { "Forventet en liste med arbeidsforhold fra aareg." }
 
         logger.logResponse(json)
 
