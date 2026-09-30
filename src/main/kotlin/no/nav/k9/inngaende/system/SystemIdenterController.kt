@@ -2,12 +2,10 @@ package no.nav.k9.inngaende.system
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.SystemOppslagService
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.RequiredIssuers
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -24,14 +22,14 @@ internal class SystemIdenterController(
     @PostMapping("/system/hent-identer")
     fun hentIdenter(
         @RequestBody(required = false) body: String?,
-    ): ResponseEntity<List<IdenterBolkResponse>> {
+    ): List<IdenterBolkResponse> {
         val forespørsel = objectMapper.readValue(body ?: "", HentIdenterForespørsel::class.java)
 
         val resultat = systemOppslagService.hentIdenter(
             identer = forespørsel.identer,
             identGrupper = forespørsel.identGrupper
         )
-        return json(resultat.map { it.somResponse() })
+        return resultat.map { it.somResponse() }
     }
 }
 

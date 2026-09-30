@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.client.RestTestClient
 import org.wiremock.spring.ConfigureWireMock
@@ -52,7 +51,6 @@ abstract class ApplicationTestBase {
 
     protected companion object {
         const val X_CORRELATION_ID = "X-Correlation-ID"
-        val JSON_UTF8 = MediaType("application", "json", Charsets.UTF_8)
     }
 
     @Autowired

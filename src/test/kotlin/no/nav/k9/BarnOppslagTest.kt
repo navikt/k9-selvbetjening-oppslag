@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.json.JsonCompareMode
+import org.springframework.http.MediaType
 
 class BarnOppslagTest : ApplicationTestBase() {
 
@@ -30,7 +31,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             //feiler. AktørId for barn blir satt til forelders aktørId
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
@@ -58,7 +59,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -81,7 +82,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -99,7 +100,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -117,7 +118,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -135,7 +136,7 @@ class BarnOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 }

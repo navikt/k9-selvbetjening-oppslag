@@ -26,7 +26,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -43,7 +43,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -65,7 +65,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -85,7 +85,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -195,7 +195,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -211,7 +211,7 @@ class MegOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 

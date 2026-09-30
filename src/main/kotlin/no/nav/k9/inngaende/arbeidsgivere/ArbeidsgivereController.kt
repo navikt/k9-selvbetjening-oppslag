@@ -2,7 +2,6 @@ package no.nav.k9.inngaende.arbeidsgivere
 
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.k9.config.Issuers
-import no.nav.k9.inngaende.json
 import no.nav.k9.inngaende.oppslag.OppslagResponse
 import no.nav.k9.inngaende.oppslag.OppslagService
 import no.nav.k9.inngaende.oppslag.hentAttributter
@@ -10,7 +9,6 @@ import no.nav.k9.inngaende.oppslag.hentOrganisasjoner
 import no.nav.k9.inngaende.oppslag.somResponse
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.RequiredIssuers
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
@@ -27,15 +25,15 @@ internal class ArbeidsgivereController(
     @GetMapping("/arbeidsgivere")
     fun arbeidsgivere(
         request: HttpServletRequest,
-    ): ResponseEntity<OppslagResponse> {
+    ): OppslagResponse {
         val attributter = request.hentAttributter()
-        if (attributter.isEmpty()) return json(OppslagResponse())
+        if (attributter.isEmpty()) return OppslagResponse()
 
         val organisasjoner = request.hentOrganisasjoner()
         val oppslagResultat = oppslagService.arbeidsgivere(
             attributter = attributter,
             organisasjoner = organisasjoner
         )
-        return json(oppslagResultat.somResponse(attributter))
+        return oppslagResultat.somResponse(attributter)
     }
 }

@@ -34,7 +34,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -59,7 +59,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -83,7 +83,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(X_CORRELATION_ID, "arbeidsgiver-oppslag-orgnr-navn")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -108,7 +108,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(X_CORRELATION_ID, "arbeidsgiver-oppslag-orgnr-navn")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -137,7 +137,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(X_CORRELATION_ID, "arbeidsgiver-oppslag-orgnr-navn")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -165,7 +165,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -187,7 +187,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -213,7 +213,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -246,7 +246,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -279,7 +279,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -313,7 +313,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_SYKT_BARN}")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
     }
 
@@ -375,7 +375,7 @@ class ArbeidsgiverOppslagTest : ApplicationTestBase() {
             .header(X_CORRELATION_ID, "arbeidsgivere-endepunkt")
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
-            .expectHeader().contentType(JSON_UTF8)
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody().json("""{ "arbeidsgivere": { "organisasjoner": [ { "organisasjonsnummer": "981585216" } ] } }""", JsonCompareMode.STRICT)
     }
 }
