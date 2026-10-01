@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.spring") version "2.4.10"
+    kotlin("jvm") version "2.4.20"
+    kotlin("plugin.spring") version "2.4.20"
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -21,7 +21,7 @@ val mockOauth2ServerVersion = "6.0.4"
 val mockkVersion = "1.14.11"
 val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
-val wiremockSpringVersion = "4.2.2"
+val wiremockSpringVersion = "4.4.2"
 
 // CVE-2026-65182, -65905, -68525 (Tomcat) og CVE-2026-68497, -91776, -91777 (Jackson). Fjernes når Spring Boot har tatt dem inn.
 extra["tomcat.version"] = "11.0.25"
@@ -30,7 +30,7 @@ extra["jackson-2-bom.version"] = "2.21.7"
 
 configurations.all {
     resolutionStrategy {
-        force("org.yaml:snakeyaml:2.6")
+        force("org.yaml:snakeyaml:2.7")
     }
 }
 
