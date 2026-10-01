@@ -11,13 +11,13 @@ plugins {
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 
-val tokenSupportVersion = "6.0.12"
+val tokenSupportVersion = "6.0.13"
 val sifTilgangskontrollVersion = "5.3.2"
 // sif-tilgangskontroll core 5.3.2 er bygget mot graphql-kotlin 8.8.1, men bruker bare API som er binærkompatibelt med 10.x.
 // 10.x er bygget for Spring 7 og Jackson 3.
 val graphqlKotlinVersion = "10.2.2"
 val logstashLogbackEncoderVersion = "9.0"
-val mockOauth2ServerVersion = "6.0.2"
+val mockOauth2ServerVersion = "6.0.4"
 val mockkVersion = "1.14.11"
 val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
