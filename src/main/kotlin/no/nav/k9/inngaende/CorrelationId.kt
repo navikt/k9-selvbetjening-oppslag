@@ -1,11 +1,10 @@
 package no.nav.k9.inngaende
 
-import io.ktor.server.application.ApplicationCall
-import io.ktor.http.HttpHeaders
-
 internal data class CorrelationId(internal val value: String)
 
-internal fun ApplicationCall.correlationId() : CorrelationId {
-    val correlationId = request.headers[HttpHeaders.XCorrelationId] ?: throw IllegalStateException("CorrelationID ikke satt")
-    return CorrelationId(correlationId)
+internal object CorrelationIdVerifier {
+    const val HEADER = "X-Correlation-ID"
+    private val gyldigFormat = Regex("[a-zA-Z0-9_.\\-æøåÆØÅ]{5,200}")
+
+    internal fun erGyldig(value: String) = gyldigFormat.matches(value)
 }

@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2
 import com.github.tomakehurst.wiremock.http.Response
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import no.nav.k9.PersonFødselsnummer
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 
 class ArbeidstakerResponseTransformer : ResponseTransformerV2 {
     override fun getName(): String {

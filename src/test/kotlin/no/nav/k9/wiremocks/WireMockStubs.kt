@@ -6,27 +6,14 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
-import io.ktor.http.HttpHeaders
-import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
-import no.nav.k9.utgaende.rest.NavHeaders
+import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.core.behandling.Behandling
 import no.nav.siftilgangskontroll.core.pdl.utils.PdlOperasjon
 
 private const val arbeidsgiverOgArbeidstakerRegisterV2ServerPath = "/arbeidsgiver-og-arbeidstaker-register-v2-mock"
 private const val enhetsRegisterServerPath = "/enhets-register-mock"
 private const val pdlServerPath = "/graphql"
-
-internal fun WireMockBuilder.k9SelvbetjeningOppslagConfig() = wireMockConfiguration {
-    it
-        .extensions(PdlAktoerIdResponseTransformer())
-        .extensions(PDLHentPersonBolkResponseTransformer())
-        .extensions(PDLPersonResponseTransformer())
-        .extensions(PDLHentIdentBolkResponseTransformer())
-        .extensions(ArbeidstakerResponseTransformer())
-        .extensions(ArbeidstakerResponseV2Transformer())
-        .extensions(EnhetsregResponseTransformer())
-        .extensions(BrregProxyV1ResponseTransformer())
-}
+private const val AUTHORIZATION = "Authorization"
 
 internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMockServer {
     var behandlingsnummer = ""
@@ -35,7 +22,7 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
     }
     val requestBuilder = WireMock.post(WireMock.urlPathMatching(pdlServerPath))
         .withHeader(NavHeaders.ConsumerToken, AnythingPattern())
-        .withHeader(HttpHeaders.Authorization, AnythingPattern())
+        .withHeader(AUTHORIZATION, AnythingPattern())
         .withHeader(NavHeaders.CallId, AnythingPattern())
         .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
         .withRequestBody(matchingJsonPath("$.query", containing(pdlOperasjon.navn)))
@@ -48,7 +35,7 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
         else -> {}
     }
 
-    WireMock.stubFor(
+    stubFor(
         requestBuilder
             .willReturn(
                 WireMock.aResponse()
@@ -68,9 +55,9 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
 }
 
 internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegisterV2(): WireMockServer {
-    WireMock.stubFor(
+    stubFor(
         WireMock.get(WireMock.urlPathMatching("$arbeidsgiverOgArbeidstakerRegisterV2ServerPath/arbeidstaker/arbeidsforhold*"))
-            .withHeader(HttpHeaders.Authorization, AnythingPattern())
+            .withHeader(AUTHORIZATION, AnythingPattern())
             .willReturn(
                 WireMock.aResponse()
                     .withHeader("Content-Type", "application/json")
@@ -82,7 +69,7 @@ internal fun WireMockServer.stubArbeidsgiverOgArbeidstakerRegisterV2(): WireMock
 }
 
 internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
-    WireMock.stubFor(
+    stubFor(
         WireMock.get(WireMock.urlPathMatching("$enhetsRegisterServerPath/organisasjon/([0-9]*)/noekkelinfo")) // organisasjon/{orgnummer}/noekkelinfo
             .willReturn(
                 WireMock.aResponse()
@@ -93,10 +80,3 @@ internal fun WireMockServer.stubEnhetsRegister(): WireMockServer {
     )
     return this
 }
-
-
-internal fun WireMockServer.getArbeidsgiverOgArbeidstakerV2RegisterUrl() =
-    baseUrl() + arbeidsgiverOgArbeidstakerRegisterV2ServerPath
-
-internal fun WireMockServer.getEnhetsregisterUrl() = baseUrl() + enhetsRegisterServerPath
-internal fun WireMockServer.getPdlUrl() = baseUrl() + pdlServerPath

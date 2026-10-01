@@ -1,7 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
-import no.nav.k9.utgaende.rest.Frilansoppdrag
-import no.nav.k9.utgaende.rest.PrivatArbeidsgiver
+import no.nav.k9.integrasjon.aareg.Frilansoppdrag
+import no.nav.k9.integrasjon.aareg.PrivatArbeidsgiver
 
 data class Ident(val value: String)
 

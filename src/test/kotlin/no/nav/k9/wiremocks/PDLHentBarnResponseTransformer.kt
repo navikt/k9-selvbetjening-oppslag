@@ -10,7 +10,7 @@ import no.nav.k9.BarnFødselsnummer.SKJERMET_BARN_TIL_PERSON_3
 import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentPersonBolkResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.AdressebeskyttelseGradering
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.*
-import org.json.JSONObject
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 
 private val barnMap = mapOf(
@@ -73,10 +73,8 @@ class PDLHentPersonBolkResponseTransformer : ResponseTransformerV2 {
     }
 
     override fun transform(response: Response, serveEvent: ServeEvent): Response {
-        val requestBody = JSONObject(serveEvent.request.body.decodeToString())
-        val identer: List<String> = requestBody.getJSONObject("variables").getJSONArray("identer").map {
-            it as String
-        }
+        val requestBody = jacksonObjectMapper().readTree(serveEvent.request.body.decodeToString())
+        val identer: List<String> = requestBody["variables"]["identer"].values().map { it.asString() }
         logger.info("Hentet barnIdenter fra request: {}", identer)
 
         return Response.Builder.like(response)

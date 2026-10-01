@@ -1,7 +1,7 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.Ytelse
-import no.nav.k9.utgaende.gateway.PDLProxyGateway
+import no.nav.k9.integrasjon.pdl.PdlProxyService
 import no.nav.siftilgangskontroll.core.tilgang.BarnResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Adressebeskyttelse
@@ -11,22 +11,22 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class SystemOppslagService(
-    private val pdlProxyGateway: PDLProxyGateway,
+    private val pdlProxyService: PdlProxyService,
 ) {
 
     private companion object {
         private val logger = LoggerFactory.getLogger(SystemOppslagService::class.java)
     }
 
-    suspend fun hentIdenter(identer: List<String>, identGrupper: List<IdentGruppe>): List<HentIdenterBolkResult> {
+    fun hentIdenter(identer: List<String>, identGrupper: List<IdentGruppe>): List<HentIdenterBolkResult> {
         logger.info("Henter identer med systemkall.")
-        return pdlProxyGateway.hentIdenter(identer, identGrupper)
+        return pdlProxyService.hentIdenter(identer, identGrupper)
     }
 
-    suspend fun hentBarn(identer: List<String>, ytelse: Ytelse): List<SystemoppslagBarn> {
+    fun hentBarn(identer: List<String>, ytelse: Ytelse): List<SystemoppslagBarn> {
         logger.info("Henter barn med systemkall.")
-        return pdlProxyGateway.hentBarn(identer, ytelse).map { br: BarnResponse ->
-            val aktørId = pdlProxyGateway.aktørId(
+        return pdlProxyService.hentBarn(identer, ytelse).map { br: BarnResponse ->
+            val aktørId = pdlProxyService.aktørId(
                 ident = Ident(br.ident),
                 attributter = setOf(Attributt.barnAktørId),
                 system = true

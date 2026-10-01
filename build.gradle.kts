@@ -1,97 +1,84 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dusseldorfKtorVersion = "8.0.5"
-val ktorVersion = "3.1.0"
-val graphqlKotlinClientVersion = "9.2.1"
-val sifTilgangskontrollVersion = "5.3.2"
-val tokenSupportVersion = "6.0.12"
-val mockOauth2ServerVersion = "6.0.2"
-val mockkVersion = "1.14.11"
-val jsonassertVersion = "1.5.3"
-val fuelVersion = "2.3.1"
-
-val mainClassName = "no.nav.k9.SelvbetjeningOppslagKt"
-
-val useMocks = project.hasProperty("mocks")
-
-
 plugins {
     kotlin("jvm") version "2.4.10"
-    id("org.sonarqube") version "7.4.0.8496"
-    jacoco
-    id("com.gradleup.shadow") version "9.6.1"
-    application
+    kotlin("plugin.spring") version "2.4.10"
+    id("org.springframework.boot") version "4.1.1"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
-application {
-    mainClass.set(mainClassName)
-}
+group = "no.nav"
+version = "0.0.1-SNAPSHOT"
+
+val tokenSupportVersion = "6.0.12"
+val sifTilgangskontrollVersion = "5.3.2"
+// sif-tilgangskontroll core 5.3.2 er bygget mot graphql-kotlin 8.8.1, men bruker bare API som er binærkompatibelt med 10.x.
+// 10.x er bygget for Spring 7 og Jackson 3.
+val graphqlKotlinVersion = "10.2.2"
+val logstashLogbackEncoderVersion = "9.0"
+val mockOauth2ServerVersion = "6.0.2"
+val mockkVersion = "1.14.11"
+val springMockkVersion = "5.0.1"
+val jsonassertVersion = "1.5.3"
+val wiremockSpringVersion = "4.2.2"
+
+// CVE-2026-65182, -65905, -68525 (Tomcat) og CVE-2026-68497, -91776, -91777 (Jackson). Fjernes når Spring Boot har tatt dem inn.
+extra["tomcat.version"] = "11.0.25"
+extra["jackson-bom.version"] = "3.1.7"
+extra["jackson-2-bom.version"] = "2.21.7"
+
 configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.6")
-        // Force JUnit 5.12.2 and JUnit Platform 1.12.2 versions
-        force("org.junit.jupiter:junit-jupiter:6.1.3")
-        force("org.junit.jupiter:junit-jupiter-api:6.1.3")
-        force("org.junit.jupiter:junit-jupiter-engine:6.1.3")
-        force("org.junit.jupiter:junit-jupiter-params:6.1.3")
-        force("org.junit.platform:junit-platform-commons:6.1.3")
-        force("org.junit.platform:junit-platform-engine:6.1.3")
-        force("org.junit.platform:junit-platform-launcher:6.1.3")
     }
 }
 
-
 dependencies {
-    implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
-    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
-    implementation("com.github.kittinunf.fuel:fuel-coroutines:$fuelVersion") {
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
-    }
+    // Spring Boot
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-restclient")
+    implementation("org.springframework.boot:spring-boot-starter-webclient")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
-    implementation ("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
-    testImplementation ("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
-
+    // NAV
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.sif.tilgangskontroll:spesification:$sifTilgangskontrollVersion")
-    implementation("no.nav.sif.tilgangskontroll:core:$sifTilgangskontrollVersion") {
-        exclude(group = "io.projectreactor.netty")
-    }
+    implementation("no.nav.sif.tilgangskontroll:core:$sifTilgangskontrollVersion")
 
-    implementation("com.expediagroup:graphql-kotlin-ktor-client:$graphqlKotlinClientVersion")  {
-        exclude("com.expediagroup", "graphql-kotlin-client-serialization")
-    }
-    implementation("com.expediagroup:graphql-kotlin-client-jackson:$graphqlKotlinClientVersion")
+    // GraphQL
+    implementation("com.expediagroup:graphql-kotlin-spring-client:$graphqlKotlinVersion")
+    implementation("com.expediagroup:graphql-kotlin-client-jackson:$graphqlKotlinVersion")
+
+    // Jackson
+    implementation("tools.jackson.module:jackson-module-kotlin")
+
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // Diverse
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
 
     // Test
-    testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
-        exclude(group = "org.eclipse.jetty")
-    }
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5") {
-        exclude(group = "org.junit.jupiter")
-        exclude(group = "org.junit.platform")
-    }
-    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
-
-    testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
+    testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
+    testImplementation("org.wiremock.integrations:wiremock-spring-boot:$wiremockSpringVersion")
+    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    implementation(kotlin("stdlib-jdk8"))
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/navikt/dusseldorf-ktor")
+        url = uri("https://maven.pkg.github.com/navikt/sif-tilgangskontroll")
         credentials {
             username = project.findProperty("gpr.user") as String? ?: "k9-selvbetjening-oppslag"
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
@@ -106,49 +93,25 @@ java {
 
 tasks {
     withType<KotlinCompile> {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_25)
+        compilerOptions {
+            freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+            jvmTarget.set(JvmTarget.JVM_25)
+        }
     }
 
     withType<Test> {
         useJUnitPlatform()
-        finalizedBy(jacocoTestReport) // report is always generated after tests run
     }
 
-    jacocoTestReport {
-        dependsOn(test) // tests are required to run before generating the report
-        reports {
-            xml.required.set(true)
-            csv.required.set(false)
-        }
+    bootJar {
+        archiveFileName.set("app.jar")
     }
 
-    withType<ShadowJar> {
-        archiveBaseName.set("app")
-        archiveClassifier.set("")
-        mergeServiceFiles()
-        if (useMocks) {
-            from(sourceSets.main.get().output, sourceSets.test.get().output)
-            configurations = listOf(
-                project.configurations.runtimeClasspath.get(),
-                project.configurations.testRuntimeClasspath.get()
-            )
-            manifest {
-                attributes("Main-Class" to "no.nav.k9.ApplicationWithMocks")
-            }
-        }
+    jar {
+        enabled = false
     }
 
     withType<Wrapper> {
         gradleVersion = "9.3.0"
-    }
-}
-
-sonarqube {
-    properties {
-        property("sonar.projectKey", "navikt_k9-selvbetjening-oppslag")
-        property("sonar.organization", "navikt")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.login", System.getenv("SONAR_TOKEN"))
-        property("sonar.sourceEncoding", "UTF-8")
     }
 }

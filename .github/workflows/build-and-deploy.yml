@@ -12,23 +12,14 @@ on:
     branches:
 
 jobs:
-  sonar:
-    uses: navikt/sif-gha-workflows/.github/workflows/gradle-sonar.yml@main
-    permissions:
-      contents: read
-      pull-requests: read
-    secrets: inherit
-    with:
-      readertoken: false
-      javaversion: 25
-
   test:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-test.yml@main
     permissions:
       contents: read
     secrets: inherit
     with:
-      readertoken: false
+      readertoken: true
+      buildcommand: './gradlew check'
       javaversion: 25
 
   codeql:
@@ -40,7 +31,7 @@ jobs:
       security-events: write
     secrets: inherit
     with:
-      readertoken: false
+      readertoken: true
       package-command: './gradlew clean build -x test'
       branch: master
       javaversion: 25
@@ -54,7 +45,8 @@ jobs:
     secrets: inherit
     with:
       team: dusseldorf
-      readertoken: false
+      readertoken: true
+      buildcommand: '--configuration-cache build -x test'
       javaversion: 25
 
   trivy:

@@ -1,0 +1,49 @@
+spring:
+  rest:
+    retry:
+      initialDelay: 10
+
+nav:
+  register-urls:
+    pdl-url: http://localhost:${wiremock.server.port}/graphql
+    enhetsregister-v1: http://localhost:${wiremock.server.port}/enhets-register-mock
+    arbeidsgiver-og-arbeidstaker-v2: http://localhost:${wiremock.server.port}/arbeidsgiver-og-arbeidstaker-register-v2-mock
+
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+      accepted_audience: dev-fss:dusseldorf:k9-selvbetjening-oppslag
+    azure:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/azure/.well-known/openid-configuration
+      accepted_audience: dev-fss:dusseldorf:k9-selvbetjening-oppslag
+
+  client:
+    registration:
+      tokenx-pdl-api:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/tokenx/token
+        authentication:
+          client-id: k9-selvbetjening-oppslag
+          client-jwk: src/test/resources/private_jwk.json
+        token-exchange:
+          audience: dev-fss:pdl:pdl-api
+
+      tokenx-aareg:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/tokenx/token
+        authentication:
+          client-id: k9-selvbetjening-oppslag
+          client-jwk: src/test/resources/private_jwk.json
+        token-exchange:
+          audience: dev-fss.arbeidsforhold.aareg-services-nais
+
+      azure-pdl-api:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azure/token
+        scope: dev-fss.pdl.pdl-api/.default
+        authentication:
+          client-id: k9-selvbetjening-oppslag
+          client-jwk: src/test/resources/private_jwk.json
+
+wiremock:
+  reset-mappings-after-each-test: true
+  server:
+    port: 0

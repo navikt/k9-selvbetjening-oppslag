@@ -1,15 +1,15 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.Ytelse
-import no.nav.k9.utgaende.gateway.*
-import no.nav.k9.utgaende.rest.Arbeidsgivere
-import no.nav.k9.utgaende.rest.OrganisasjonArbeidsgivere
+import no.nav.k9.integrasjon.aareg.AaregService
+import no.nav.k9.integrasjon.aareg.Arbeidsgivere
+import no.nav.k9.integrasjon.aareg.OrganisasjonArbeidsgivere
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 
 internal class OppslagService(
-    private val arbeidsgiverOgArbeidstakerRegisterGateway: ArbeidsgiverOgArbeidstakerRegisterGateway,
+    private val aaregService: AaregService,
     private val arbeidsgiverOppslag: ArbeidsgivereOppslag,
     private val megOppslag: MegOppslag,
     private val barnOppslag: BarnOppslag
@@ -41,7 +41,7 @@ internal class OppslagService(
         )
     }
 
-    internal suspend fun oppslag(
+    internal fun oppslag(
         ident: Ident,
         attributter: Set<Attributt>,
         fraOgMed: LocalDate,
@@ -50,7 +50,7 @@ internal class OppslagService(
         ytelse: Ytelse,
     ): OppslagResultat {
 
-        val arbeidsgivere = arbeidsgiverOgArbeidstakerRegisterGateway.arbeidsgivere(ident, fraOgMed, tilOgMed, inkluderAlleAnsettelsesperioder, attributter)
+        val arbeidsgivere = aaregService.arbeidsgivere(ident, fraOgMed, tilOgMed, inkluderAlleAnsettelsesperioder, attributter)
 
         val meg = megOppslag.meg(
             ident = ident,
@@ -81,7 +81,7 @@ internal class OppslagService(
         )
     }
 
-    internal suspend fun arbeidsgivere(
+    internal fun arbeidsgivere(
         attributter: Set<Attributt>,
         organisasjoner: Set<String>,
     ): OppslagResultat {
