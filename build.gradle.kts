@@ -23,6 +23,11 @@ val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
 val wiremockSpringVersion = "4.2.2"
 
+// CVE-2026-65182, -65905, -68525 (Tomcat) og CVE-2026-68497, -91776, -91777 (Jackson). Fjernes når Spring Boot har tatt dem inn.
+extra["tomcat.version"] = "11.0.25"
+extra["jackson-bom.version"] = "3.1.7"
+extra["jackson-2-bom.version"] = "2.21.7"
+
 configurations.all {
     resolutionStrategy {
         force("org.yaml:snakeyaml:2.6")
