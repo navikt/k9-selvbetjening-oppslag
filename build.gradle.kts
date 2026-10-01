@@ -13,8 +13,9 @@ version = "0.0.1-SNAPSHOT"
 
 val tokenSupportVersion = "6.0.12"
 val sifTilgangskontrollVersion = "5.3.2"
-// Må følge versjonen sif-tilgangskontroll core er bygget mot
-val graphqlKotlinVersion = "8.8.1"
+// sif-tilgangskontroll core 5.3.2 er bygget mot graphql-kotlin 8.8.1, men bruker bare API som er binærkompatibelt med 10.x.
+// 10.x er bygget for Spring 7 og Jackson 3.
+val graphqlKotlinVersion = "10.2.2"
 val logstashLogbackEncoderVersion = "9.0"
 val mockOauth2ServerVersion = "6.0.2"
 val mockkVersion = "1.14.11"
@@ -35,7 +36,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webclient")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-jackson2")
     implementation("io.micrometer:micrometer-registry-prometheus")
 
     // NAV
@@ -48,9 +48,8 @@ dependencies {
     implementation("com.expediagroup:graphql-kotlin-spring-client:$graphqlKotlinVersion")
     implementation("com.expediagroup:graphql-kotlin-client-jackson:$graphqlKotlinVersion")
 
-    // Jackson 2
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    // Jackson
+    implementation("tools.jackson.module:jackson-module-kotlin")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")

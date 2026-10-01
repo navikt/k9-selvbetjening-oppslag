@@ -1,9 +1,9 @@
 package no.nav.k9.integrasjon.aareg
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 internal class DuplicateKeyTest {
 

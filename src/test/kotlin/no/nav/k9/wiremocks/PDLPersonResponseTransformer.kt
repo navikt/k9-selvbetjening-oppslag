@@ -17,7 +17,7 @@ import no.nav.k9.PersonFødselsnummer.PERSON_UNDER_MYNDIGHETS_ALDER
 import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentPersonResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.ForelderBarnRelasjonRolle
 import no.nav.siftilgangskontroll.pdl.generated.hentperson.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 
 class PDLPersonResponseTransformer : ResponseTransformerV2 {
@@ -31,7 +31,7 @@ class PDLPersonResponseTransformer : ResponseTransformerV2 {
 
     override fun transform(response: Response, serveEvent: ServeEvent): Response {
         val requestBody = jacksonObjectMapper().readTree(serveEvent.request.body.decodeToString())
-        val ident = requestBody["variables"]["ident"].asText()
+        val ident = requestBody["variables"]["ident"].asString()
         logger.info("Hentet personIdent fra request: {}", ident)
 
         return Response.Builder.like(response)

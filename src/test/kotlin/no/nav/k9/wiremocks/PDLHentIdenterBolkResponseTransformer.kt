@@ -11,7 +11,7 @@ import no.nav.siftilgangskontroll.core.pdl.utils.pdlHentIdenterBolkResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkResult
 import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.IdentInformasjon
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 
 private val identerMap = mapOf(
@@ -63,7 +63,7 @@ class PDLHentIdentBolkResponseTransformer : ResponseTransformerV2 {
 
     override fun transform(response: Response, serveEvent: ServeEvent): Response {
         val requestBody = jacksonObjectMapper().readTree(serveEvent.request.body.decodeToString())
-        val identer: List<String> = requestBody["variables"]["identer"].map { it.asText() }
+        val identer: List<String> = requestBody["variables"]["identer"].values().map { it.asString() }
         logger.info("Hentet identer fra request: {}", identer)
 
         return Response.Builder.like(response)

@@ -33,7 +33,7 @@ updates:
     registries:
       - github-packages
     ignore:
-      # Versjonen følger sif-tilgangskontroll `core`, som er bygd mot graphql-kotlin 8.x
+      # sif-tilgangskontroll `core` er bygd mot graphql-kotlin 8.x. Nye major-versjoner må sjekkes for binærkompatibilitet.
       - dependency-name: "com.expediagroup:graphql-kotlin-*"
         update-types: ["version-update:semver-major"]
     groups:

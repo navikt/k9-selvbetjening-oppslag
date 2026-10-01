@@ -1,7 +1,5 @@
 package no.nav.k9.integrasjon.enhetsregister
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.k9.inngaende.currentCorrelationId
 import no.nav.k9.inngaende.oppslag.Attributt
 import no.nav.k9.integrasjon.common.getStringOrNull
@@ -12,13 +10,15 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.json.JsonMapper
 import java.net.URI
 import java.time.LocalDate
 
 @Service
 internal class EnhetsregisterService(
     private val retryClient: EnhetsregisterRetryClient,
-    private val objectMapper: ObjectMapper,
+    private val jsonMapper: JsonMapper,
     @Value("\${nav.register-urls.enhetsregister-v1}") private val baseUrl: URI,
 ) {
     private companion object {
@@ -43,7 +43,7 @@ internal class EnhetsregisterService(
 
         logger.restKall("${baseUrl.toString().trimEnd('/')}$NØKKELINFO_PATH")
 
-        val json = objectMapper.readTree(retryClient.nøkkelinfo(NØKKELINFO_PATH, organisasjonsnummer, callId))
+        val json = jsonMapper.readTree(retryClient.nøkkelinfo(NØKKELINFO_PATH, organisasjonsnummer, callId))
         check(json.isObject) { "Forventet et objekt fra enhetsregisteret." }
 
         logger.logResponse(json)

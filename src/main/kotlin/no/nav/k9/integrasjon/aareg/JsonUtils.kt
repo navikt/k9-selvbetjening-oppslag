@@ -1,9 +1,9 @@
 package no.nav.k9.integrasjon.aareg
 
 import no.nav.k9.integrasjon.aareg.TypeArbeidssted.Companion.somTypeArbeidssted
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.k9.integrasjon.common.getStringOrNull
 import no.nav.k9.integrasjon.common.påkrevd
+import tools.jackson.databind.JsonNode
 import java.time.LocalDate
 
 internal fun JsonNode.hentOrganisasjonerV2(fraOgMed: LocalDate, tilOgMed: LocalDate, inkluderAlleAnsettelsesperioder: Boolean): List<OrganisasjonArbeidsgivere> {
@@ -74,22 +74,22 @@ private fun JsonNode.hentArbeidsgivereMedAnsettelseperiodeV2(): Sequence<JsonNod
 
 private fun JsonNode.hentStartdatoOgSluttdatoFraAnsettelseperiode(): Pair<String, String?> {
     val ansettelsesperiode = påkrevd("ansettelsesperiode")
-    return Pair(ansettelsesperiode.påkrevd("startdato").asText(), ansettelsesperiode.getStringOrNull("sluttdato"))
+    return Pair(ansettelsesperiode.påkrevd("startdato").asString(), ansettelsesperiode.getStringOrNull("sluttdato"))
 }
 
 private fun JsonNode.hentIdentAvGittTypeFraArbeidssted(type: IdentType) = påkrevd("arbeidssted")
     .påkrevd("identer")
-    .find { it.påkrevd("type").asText() == type.toString() }!!
+    .find { it.påkrevd("type").asString() == type.toString() }!!
     .påkrevd("ident")
-    .asText()
+    .asString()
 
 private fun JsonNode.hentFolkeregistrertIdent() = hentIdentAvGittTypeFraArbeidssted(IdentType.FOLKEREGISTERIDENT)
 private fun JsonNode.hentOrganisasjonsnummer() = hentIdentAvGittTypeFraArbeidssted(IdentType.ORGANISASJONSNUMMER)
 
 private enum class IdentType { FOLKEREGISTERIDENT, ORGANISASJONSNUMMER }
 
-private fun JsonNode.erFrilansaktivitet() = påkrevd("type").påkrevd("kode").asText().equals(ArbeidsforholdType.FRILANS.type)
-private fun JsonNode.arbeidsstedType() = påkrevd("arbeidssted").påkrevd("type").asText()
+private fun JsonNode.erFrilansaktivitet() = påkrevd("type").påkrevd("kode").asString().equals(ArbeidsforholdType.FRILANS.type)
+private fun JsonNode.arbeidsstedType() = påkrevd("arbeidssted").påkrevd("type").asString()
 private fun JsonNode.arbeidstedErPerson() = arbeidsstedType().equals("Person")
 private fun JsonNode.arbeidstedErUnderenhet() = arbeidsstedType().equals("Underenhet")
 
