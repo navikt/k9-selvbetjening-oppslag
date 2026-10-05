@@ -12,9 +12,7 @@ group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 
 val tokenSupportVersion = "6.0.12"
-val sifTilgangskontrollVersion = "5.3.2"
-// sif-tilgangskontroll core 5.3.2 er bygget mot graphql-kotlin 8.8.1, men bruker bare API som er binærkompatibelt med 10.x.
-// 10.x er bygget for Spring 7 og Jackson 3.
+val sifTilgangskontrollVersion = "6.0.0"
 val graphqlKotlinVersion = "10.2.2"
 val logstashLogbackEncoderVersion = "9.0"
 val mockOauth2ServerVersion = "6.0.2"
@@ -26,7 +24,6 @@ val wiremockSpringVersion = "4.2.2"
 // CVE-2026-65182, -65905, -68525 (Tomcat) og CVE-2026-68497, -91776, -91777 (Jackson). Fjernes når Spring Boot har tatt dem inn.
 extra["tomcat.version"] = "11.0.25"
 extra["jackson-bom.version"] = "3.1.7"
-extra["jackson-2-bom.version"] = "2.21.7"
 
 configurations.all {
     resolutionStrategy {
