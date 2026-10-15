@@ -19,7 +19,7 @@ val mockOauth2ServerVersion = "6.0.5"
 val mockkVersion = "1.14.11"
 val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
-val wiremockSpringVersion = "4.4.2"
+val wiremockSpringVersion = "4.4.3"
 
 // CVE-2026-65182, -65905, -68525 (Tomcat) og CVE-2026-68497, -91776, -91777 (Jackson). Fjernes når Spring Boot har tatt dem inn.
 extra["tomcat.version"] = "11.0.25"
