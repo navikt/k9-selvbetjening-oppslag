@@ -11,11 +11,11 @@ plugins {
 group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 
-val tokenSupportVersion = "6.0.13"
+val tokenSupportVersion = "7.0.1"
 val sifTilgangskontrollVersion = "6.0.0"
 val graphqlKotlinVersion = "10.2.2"
 val logstashLogbackEncoderVersion = "9.0"
-val mockOauth2ServerVersion = "6.0.5"
+val mockOauth2ServerVersion = "6.1.3"
 val mockkVersion = "1.14.11"
 val springMockkVersion = "5.0.1"
 val jsonassertVersion = "1.5.3"
