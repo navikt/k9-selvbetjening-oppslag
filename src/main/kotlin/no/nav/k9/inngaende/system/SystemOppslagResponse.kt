@@ -1,9 +1,12 @@
 package no.nav.k9.inngaende.system
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.k9.inngaende.oppslag.ArbeidsgivereResponse
 import no.nav.k9.inngaende.oppslag.Ident
+import no.nav.k9.inngaende.oppslag.OrganisasjonResponse
 import no.nav.k9.inngaende.oppslag.SystemoppslagBarn
 import no.nav.k9.inngaende.oppslag.SystemoppslagPdlBarn
+import no.nav.k9.integrasjon.aareg.Arbeidsgivere
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import no.nav.siftilgangskontroll.pdl.generated.hentbarn.Adressebeskyttelse
 import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkResult
@@ -42,6 +45,25 @@ internal data class SystemPdlBarnResponse(
 )
 
 internal data class IdentResponse(val value: String)
+
+/**
+ * Samme form som arbeidsgivere-delen av /meg, slik at konsumentene kan gjenbruke DTO-ene sine.
+ */
+internal data class SystemArbeidsgivereResponse(
+    val arbeidsgivere: ArbeidsgivereResponse,
+)
+
+internal fun Arbeidsgivere.somSystemResponse() = SystemArbeidsgivereResponse(
+    arbeidsgivere = ArbeidsgivereResponse(
+        organisasjoner = organisasjoner.map {
+            OrganisasjonResponse(
+                organisasjonsnummer = it.organisasjonsnummer,
+                ansattFom = it.ansattFom,
+                ansattTom = it.ansattTom,
+            )
+        }
+    )
+)
 
 internal fun HentIdenterBolkResult.somResponse() = IdenterBolkResponse(
     ident = ident,

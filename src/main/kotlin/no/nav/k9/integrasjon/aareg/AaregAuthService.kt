@@ -13,9 +13,16 @@ class AaregAuthService(
 ) {
     private val tokenxAaregProperties = oauth2Config.registrering(TOKENX_AAREG)
 
+    private val azureAaregProperties = oauth2Config.registrering(AZURE_AAREG)
+
     fun borgerToken(): String = oAuth2AccessTokenService.token(tokenxAaregProperties, TOKENX_AAREG)
+
+    // Kopi av PdlAuthService.systemToken(). Token for appen selv (client_credentials), ikke for en innlogget person.
+    // Brukes bare fra /system-endepunktene, som krever Azure-token med rollen access_as_application.
+    fun systemToken(): String = oAuth2AccessTokenService.token(azureAaregProperties, AZURE_AAREG)
 
     private companion object {
         private const val TOKENX_AAREG = "tokenx-aareg"
+        private const val AZURE_AAREG = "azure-aareg"
     }
 }

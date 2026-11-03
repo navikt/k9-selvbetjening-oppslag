@@ -1,6 +1,8 @@
 package no.nav.k9.inngaende.oppslag
 
 import no.nav.k9.Ytelse
+import no.nav.k9.integrasjon.aareg.AaregService
+import no.nav.k9.integrasjon.aareg.Arbeidsgivere
 import no.nav.k9.integrasjon.pdl.PdlProxyService
 import no.nav.siftilgangskontroll.core.tilgang.BarnResponse
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
@@ -10,8 +12,9 @@ import no.nav.siftilgangskontroll.pdl.generated.hentidenterbolk.HentIdenterBolkR
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
-class SystemOppslagService(
+internal class SystemOppslagService(
     private val pdlProxyService: PdlProxyService,
+    private val aaregService: AaregService,
 ) {
 
     private companion object {
@@ -36,6 +39,27 @@ class SystemOppslagService(
                 aktørId = aktørId?.let { Ident(it.value) }
             )
         }
+    }
+
+    fun hentArbeidsgivere(
+        ident: Ident,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        inkluderAlleAnsettelsesperioder: Boolean,
+    ): Arbeidsgivere {
+        logger.info("Henter arbeidsgivere med systemkall.")
+        return aaregService.arbeidsgivere(
+            ident = ident,
+            fraOgMed = fraOgMed,
+            tilOgMed = tilOgMed,
+            inkluderAlleAnsettelsesperioder = inkluderAlleAnsettelsesperioder,
+            attributter = setOf(
+                Attributt.arbeidsgivereOrganisasjonerOrganisasjonsnummer,
+                Attributt.arbeidsgivereOrganisasjonerAnsettelsesperiode,
+            ),
+            system = true,
+        ) // Null betyr at ingen støttede attributter ble etterspurt. Feil fra aareg kastes videre og gir 500.
+            ?: error("Fikk ikke arbeidsgivere fra aareg.")
     }
 
     fun Person.tilPdlBarn(): SystemoppslagPdlBarn {
