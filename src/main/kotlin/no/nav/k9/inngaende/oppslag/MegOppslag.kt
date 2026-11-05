@@ -20,7 +20,8 @@ internal class MegOppslag(
 
         val aktørId = pdlProxyService.aktørId(
             ident = ident,
-            attributter = attributter
+            attributter = attributter,
+            ytelse = ytelse
         )
 
         return Meg(

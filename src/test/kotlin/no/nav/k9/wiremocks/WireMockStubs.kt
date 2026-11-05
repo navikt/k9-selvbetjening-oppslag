@@ -27,13 +27,7 @@ internal fun WireMockServer.stubPDLRequest(pdlOperasjon: PdlOperasjon): WireMock
         .withHeader(NavHeaders.Tema, EqualToPattern("OMS"))
         .withRequestBody(matchingJsonPath("$.query", containing(pdlOperasjon.navn)))
 
-    when (pdlOperasjon) {
-        PdlOperasjon.HENT_PERSON_BOLK, PdlOperasjon.HENT_PERSON -> {
-            requestBuilder.withHeader(NavHeaders.Behandlingsnummer, WireMock.matching(behandlingsnummer))
-        }
-
-        else -> {}
-    }
+    requestBuilder.withHeader(NavHeaders.Behandlingsnummer, WireMock.matching(behandlingsnummer))
 
     stubFor(
         requestBuilder

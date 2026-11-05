@@ -23,7 +23,8 @@ internal class BarnOppslag(
                     val pdlBarn = barn.tilPdlBarn()
                     val aktørId = pdlProxyService.aktørId(
                         ident = Ident(pdlBarn.ident.value),
-                        attributter = attributter
+                        attributter = attributter,
+                        ytelse = ytelse
                     )
                     Barn(
                         pdlBarn = pdlBarn,

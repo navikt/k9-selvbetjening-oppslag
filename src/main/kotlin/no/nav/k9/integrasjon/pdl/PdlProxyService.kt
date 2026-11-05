@@ -87,6 +87,7 @@ class PdlProxyService(
     internal fun hentIdenter(
         identer: List<String>,
         identGrupper: List<IdentGruppe>,
+        ytelse: Ytelse,
     ): List<HentIdenterBolkResult> {
 
         val callId = currentCorrelationId().value
@@ -96,7 +97,8 @@ class PdlProxyService(
             identer = identer,
             identGrupper = identGrupper,
             systemToken = systemToken,
-            callId = callId
+            callId = callId,
+            behandling = ytelse.somBehandling()
         )
         return identerBolkResults
     }
@@ -121,6 +123,7 @@ class PdlProxyService(
     internal fun aktørId(
         ident: Ident,
         attributter: Set<Attributt>,
+        ytelse: Ytelse,
         system: Boolean = false,
     ): AktørId? {
 
@@ -135,7 +138,8 @@ class PdlProxyService(
             ident = ident.value,
             identGruppe = IdentGruppe.AKTORID,
             borgerToken = token,
-            callId = callId
+            callId = callId,
+            behandling = ytelse.somBehandling()
         )
 
         return when {
