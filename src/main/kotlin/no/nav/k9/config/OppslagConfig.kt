@@ -27,6 +27,8 @@ internal class OppslagConfig {
     )
 
     @Bean("systemOppslagService")
-    internal fun systemOppslagService(pdlProxyService: PdlProxyService) =
-        SystemOppslagService(pdlProxyService = pdlProxyService)
+    internal fun systemOppslagService(
+        pdlProxyService: PdlProxyService,
+        aaregService: AaregService,
+    ) = SystemOppslagService(pdlProxyService = pdlProxyService, aaregService = aaregService)
 }

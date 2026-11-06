@@ -43,6 +43,13 @@ no.nav.security.jwt:
           client-id: k9-selvbetjening-oppslag
           client-jwk: src/test/resources/private_jwk.json
 
+      azure-aareg:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/azure/token
+        scope: dev-fss.arbeidsforhold.aareg-services-nais/.default
+        authentication:
+          client-id: k9-selvbetjening-oppslag
+          client-jwk: src/test/resources/private_jwk.json
+
 wiremock:
   reset-mappings-after-each-test: true
   server:

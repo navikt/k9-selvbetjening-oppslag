@@ -16,6 +16,7 @@
   "env": {
     "ARBEIDSGIVER_OG_ARBEIDSTAKER_V2_URL": "https://aareg-services.prod-fss-pub.nais.io/api/v2",
     "AAREG_TOKENX_AUDIENCE": "prod-fss:arbeidsforhold:aareg-services-nais",
+    "AAREG_AZURE_AUDIENCE": "api://prod-fss.arbeidsforhold.aareg-services-nais/.default",
     "ENHET_V1_URL": "https://ereg-services.prod-fss-pub.nais.io/api/v1/",
     "PDL_URL": "https://pdl-api.prod-fss-pub.nais.io/graphql",
     "PDL_API_TOKENX_AUDIENCE": "prod-fss:pdl:pdl-api",

@@ -42,11 +42,16 @@ internal class AaregService(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         inkluderAlleAnsettelsesperioder: Boolean,
-        attributter: Set<Attributt>
+        attributter: Set<Attributt>,
+        system: Boolean = false,
     ): Arbeidsgivere? {
         if (!attributter.any { it in støttedeAttributter }) return null
 
-        val exchangeToken = aaregAuthService.borgerToken()
+        // system = true bare fra /system-endepunktene. Borgerflyten (/meg) bruker fortsatt TokenX.
+        val exchangeToken = when (system) {
+            true -> aaregAuthService.systemToken()
+            false -> aaregAuthService.borgerToken()
+        }
         val callId = currentCorrelationId().value
 
         logger.restKall("$baseUrl$ARBEIDSFORHOLD_PATH")
