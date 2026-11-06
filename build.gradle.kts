@@ -12,7 +12,7 @@ group = "no.nav"
 version = "0.0.1-SNAPSHOT"
 
 val tokenSupportVersion = "6.0.13"
-val sifTilgangskontrollVersion = "6.0.0"
+val sifTilgangskontrollVersion = "6.1.1"
 val graphqlKotlinVersion = "10.2.2"
 val logstashLogbackEncoderVersion = "9.0"
 val mockOauth2ServerVersion = "6.0.5"
