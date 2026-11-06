@@ -2,6 +2,7 @@ package no.nav.k9
 
 import no.nav.k9.BarnFødselsnummer.BARN_TIL_PERSON_1
 import no.nav.k9.PersonFødselsnummer.PERSON_1_MED_BARN
+import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.k9.integrasjon.common.NavHeaders
 import no.nav.siftilgangskontroll.pdl.generated.enums.IdentGruppe
 import org.junit.jupiter.api.Test
@@ -64,6 +65,8 @@ class SystemOppslagTest : ApplicationTestBase() {
               }
             ]
         """.trimIndent()
+        wireMockServer.resetRequests()
+
         client.post().uri("/system/hent-identer")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $azureToken")
             .header(X_CORRELATION_ID, "systemoppslag-hent-identer")
@@ -81,6 +84,46 @@ class SystemOppslagTest : ApplicationTestBase() {
             .exchange()
             .expectStatus().isEqualTo(HttpStatus.OK)
             .expectBody().json(expectedResponse, JsonCompareMode.STRICT)
+
+        verifiserHentIdenterBolkKall(behandlingsnummer = "B249")
+    }
+
+    @Test
+    fun `systemoppslag med X-K9-Ytelse sender behandlingsnummeret til ytelsen`() {
+        val azureToken = mockOAuth2Server.issueToken(
+            issuerId = "azure",
+            subject = UUID.randomUUID().toString(),
+            audience = "dev-fss:dusseldorf:k9-selvbetjening-oppslag",
+            claims = mapOf("roles" to "access_as_application")
+        ).serialize()
+        wireMockServer.resetRequests()
+
+        client.post().uri("/system/hent-identer")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $azureToken")
+            .header(X_CORRELATION_ID, "systemoppslag-hent-identer-ppn")
+            .header(NavHeaders.XK9Ytelse, "${Ytelse.PLEIEPENGER_LIVETS_SLUTTFASE}")
+            .header(HttpHeaders.ACCEPT, "application/json")
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            //language=json
+            .body(
+                """
+                {
+                    "identer": ["$PERSON_1_MED_BARN"],
+                    "identGrupper": ["${IdentGruppe.FOLKEREGISTERIDENT}"]
+                }
+            """.trimIndent()
+            )
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.OK)
+
+        verifiserHentIdenterBolkKall(behandlingsnummer = "B566")
+    }
+
+    private fun verifiserHentIdenterBolkKall(behandlingsnummer: String) {
+        val hentIdenterBolk = WireMock.postRequestedFor(WireMock.anyUrl())
+            .withRequestBody(WireMock.matchingJsonPath("\$.query", WireMock.containing("hentIdenterBolk")))
+        wireMockServer.verify(1, hentIdenterBolk)
+        wireMockServer.verify(1, hentIdenterBolk.withHeader(NavHeaders.Behandlingsnummer, WireMock.equalTo(behandlingsnummer)))
     }
 
     @Test
